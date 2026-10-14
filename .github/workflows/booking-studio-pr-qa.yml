@@ -1,0 +1,35 @@
+name: Booking Studio Portal PR QA
+on:
+  pull_request:
+    paths:
+      - 'overrides/booking-studio.html'
+      - 'overrides/assets/booking-studio.js'
+      - 'overrides/assets/booking-studio-preview.mjs'
+      - 'scripts/build-command-center.mjs'
+      - 'scripts/qa-command-center.mjs'
+      - '.github/workflows/booking-studio-pr-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: thelaunchera/the-launch-era-new-website-
+          ref: 40efa83acf5c4f28f0df2aef5cd3c8d88c7de651
+          path: upstream
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate JS syntax
+        run: |
+          node --check overrides/assets/booking-studio.js
+          node --check overrides/assets/booking-studio-preview.mjs
+      - name: Build isolated portal without publishing
+        run: node scripts/build-command-center.mjs
+      - name: Verify isolated portal and Booking Studio
+        run: node scripts/qa-command-center.mjs
