@@ -262,7 +262,7 @@ $("view-followup-history").onclick=async()=>{
   const data=await testCall({action:"followup_list"});
   const items=(data.followups||[]).filter(x=>x.synthetic_only===true&&x.customer_notified===false);
   $("followup-history").hidden=false;
-  $("followup-history").textContent=items.length?items.length+" saved review draft(s). Nothing sent.\\n"+items.map(x=>x.stage+" · "+x.language.toUpperCase()+" · "+x.status+" · "+new Date(x.created_at).toLocaleDateString()).join("\\n"):"No saved review drafts yet.";
+  $("followup-history").textContent=items.length?items.length+" saved review draft(s). Nothing sent.\n"+items.map(x=>x.stage+" · "+x.language.toUpperCase()+" · "+x.status+" · "+new Date(x.created_at).toLocaleDateString()).join("\n"):"No saved review drafts yet.";
  }catch(e){$("followup-history").hidden=false;$("followup-history").textContent=e.message}finally{button.disabled=false}
 };
 function createFollowupPreview(item,stage,lang){
