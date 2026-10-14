@@ -26,6 +26,7 @@ const browser=await chromium.launch({headless:true});
 const fulfill=(route,body,status=200)=>route.fulfill({status,contentType:"application/json",headers:{"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization,apikey,content-type","Access-Control-Allow-Methods":"POST,OPTIONS"},body:JSON.stringify(body)});
 try{
  for(const width of [390,768,1440]){
+  records.clear();
   const page=await browser.newPage({viewport:{width,height:900}});
   page.on("dialog",dialog=>dialog.accept());
   await page.route("**/vendor/supabase-js-v2.57.0.umd.js",route=>route.fulfill({status:200,contentType:"text/javascript",body:'window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:{access_token:"synthetic-browser-qa-token"}}}),onAuthStateChange:()=>({})}})};'}));
