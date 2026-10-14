@@ -141,6 +141,8 @@ $("request-changes").onclick=()=>{
  if(!notes){showMessage("Write the changes you need before sending the project back.",true);return}
  submit("review",{decision:"request_changes",notes});
 };
+for(const button of document.querySelectorAll("[data-preview-device]"))button.addEventListener("click",()=>{const device=button.dataset.previewDevice;$("preview-frame").dataset.device=device;for(const b of document.querySelectorAll("[data-preview-device]"))b.setAttribute("aria-pressed",String(b===button));});
+$("preview-frame").dataset.device="desktop";
 $("preview-button").onclick=()=>{
  try{
   const job=state.selected,account=state.account;
