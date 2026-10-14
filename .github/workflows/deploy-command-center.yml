@@ -40,6 +40,12 @@ jobs:
       - name: Verify private routes, assets and separate domain
         run: node scripts/qa-command-center.mjs
 
+      - name: Verify compact Jessy alert on phone, tablet and desktop
+        run: |
+          npm install --no-save --package-lock=false playwright@1.58.2
+          npx playwright install --with-deps chromium
+          node scripts/qa-jessy-compact-browser.mjs
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 

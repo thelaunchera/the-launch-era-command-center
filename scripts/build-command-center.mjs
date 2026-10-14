@@ -53,6 +53,13 @@ await rewrite("assets/command-center-notification-settings.js",s=>
   .replace('note(t("Could not save your preferences. Please try again.","No se pudieron guardar las preferencias. Inténtalo otra vez."));console.warn("Alert preferences",e.message)',
    'note(t("Could not save preferences: ","No se pudieron guardar las preferencias: ")+String(e?.message||"Connection error").slice(0,180));console.warn("Alert preferences",e.message)'));
 await rewrite("index.html",s=>s.replace('href="/booking-bundle/','href="https://thelaunchera.com/booking-bundle/'));
+
+// Compact owner-only Jessy alert; preserve pinned source and all private routing.
+await copyFile(resolve("overrides/jessy-owner.js"),join(dest,"assets/jessy-owner.js"));
+await copyFile(resolve("overrides/jessy-owner.css"),join(dest,"assets/jessy-owner.css"));
+for(const relative of ["index.html","assets/jessy-owner-standalone.mjs"])
+ await rewrite(relative,s=>s.replaceAll("jessy-owner.js?v=20261014-unified-team-v1","jessy-owner.js?v=20261014-compact-alert-v1"));
+
 await writeFile(join(dest,"CNAME"),DOMAIN+"\n","utf8");
 await writeFile(join(dest,".nojekyll"),"","utf8");
 await writeFile(join(dest,"robots.txt"),"User-agent: *\nDisallow: /\n","utf8");

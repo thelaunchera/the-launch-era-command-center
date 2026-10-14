@@ -1,0 +1,99 @@
+/* Jessy · Owner Command Center. Never covers private buyer views. */
+.jo-root{--blue:#dcefff;--ink:#191919;position:relative;z-index:13010;font-family:Prompt,"Avenir Next",Arial,sans-serif;color:var(--ink)}
+.jo-root *{box-sizing:border-box}
+.jo-root [hidden]{display:none!important}
+.jo-fab{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(90px,calc(env(safe-area-inset-bottom) + 72px));display:flex;align-items:center;gap:8px;border:2px solid #9ac8e4;padding:5px 15px 5px 5px;background:#e5f4ff;border-radius:999px;box-shadow:0 8px 26px #123b5933;min-height:58px;cursor:pointer;color:#191919;font:700 13px Prompt,Arial,sans-serif;z-index:13012}
+.jo-face{width:46px;height:46px;flex:0 0 46px;border-radius:50%;object-fit:cover;object-position:center;background:#cde8fc;border:2px solid #fff}
+.jo-panel{position:fixed;right:22px;bottom:26px;width:min(395px,calc(100vw - 28px));height:min(630px,calc(100dvh - 55px));display:flex;flex-direction:column;border:1px solid #b8d6e9;border-radius:22px;background:#fff;overflow:hidden;box-shadow:0 16px 65px #10395845;z-index:13013}
+.jo-head{background:linear-gradient(120deg,#cdeafa,#edf7ff);display:flex;align-items:center;gap:10px;padding:13px;border-bottom:1px solid #b9d8eb}
+.jo-heading{flex:1;min-width:0}
+.jo-heading strong{display:block;font-size:17px}.jo-heading small{display:block;font-size:11px;color:#34566b;margin-top:3px;line-height:1.35}
+.jo-close{background:#fff;border:1px solid #b0c8d7;color:#191919;border-radius:50%;min-width:34px;min-height:34px;font-size:22px;cursor:pointer}
+.jo-log{flex:1;min-height:0;overflow:auto;padding:16px 13px;background:#fbfdff}
+.jo-bubble{font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;border-radius:16px;padding:11px 13px;margin-bottom:10px;max-width:91%}
+.jo-bubble.bot{background:#e7f3ff;color:#18394d;border-bottom-left-radius:5px;margin-right:auto}
+.jo-bubble.user{background:#191919;color:#fff;border-bottom-right-radius:5px;margin-left:auto}
+.jo-next{display:block;padding:10px 13px;margin:2px 0 14px;background:#f2d85b;color:#191919;border:1px solid #ddc35c;border-radius:13px;min-height:42px;font-size:12px;font-weight:800;cursor:pointer;text-align:left}
+.jo-footer{flex-shrink:0;border-top:1px solid #dfe9ef;background:#fff;padding:11px 12px max(12px,env(safe-area-inset-bottom))}
+.jo-quick-list{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.jo-quick{border-radius:999px;border:1px solid #bad6e8;background:#f3f9ff;color:#1f4a64;font-size:11px;min-height:32px;padding:7px 9px;cursor:pointer}
+.jo-form{display:flex;align-items:flex-end;gap:7px}
+.jo-input{font:14px/1.45 Prompt,Arial,sans-serif;resize:vertical;min-height:44px;max-height:110px;flex:1;min-width:0;border-radius:12px;border:1px solid #b8d1e1;padding:11px;background:#fff;color:#191919}
+.jo-send{border:0;border-radius:11px;background:#191919;color:#fff;padding:10px 13px;min-height:44px;font-size:12px;font-weight:750;cursor:pointer}
+.jo-send:disabled{opacity:.55}
+.jo-note{font-size:10px;color:#637b89;margin:8px 3px 0;line-height:1.4}
+.jo-root button:focus-visible,.jo-root textarea:focus-visible{outline:3px solid #298ac0;outline-offset:3px}
+@media(max-width:600px){.jo-fab{bottom:max(85px,calc(env(safe-area-inset-bottom) + 68px));right:12px}.jo-panel{width:calc(100vw - 12px);right:6px;bottom:6px;height:min(600px,calc(100dvh - 20px));border-radius:19px}.jo-input{font-size:16px}.jo-quick{font-size:11px}.jo-head{padding:11px}}
+@media(prefers-reduced-motion:reduce){.jo-root *{animation:none!important;transition:none!important}}
+
+/* Editable Jessy drafts: review-only stage, never an automatic send. */
+.jo-draft-panel{border:1px solid #b6d7ec;background:#f1f9ff;padding:13px;border-radius:16px;margin:8px 0 14px;display:grid;gap:10px}
+.jo-draft-title{font-size:14px;color:#191919;line-height:1.4}
+.jo-draft-status,.jo-draft-disclaimer,.jo-draft-recipient{font-size:12px;line-height:1.5;color:#31546a;margin:0;overflow-wrap:anywhere}
+.jo-draft-label{display:grid;gap:6px;font-size:12px;font-weight:700;color:#253b4c}
+.jo-draft-select,.jo-draft-input,.jo-draft-textarea{width:100%;min-height:42px;padding:10px;border:1px solid #9dc7df;background:white;color:#191919;border-radius:11px;font:13px/1.45 Prompt,Arial,sans-serif}
+.jo-draft-textarea{min-height:150px;resize:vertical;white-space:pre-wrap}
+.jo-draft-actions{display:flex;flex-wrap:wrap;gap:9px}
+.jo-draft-approve,.jo-draft-cancel{min-height:42px;border-radius:11px;padding:10px 12px;font-size:12px;font-weight:800;cursor:pointer}
+.jo-draft-approve{flex:1;background:#f2d85b;color:#191919;border:1px solid #d8be57}
+.jo-draft-cancel{background:white;color:#284b61;border:1px solid #9dc7df}
+.jo-draft-approve:disabled,.jo-draft-panel button:disabled{opacity:.5;cursor:wait}
+@media(max-width:600px){.jo-draft-panel{padding:12px}.jo-draft-textarea{min-height:175px;font-size:16px}.jo-draft-select,.jo-draft-input{font-size:16px}}
+
+/* Jessy owner-only notification nudge; no content of private alerts is exposed. */
+.jo-notification-nudge{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(155px,calc(env(safe-area-inset-bottom) + 138px));width:max-content;max-width:min(250px,calc(100vw - 28px));min-height:44px;border:1px solid #a1cbe4;background:#e4f4ff;color:#192f40;box-shadow:0 10px 38px #142f4930;border-radius:14px;padding:10px 12px;text-align:left;white-space:normal;overflow-wrap:break-word;font:700 12px/1.35 Prompt,Arial,sans-serif;cursor:pointer;z-index:13011}
+.jo-notification-nudge[hidden]{display:none!important}
+.jo-notification-nudge:focus-visible{outline:3px solid #2385bc;outline-offset:3px}
+@media(max-width:600px){.jo-notification-nudge{right:12px;bottom:max(149px,calc(env(safe-area-inset-bottom) + 129px))}}
+
+/* Private WhatsApp alert preference card. Setup is deliberately disabled until provider verification. */
+.jo-wa-settings{display:grid;gap:12px;border:1px solid #b9d9ec;background:#f3faff;border-radius:17px;margin:9px 0 15px;padding:14px}
+.jo-wa-form{display:grid;gap:11px}
+.jo-wa-option,.jo-wa-consent{display:flex;align-items:flex-start;gap:9px;font-size:12px;line-height:1.45;color:#214058}
+.jo-wa-option input,.jo-wa-consent input{width:18px;height:18px;margin:1px 0 0;flex:0 0 18px;accent-color:#288cc1;cursor:pointer}
+.jo-wa-consent{padding:10px 0 0;border-top:1px solid #c4dce9}
+.jo-wa-status{font-size:12px;line-height:1.5;color:#34596b;margin:1px 0 2px;overflow-wrap:anywhere}
+@media(max-width:600px){.jo-wa-settings{padding:12px}.jo-wa-option,.jo-wa-consent{font-size:13px}}
+
+/* Keep the same owner-only assistant above every CRM view, even isolated sections. */
+body.crm-owner-view #tleOwnerJessy{position:fixed;right:0;bottom:0;width:0;height:0;z-index:13010;pointer-events:none}
+body.crm-owner-view #tleOwnerJessy .jo-fab,
+body.crm-owner-view #tleOwnerJessy .jo-panel,
+body.crm-owner-view #tleOwnerJessy .jo-notification-nudge{pointer-events:auto}
+body.crm-owner-view #tleOwnerJessy .jo-heading small{max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:600px){body.crm-owner-view #tleOwnerJessy .jo-heading small{max-width:170px}}
+
+
+/* Compact Jessy over narrow Command Center views, never cover page cards or language controls. */
+@media (max-width:760px){
+  body.crm-owner-view #tleOwnerJessy .jo-fab{
+    width:54px!important;height:54px!important;min-width:54px!important;min-height:54px!important;
+    max-width:54px!important;padding:4px!important;gap:0!important;
+    display:flex!important;align-items:center;justify-content:center;
+    right:max(12px,env(safe-area-inset-right))!important;
+    bottom:max(18px,calc(env(safe-area-inset-bottom) + 13px))!important;
+    border-radius:50%!important;overflow:hidden;
+  }
+  body.crm-owner-view #tleOwnerJessy .jo-fab > span{display:none!important}
+  body.crm-owner-view #tleOwnerJessy .jo-face{
+    width:42px!important;height:42px!important;min-width:42px!important;flex:0 0 42px!important;
+  }
+  body.crm-owner-view #tleOwnerJessy .jo-panel{
+    width:min(400px,calc(100dvw - 12px))!important;max-width:calc(100dvw - 12px)!important;
+    right:6px!important;bottom:max(6px,env(safe-area-inset-bottom))!important;
+    height:min(620px,calc(100dvh - 22px))!important;
+  }
+  body.crm-owner-view #tleOwnerJessy .jo-notification-nudge{
+    width:max-content!important;max-width:min(250px,calc(100dvw - 24px))!important;
+    right:max(12px,env(safe-area-inset-right));
+    bottom:max(80px,calc(env(safe-area-inset-bottom) + 76px));
+  }
+}
+
+/* Jessy project-readiness checklist: scannable on mobile without client data leaking into public UI. */
+.jo-readiness{display:grid;gap:10px;margin:10px 0;min-width:0}
+.jo-readiness-item{display:grid;gap:6px;background:#FAF8F3;border:1px solid #c9dfed;border-radius:14px;padding:12px;min-width:0;overflow-wrap:anywhere;font-size:12px}
+.jo-readiness-item strong{font-size:13px;color:#191919}.jo-readiness-item small{color:#536c7b;font-size:11px}
+.jo-readiness-item p{margin:3px 0;color:#455967;line-height:1.5}
+.jo-readiness-missing{padding-left:19px;margin:4px 0;line-height:1.55;color:#263f4d}
+.jo-readiness-item .jo-next{font-size:11px;white-space:normal;max-width:100%;text-align:left}
