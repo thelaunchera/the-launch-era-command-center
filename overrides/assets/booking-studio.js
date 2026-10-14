@@ -150,6 +150,32 @@ $("preview-button").onclick=()=>{
   $("preview-wrap").scrollIntoView({behavior:"smooth",block:"start"});
  }catch(e){showMessage("Private preview unavailable: "+errText(e),true)}
 };
+const emailReview={approved:new Map(),current:null};
+function customerEmailDraft(){
+ const job=state.selected,account=state.account;
+ if(!job||!account)throw Error("Choose a verified client project first.");
+ const stage=$("email-stage").value,lang=$("email-language").value;
+ const business=String(account.business_name||"your cleaning team").slice(0,100);
+ const templates={
+ en:{received:["We received your cleaning request","Thanks for reaching out to "+business+"! We have your request and will review the details before confirming availability or pricing."],followup:["Just checking in","Hi! We wanted to check whether you still need help with your cleaning request. No pressure — reply whenever you're ready."],quote:["Your cleaning quote is being reviewed","Thanks for your patience. We're reviewing the details of your cleaning request and will share the next steps once everything is confirmed."]},
+ es:{received:["Recibimos tu solicitud de limpieza","¡Gracias por escribir a "+business+"! Recibimos tu solicitud y revisaremos los detalles antes de confirmar disponibilidad o precio."],followup:["Seguimos pendientes de tu solicitud","¡Hola! Queríamos saber si todavía necesitas ayuda con tu limpieza. Sin compromiso, responde cuando quieras."],quote:["Estamos revisando tu cotización","Gracias por tu paciencia. Estamos revisando los detalles de tu solicitud y te compartiremos los siguientes pasos cuando todo esté confirmado."]}
+ };
+ const [subject,body]=templates[lang][stage];
+ return {jobId:String(job.id),stage,lang,subject,body};
+}
+function emailKey(d){return [d.jobId,d.stage,d.lang,d.subject,d.body].join("|")}
+$("email-preview").onclick=()=>{
+ try{const d=customerEmailDraft();emailReview.current=d;$("email-result").textContent="DRAFT PREVIEW — NOT SENT\\nSubject: "+d.subject+"\\n\\n"+d.body+"\\n\\nNo email or automation was activated.";}
+ catch(e){$("email-result").textContent=e.message}
+};
+$("email-approve").onclick=()=>{
+ try{const d=customerEmailDraft();if(!window.confirm("Approve this email COPY for private review only? No messages will be sent."))return;emailReview.approved.set(emailKey(d),true);$("email-result").textContent="✓ Draft copy approved in this browser session only. No email sent, no automation enabled. Production approval persistence is not configured yet.";}
+ catch(e){$("email-result").textContent=e.message}
+};
+$("email-revise").onclick=()=>{
+ try{const d=customerEmailDraft();emailReview.approved.delete(emailKey(d));$("email-result").textContent="Revision requested. The draft is not approved. No message sent. Edit the copy during the next production review.";}
+ catch(e){$("email-result").textContent=e.message}
+};
 $("refresh").onclick=()=>refresh().catch(e=>showMessage(errText(e),true));
 async function boot(){
  try{
