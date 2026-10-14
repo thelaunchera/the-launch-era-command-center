@@ -34,6 +34,9 @@ assert.ok(practiceJs.includes("synthetic-bright-rooms")&&practiceJs.includes("SI
 assert.ok(practice.includes('id="booking-flow"')&&practice.includes('id="test-booking"'),"Practice must expose a functional synthetic booking form");
 assert.ok(practiceJs.includes("calculateFlow(input)")&&practiceJs.includes("LOCAL TEST PASSED"),"Practice booking estimate and confirmation flow missing");
 assert.ok(practiceJs.includes("No appointment, email, payment or record was created."),"Practice must explicitly avoid real side effects");
+assert.ok(practice.includes('id="followup-panel"')&&practice.includes('id="followup-language"'),"Practice must expose unsent bilingual follow-up preview");
+assert.ok(practiceJs.includes('createFollowupPreview(item,stage,lang)')&&practiceJs.includes('No email, notification or scheduled follow-up was created.'),"Follow-up previews must not send or schedule messages");
+assert.ok(practiceJs.includes('item.synthetic_only!==true||item.confirmed!==false||item.customer_notified!==false'),"Follow-up selection must verify Testing-only records");
 assert.ok(!/fetch\([^)]*method:"(?:PATCH|PUT|DELETE)"/.test(practiceJs),"Practice cannot mutate customer records");
 assert.ok(!practiceJs.includes("localStorage.setItem"),"Practice cannot persist sensitive state");
 const testPage=read("booking-studio-qa.html");
