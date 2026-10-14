@@ -63,6 +63,10 @@ assert.ok(studio.includes("noindex,nofollow,noarchive"),"Booking Studio must not
 assert.ok(studio.includes('sandbox=""'),"Preview iframe must disable scripts");
 assert.ok(studioJs.includes("db.auth.getSession"),"Booking Studio owner session required");
 assert.ok(studioJs.includes("tle-booking-studio-owner"),"Owner API must be used");
+assert.ok(studio.includes('id="client-review-panel"')&&studio.includes('id="client-preview-gate"'),"Owner studio needs customer-review release gates");
+assert.ok(studioJs.includes('tle-client-review')&&studioJs.includes('action:"owner_get"'),"Buyer review status must reuse existing authenticated backend");
+assert.ok(studio.includes('id="client-delivery-gate" disabled'),"Final delivery must remain disabled until separate release safety is validated");
+
 
 assert.ok(practice.includes('id="handoff-design"'),"Practice needs private design handoff button");
 assert.ok(practiceJs.includes('tle-booking-studio-design-handoff')&&practiceJs.includes('action:"transfer"'),"Transfer must use protected backend");
