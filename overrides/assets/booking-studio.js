@@ -7,6 +7,7 @@ const endpoint=SUPA+"/functions/v1/tle-booking-studio-owner";
 const emailEndpoint=SUPA+"/functions/v1/tle-booking-studio-email-review";
 const clientReviewEndpoint=SUPA+"/functions/v1/tle-client-review";
 const clientInviteEndpoint=SUPA+"/functions/v1/tle-booking-studio-review-invite";
+const domainEndpoint=SUPA+"/functions/v1/tle-booking-studio-domain-request";
 const db=window.supabase?.createClient?.(SUPA,PUBLISHABLE,{auth:{storageKey:"tle-crm-auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const qaIds=["tenant_isolation","payment_verified","intake_verified","assets_licensed","brand_accuracy","no_invented_claims","services_and_prices","booking_and_quote","frequency_and_addons","service_area","email_permissions","links","mobile","tablet","desktop","accessibility","en_es","customer_data_protected"];
 let state={jobs:[],accounts:[],selected:null,account:null};
@@ -46,7 +47,7 @@ async function start(id){
  try{const r=await api({action:"start",account_id:id,owner_start_approved:true});await refresh();await openJob(r.job.id);showMessage("Project started. Research evidence is required next.")}catch(e){showMessage(errText(e),true)}
 }
 async function openJob(id){
- try{const r=await api({action:"get",job_id:id});state.selected=r.job;state.account=r.account;paintProject();await Promise.all([loadEmailReview(),loadClientReview()])}catch(e){showMessage(errText(e),true)}
+ try{const r=await api({action:"get",job_id:id});state.selected=r.job;state.account=r.account;paintProject();await Promise.all([loadEmailReview(),loadClientReview(),loadDomain()])}catch(e){showMessage(errText(e),true)}
 }
 function paintProject(){
  const j=state.selected;if(!j)return;
@@ -350,6 +351,39 @@ $("client-preview-gate").onclick=async()=>{
 };
 
 $("client-delivery-gate").onclick=()=>{};
+
+
+function domainMode(){
+ const custom=$("domain-mode").value==="custom_domain";
+ $("domain-slug-label").hidden=custom;$("domain-host-label").hidden=!custom;
+}
+$("domain-mode").onchange=domainMode;
+async function loadDomain(){
+ $("domain-save").disabled=true;const job=state.selected;
+ if(!job){setText("domain-status","Choose a paid Booking Studio project first.");return}
+ try{
+  const d=await api({action:"get",job_id:job.id},domainEndpoint);
+  const domain=d.domain;
+  if(!domain){$("domain-save").disabled=false;setText("domain-status","Not configured yet. Choose either included booking link or customer's own domain. Nothing will be published.");return}
+  $("domain-mode").value=domain.mode;domainMode();
+  $("domain-slug").value=domain.requested_slug||"";$("domain-host").value=domain.requested_host||"";
+  setText("domain-status",domain.verification_status==="verified"?"Verified live address: "+domain.live_url:"Saved privately: "+(domain.requested_host||domain.requested_slug)+" · "+domain.verification_status.replaceAll("_"," ")+". Hosting and HTTPS must be verified before an actual link exists.");
+ }catch(e){setText("domain-status","Cannot read domain setup: "+errText(e))}
+}
+$("domain-refresh").onclick=loadDomain;
+$("domain-save").onclick=async()=>{
+ const job=state.selected;
+ if(!job){setText("domain-status","Choose a paid project first.");return}
+ const mode=$("domain-mode").value,slug=$("domain-slug").value.trim(),host=$("domain-host").value.trim();
+ if(!window.confirm("Save this domain preference for this client? This is a private request only. No DNS or live Booking Page is created."))return;
+ $("domain-save").disabled=true;
+ try{
+  await api({action:"configure",job_id:job.id,mode,slug,host},domainEndpoint);
+  setText("domain-status","✓ Domain preference saved. Not live yet; hosting, DNS, HTTPS and isolation still need verification.");
+  await loadDomain();
+ }catch(e){setText("domain-status","Not saved: "+errText(e))}
+};
+domainMode();
 
 async function boot(){
  try{
