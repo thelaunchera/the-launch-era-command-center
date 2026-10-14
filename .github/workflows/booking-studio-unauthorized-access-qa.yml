@@ -1,0 +1,35 @@
+name: Booking Studio Unauthorized Access QA
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/booking-studio-unauthorized-access-qa.yml
+
+permissions:
+  contents: read
+
+jobs:
+  reject-unauthorized:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Reject anonymous and invalid-token requests without changing data
+        shell: bash
+        run: |
+          set -euo pipefail
+          API="https://afyiltvdfqnuyzcqsnoh.supabase.co/functions/v1/tle-booking-studio-staging-qa"
+          check_denied() {
+            local label="$1"
+            shift
+            local status
+            status=$(curl --silent --show-error --max-time 20 -o /tmp/booking-studio-denied-response -w '%{http_code}' "$@" "$API")
+            echo "$label: HTTP $status"
+            if [[ "$status" != "401" && "$status" != "403" ]]; then
+              echo "::error::$label unexpectedly returned HTTP $status"
+              exit 1
+            fi
+          }
+          check_denied "Anonymous list" -X POST -H 'Content-Type: application/json' --data '{"action":"list"}'
+          check_denied "Invalid bearer list" -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer invalid-not-a-jwt' --data '{"action":"list"}'
+          check_denied "Anonymous synthetic submit" -X POST -H 'Content-Type: application/json' --data '{"action":"submit","service_name":"Synthetic QA","service_area":"Miami","frequency":"one_time","addons":[],"consent_to_contact":true}'
+          echo 'PASS: unauthenticated and invalid-token requests denied; no authorized writes performed.'
