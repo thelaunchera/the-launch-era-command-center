@@ -27,6 +27,8 @@ const practice=read("booking-studio-practice.html"),practiceJs=read("assets/book
 assert.ok(studio.includes("./booking-studio-practice.html"),"Owner Studio must link to Practice Studio");
 assert.ok(practice.includes("noindex,nofollow,noarchive"),"Practice Studio must not be indexed");
 assert.ok(practice.includes('sandbox=""'),"Practice preview iframe must block scripts");
+assert.ok(practice.includes('id="compare-draft"')&&practice.includes('id="compare-revision"'),"Practice must offer two actual side-by-side previews");
+assert.ok(practiceJs.includes('$("compare-draft").srcdoc')&&practiceJs.includes('$("compare-revision").srcdoc'),"Practice must render both concepts, not just toggle");
 assert.ok(practiceJs.includes('action:"list"')&&practiceJs.includes("data.owner_only!==true"),"Practice must verify owner through backend");
 assert.ok(practiceJs.includes("synthetic-bright-rooms")&&practiceJs.includes("SIMULATED APPROVAL BLOCKED"),"Practice must use only fictional data and block real approvals");
 assert.ok(!/fetch\([^)]*method:"(?:PATCH|PUT|DELETE)"/.test(practiceJs),"Practice cannot mutate customer records");
