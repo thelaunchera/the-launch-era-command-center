@@ -25,6 +25,22 @@ const revised={...base,design:{...base.design,layout:"split",cards:"editorial",t
  design_rationale:"Owner-requested softer split editorial layout and clearer, warmer copy."}};
 let version="draft",device="desktop",requestNotes="",compareMode=false,functionalMode=false;
 const status=t=>{$("result").hidden=false;$("result").textContent=t};
+function detail(label,value){
+ const el=document.createElement("div");el.className="detail";
+ const name=document.createElement("small");name.textContent=label;
+ const val=document.createElement("strong");val.textContent=String(value);
+ el.append(name,val);return el;
+}
+function friendlyResult(target,{title,subtitle,fields,footnote,icon="✓"}){
+ target.replaceChildren();target.hidden=false;target.className="friendly-result";
+ const head=document.createElement("div");head.style.fontSize="28px";head.textContent=icon;
+ const heading=document.createElement("h3");heading.textContent=title;
+ const intro=document.createElement("p");intro.textContent=subtitle;
+ const grid=document.createElement("div");grid.className="details";
+ for(const [key,value] of fields)grid.append(detail(key,value));
+ const footer=document.createElement("p");footer.className="footnote";footer.textContent=footnote;
+ target.append(head,heading,intro,grid,footer);
+}
 function draw(){
  const job=version==="draft"?base:revised;
  $("version-title").textContent=version==="draft"?"First concept":"Revised concept";
@@ -105,8 +121,13 @@ $("test-booking").onclick=()=>{
  if(!$("practice-consent").checked){$("booking-result").hidden=false;$("booking-result").textContent="Please confirm this is a fictional test first.";return}
  const data=readFlow(),result=calculateFlow(data);
  const kind=result.kind==="quote"?"quote request":"booking request";
- $("booking-result").hidden=false;
- $("booking-result").textContent="LOCAL TEST PASSED · "+kind.toUpperCase()+" · "+name+" · "+labels[data.service]+" · "+date+" · "+(result.total===null?"Personalized quote required":"Estimated $"+result.total.toFixed(2))+". No appointment, email, payment or record was created.";
+ friendlyResult($("booking-result"),{
+  title:result.kind==="quote"?"Your quote request is ready to review":"Your cleaning request looks great!",
+  subtitle:"LOCAL TEST PASSED · This is how your customer could see the next step.",
+  fields:[["Service",labels[data.service]],["Preferred date",new Date(date+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})],["Test customer",name],["Pricing",result.total===null?"We'll prepare a personalized quote":"Estimated $"+result.total.toFixed(2)]],
+  footnote:"Practice only. No appointment, email, payment or record was created.",
+  icon:result.kind==="quote"?"✉":"✓"
+ });
 };
 $("reset-booking").onclick=()=>{
  for(const id of ["service","frequency","area","property"])$(id).selectedIndex=0;
@@ -168,7 +189,7 @@ $("staging-list").onclick=async()=>{
    if(item.synthetic_only!==true||item.confirmed!==false||item.customer_notified!==false)throw Error("Unsafe Testing record detected");
    const li=document.createElement("li");const pick=document.createElement("button");pick.className="button alt";pick.type="button";pick.textContent="Preview follow-up · "+item.service_name+" · "+item.service_area+" · "+item.kind+" · "+(item.estimated_total===null?"Quote required":"$"+item.estimated_total);pick.onclick=()=>{selectedSyntheticRequest={kind:item.kind,service_name:item.service_name,service_area:item.service_area,estimated_total:item.estimated_total,synthetic_only:item.synthetic_only,confirmed:item.confirmed,customer_notified:item.customer_notified,consent_to_contact:item.consent_to_contact,created_at:item.created_at};$("followup-panel").hidden=false;$("followup-message").hidden=true;$("followup-decision").hidden=true;$("followup-quote-ready").checked=false;$("followup-sent").value="no";$("followup-sim-time").value="";};li.append(pick);$("staging-records").append(li);
   }
-  testStatus("Verified "+(data.requests||[]).length+" synthetic Testing record(s).");
+  testStatus((data.requests||[]).length+" practice request(s) ready to explore. Nothing was sent to a customer.");
  }catch(e){$("staging-records").replaceChildren();selectedSyntheticRequest=null;$("followup-panel").hidden=true;testStatus(e.message)}finally{$("staging-list").disabled=!testingToken}
 };
 
