@@ -265,11 +265,42 @@ $("email-revise").onclick=async()=>{
  finally{emailButtons();}
 };
 $("refresh").onclick=()=>refresh().catch(e=>showMessage(errText(e),true));
+
+const HANDOFF_ENDPOINT=SUPA+"/functions/v1/tle-booking-studio-design-handoff";
+let handoffSelected=null;
+async function refreshHandoffs(){
+ const result=await api({action:"list"},HANDOFF_ENDPOINT);
+ $("handoff-library").hidden=false;
+ const holder=$("handoff-items");holder.replaceChildren();
+ if(!result.records.length){holder.textContent="No design references transferred yet. Open Practice Studio to send a concept here.";return}
+ for(const record of result.records){
+  const item=document.createElement("article");item.className="qa-check";
+  const heading=document.createElement("h3");heading.textContent=(record.source_version==="revision"?"Revised concept":"First concept")+" · "+record.review_status.replaceAll("_"," ");
+  const detail=document.createElement("p");detail.textContent=record.design.hero_title+" — Fictional reference, not a customer project.";
+  const actions=document.createElement("div");actions.className="actions";
+  for(const [label,decision] of [["Approve as reference","approve"],["Request changes","changes"]]){
+   const button=document.createElement("button");button.className="action "+(decision==="changes"?"danger":"secondary");button.type="button";button.textContent=label;
+   button.onclick=async()=>{
+    const notes=$("handoff-notes").value.trim();
+    if(decision==="changes"&&notes.length<8){setText("handoff-status","Write at least 8 characters describing the changes.");return}
+    if(!window.confirm(decision==="approve"?"Approve this fictional DESIGN REFERENCE only? No customer delivery or publication.":"Save these internal revision instructions? No messages will be sent."))return;
+    button.disabled=true;
+    try{await api({action:"review",id:record.id,decision,notes},HANDOFF_ENDPOINT);setText("handoff-status","Saved privately. Customer delivery remains blocked.");await refreshHandoffs()}
+    catch(e){setText("handoff-status",errText(e))}
+    finally{button.disabled=false}
+   };
+   actions.append(button);
+  }
+  item.append(heading,detail,actions);holder.append(item);
+ }
+}
+
 async function boot(){
  try{
   await refresh();
   $("auth-state").textContent="Owner access verified. No client actions or publishing enabled.";
   $("studio").hidden=false;
+  await refreshHandoffs().catch(e=>setText("handoff-status",errText(e)));
  }catch(e){
   $("auth-state").textContent="Owner access unavailable. Open this page after signing in to your private Command Center.";
   showMessage(errText(e),true);
