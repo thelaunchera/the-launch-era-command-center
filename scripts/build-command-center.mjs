@@ -62,8 +62,11 @@ for(const relative of ["index.html","assets/jessy-owner-standalone.mjs"])
 
 // Booking Studio is a separate owner-only UI. Backend re-verifies owner JWT on every call.
 await copyFile(resolve("overrides/booking-studio.html"),join(dest,"booking-studio.html"));
+await copyFile(resolve("overrides/booking-studio-practice.html"),join(dest,"booking-studio-practice.html"));
+await copyFile(resolve("overrides/assets/booking-studio-practice.js"),join(dest,"assets/booking-studio-practice.js"));
 await copyFile(resolve("overrides/assets/booking-studio.js"),join(dest,"assets/booking-studio.js"));
 await copyFile(resolve("overrides/assets/booking-studio-preview.mjs"),join(dest,"assets/booking-studio-preview.mjs"));
+// Practice Studio is owner-verified, synthetic-only, and cannot write or publish.
 // Temporary Testing-only browser QA page: no customer records and no navigation link.
 await copyFile(resolve("overrides/booking-studio-qa.html"),join(dest,"booking-studio-qa.html"));
 await copyFile(resolve("overrides/booking-studio-qa-recovery.html"),join(dest,"booking-studio-qa-recovery.html"));
