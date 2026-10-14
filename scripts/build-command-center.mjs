@@ -64,6 +64,8 @@ for(const relative of ["index.html","assets/jessy-owner-standalone.mjs"])
 await copyFile(resolve("overrides/booking-studio.html"),join(dest,"booking-studio.html"));
 await copyFile(resolve("overrides/assets/booking-studio.js"),join(dest,"assets/booking-studio.js"));
 await copyFile(resolve("overrides/assets/booking-studio-preview.mjs"),join(dest,"assets/booking-studio-preview.mjs"));
+// Temporary Testing-only browser QA page: no customer records and no navigation link.
+await copyFile(resolve("overrides/booking-studio-qa.html"),join(dest,"booking-studio-qa.html"));
 // Add navigation only; never alter the existing AI Team runtime or buyer agent permissions.
 await rewrite("ai-team.html",s=>s.replace(
  '<a class="ait-back" href="./">← Command Center</a>',
