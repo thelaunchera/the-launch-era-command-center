@@ -3,7 +3,7 @@ import { join } from "node:path";
 import assert from "node:assert/strict";
 const root=".site";
 const required=[
-"index.html","access.html","access/index.html","ai-team.html","booking-studio.html","booking-studio-qa.html","booking-studio-qa-recovery.html","booking-studio-qa-reset.html","assets/booking-studio.js","assets/booking-studio-preview.mjs",
+"index.html","access.html","access/index.html","ai-team.html","booking-studio.html","booking-studio-practice.html","assets/booking-studio-practice.js","booking-studio-qa.html","booking-studio-qa-recovery.html","booking-studio-qa-reset.html","assets/booking-studio.js","assets/booking-studio-preview.mjs",
 "assets/command-center-app.js","assets/command-center.css","assets/command-center-i18n.js",
 "assets/ai-team.js","assets/jessy-owner.js","assets/ai-team-entry.js",
 "assets/booking-smart-welcome-editor.js","vendor/supabase-js-v2.57.0.umd.js",
@@ -23,6 +23,14 @@ assert.ok(index.includes("./assets/command-center-app.js"),"Private application 
 assert.ok(ai.includes("assets/ai-team.js"),"Private team entry missing");
 assert.ok(ai.includes("./booking-studio.html"),"Owner AI Team must link to Booking Studio");
 const studio=read("booking-studio.html"),studioJs=read("assets/booking-studio.js");
+const practice=read("booking-studio-practice.html"),practiceJs=read("assets/booking-studio-practice.js");
+assert.ok(studio.includes("./booking-studio-practice.html"),"Owner Studio must link to Practice Studio");
+assert.ok(practice.includes("noindex,nofollow,noarchive"),"Practice Studio must not be indexed");
+assert.ok(practice.includes('sandbox=""'),"Practice preview iframe must block scripts");
+assert.ok(practiceJs.includes('action:"list"')&&practiceJs.includes("data.owner_only!==true"),"Practice must verify owner through backend");
+assert.ok(practiceJs.includes("synthetic-bright-rooms")&&practiceJs.includes("SIMULATED APPROVAL BLOCKED"),"Practice must use only fictional data and block real approvals");
+assert.ok(!/fetch\([^)]*method:"(?:PATCH|PUT|DELETE)"/.test(practiceJs),"Practice cannot mutate customer records");
+assert.ok(!practiceJs.includes("localStorage.setItem"),"Practice cannot persist sensitive state");
 const testPage=read("booking-studio-qa.html");
 assert.ok(testPage.includes("noindex,nofollow"),"Temporary staging QA must not be indexed");
 assert.ok(testPage.includes("afyiltvdfqnuyzcqsnoh"),"Staging QA must target only Testing Supabase");
