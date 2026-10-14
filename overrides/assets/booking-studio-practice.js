@@ -119,6 +119,7 @@ const TEST_BASE="https://afyiltvdfqnuyzcqsnoh.supabase.co";
 const TEST_KEY="sb_publishable_ECdkPd5gkDR55JOWEqsnPA_cJE8bENc";
 const TEST_ENDPOINT=TEST_BASE+"/functions/v1/tle-booking-studio-staging-qa";
 let testingToken="";
+let selectedSyntheticRequest=null;
 const testStatus=t=>{$("staging-result").hidden=false;$("staging-result").textContent=t};
 function testingControls(ready){
  $("staging-submit").disabled=!ready;$("staging-list").disabled=!ready;
@@ -147,7 +148,7 @@ $("testing-login").onclick=async()=>{
  }catch(e){testingToken="";testingControls(false);$("testing-auth-status").textContent="Testing sign-in not verified.";testStatus(e.message)}
  finally{if(!testingToken)$("testing-login").disabled=false}
 };
-$("testing-logout").onclick=()=>{testingToken="";$("test-password").value="";testingControls(false);$("testing-auth-status").textContent="Signed out of Testing.";testStatus("Testing token cleared from this page.");$("staging-records").replaceChildren()};
+$("testing-logout").onclick=()=>{testingToken="";$("test-password").value="";testingControls(false);$("testing-auth-status").textContent="Signed out of Testing.";testStatus("Testing token cleared from this page.");$("staging-records").replaceChildren();selectedSyntheticRequest=null;$("followup-panel").hidden=true;$("followup-message").hidden=true};
 $("staging-submit").onclick=async()=>{
  if(!$("staging-consent").checked){testStatus("Confirm synthetic Testing consent before submission.");return}
  $("staging-submit").disabled=true;
@@ -164,10 +165,34 @@ $("staging-list").onclick=async()=>{
   const data=await testCall({action:"list"});$("staging-records").replaceChildren();
   for(const item of data.requests||[]){
    if(item.synthetic_only!==true||item.confirmed!==false||item.customer_notified!==false)throw Error("Unsafe Testing record detected");
-   const li=document.createElement("li");li.textContent=item.service_name+" · "+item.service_area+" · "+item.kind+" · "+(item.estimated_total===null?"Quote required":"$"+item.estimated_total);$("staging-records").append(li);
+   const li=document.createElement("li");const pick=document.createElement("button");pick.className="button alt";pick.type="button";pick.textContent="Preview follow-up · "+item.service_name+" · "+item.service_area+" · "+item.kind+" · "+(item.estimated_total===null?"Quote required":"$"+item.estimated_total);pick.onclick=()=>{selectedSyntheticRequest={kind:item.kind,service_name:item.service_name,service_area:item.service_area,estimated_total:item.estimated_total};$("followup-panel").hidden=false;$("followup-message").hidden=true;};li.append(pick);$("staging-records").append(li);
   }
   testStatus("Verified "+(data.requests||[]).length+" synthetic Testing record(s).");
- }catch(e){$("staging-records").replaceChildren();testStatus(e.message)}finally{$("staging-list").disabled=!testingToken}
+ }catch(e){$("staging-records").replaceChildren();selectedSyntheticRequest=null;$("followup-panel").hidden=true;testStatus(e.message)}finally{$("staging-list").disabled=!testingToken}
+};
+
+
+function createFollowupPreview(item,stage,lang){
+ if(!item||!["booking_request","quote_request"].includes(item.kind)||!["received","followup","quote"].includes(stage)||!["en","es"].includes(lang))throw Error("Unsupported synthetic follow-up");
+ const service=String(item.service_name||"").slice(0,100);
+ const area=String(item.service_area||"").slice(0,90);
+ const quote=item.kind==="quote_request"||item.estimated_total===null;
+ const amount=quote?null:Number(item.estimated_total);
+ if(amount!==null&&(!Number.isFinite(amount)||amount<0))throw Error("Invalid Testing estimate");
+ const detail=lang==="es"?(quote?"requiere una cotización personalizada":"tiene un estimado de $"+amount.toFixed(2)):(quote?"needs a personalized quote":"has an estimated price of $"+amount.toFixed(2));
+ const subject=lang==="es"?(stage==="received"?"Recibimos tu solicitud":stage==="followup"?"Seguimos pendientes de tu limpieza":"Revisión de tu cotización"):(stage==="received"?"We received your request":stage==="followup"?"Checking in about your cleaning":"About your cleaning quote");
+ const text=lang==="es"?
+  (stage==="received"?"¡Hola! Gracias por escribirnos. Recibimos tu solicitud de "+service+" en "+area+". Este servicio "+detail+". Revisaremos los detalles antes de confirmar cualquier cita.":stage==="followup"?"¡Hola! Queríamos saber si todavía necesitas ayuda con "+service+" en "+area+". Si tus planes cambiaron, no hay problema. Estamos aquí cuando nos necesites.":"¡Hola! Sobre tu solicitud de "+service+": "+detail+". Revisaremos los detalles contigo antes de confirmar el precio y la disponibilidad."):
+  (stage==="received"?"Hi there! Thanks for reaching out. We received your "+service+" request in "+area+". This service "+detail+". We'll review the details before confirming any appointment.":stage==="followup"?"Hi there! Just checking whether you still need help with "+service+" in "+area+". If your plans have changed, no worries. We're here whenever you're ready.":"Hi there! About your "+service+" request: it "+detail+". We'll review the details together before confirming pricing or availability.");
+ return {subject,text};
+}
+$("preview-followup").onclick=()=>{
+ try{
+  if(!testingToken||!selectedSyntheticRequest)throw Error("Select a verified synthetic Testing request first");
+  const draft=createFollowupPreview(selectedSyntheticRequest,$("followup-type").value,$("followup-language").value);
+  $("followup-message").hidden=false;
+  $("followup-message").textContent="DRAFT ONLY · NOT SENT\\nSubject: "+draft.subject+"\\n\\n"+draft.text+"\\n\\nNo email, notification or scheduled follow-up was created.";
+ }catch(e){testStatus(e.message)}
 };
 
 async function verify(){
@@ -185,5 +210,5 @@ async function verify(){
   $("auth-error").hidden=false;$("practice").hidden=true;
  }
 }
-db?.auth?.onAuthStateChange(event=>{if(event==="SIGNED_OUT"){testingToken="";testingControls(false);$("practice").hidden=true;$("auth-state").textContent="Signed out. Owner access required."; $("auth-error").hidden=false;}});
+db?.auth?.onAuthStateChange(event=>{if(event==="SIGNED_OUT"){testingToken="";selectedSyntheticRequest=null;$("followup-panel").hidden=true;testingControls(false);$("practice").hidden=true;$("auth-state").textContent="Signed out. Owner access required."; $("auth-error").hidden=false;}});
 verify();
