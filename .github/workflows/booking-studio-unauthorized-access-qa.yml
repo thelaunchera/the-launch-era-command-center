@@ -46,4 +46,7 @@ jobs:
           }
           check_prod_denied "Production owner API anonymous list" -X POST -H 'Content-Type: application/json' --data '{"action":"list"}'
           check_prod_denied "Production owner API invalid bearer list" -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer invalid-not-a-jwt' --data '{"action":"list"}'
-          echo 'PASS: staging and production owner APIs reject anonymous and invalid-token requests; no authorized writes performed.'
+          check_prod_denied "Anonymous owner start blocked" -X POST -H 'Content-Type: application/json' --data '{"action":"start","account_id":"00000000-0000-4000-8000-000000000000","owner_start_approved":true}'
+          check_prod_denied "Anonymous owner approval blocked" -X POST -H 'Content-Type: application/json' --data '{"action":"review","job_id":"00000000-0000-4000-8000-000000000000","decision":"approve","owner_confirmed":true}'
+          check_prod_denied "Invalid bearer change request blocked" -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer invalid-not-a-jwt' --data '{"action":"review","job_id":"00000000-0000-4000-8000-000000000000","decision":"request_changes","notes":"Synthetic negative security test"}'
+          echo 'PASS: staging and production owner APIs reject anonymous and invalid-token reads, starts, approvals and revisions; no authorized writes performed.'
