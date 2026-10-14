@@ -1,5 +1,6 @@
 import {renderBookingStudioPreview} from "./booking-studio-preview.mjs";
 import {renderBookingStudioFunctionalPreview} from "./booking-studio-functional-preview.mjs";
+import {evaluateSyntheticFollowup} from "./booking-studio-followup-rules.mjs";
 /* Owner-only Practice Studio. No writes, no customer data, no persistent state. */
 const $=id=>document.getElementById(id);
 const SUPA="https://bowacxhmjvrqixtwaikv.supabase.co";
@@ -148,7 +149,7 @@ $("testing-login").onclick=async()=>{
  }catch(e){testingToken="";testingControls(false);$("testing-auth-status").textContent="Testing sign-in not verified.";testStatus(e.message)}
  finally{if(!testingToken)$("testing-login").disabled=false}
 };
-$("testing-logout").onclick=()=>{testingToken="";$("test-password").value="";testingControls(false);$("testing-auth-status").textContent="Signed out of Testing.";testStatus("Testing token cleared from this page.");$("staging-records").replaceChildren();selectedSyntheticRequest=null;$("followup-panel").hidden=true;$("followup-message").hidden=true};
+$("testing-logout").onclick=()=>{testingToken="";$("test-password").value="";testingControls(false);$("testing-auth-status").textContent="Signed out of Testing.";testStatus("Testing token cleared from this page.");$("staging-records").replaceChildren();selectedSyntheticRequest=null;$("followup-panel").hidden=true;$("followup-message").hidden=true;$("followup-decision").hidden=true};
 $("staging-submit").onclick=async()=>{
  if(!$("staging-consent").checked){testStatus("Confirm synthetic Testing consent before submission.");return}
  $("staging-submit").disabled=true;
@@ -165,12 +166,30 @@ $("staging-list").onclick=async()=>{
   const data=await testCall({action:"list"});$("staging-records").replaceChildren();
   for(const item of data.requests||[]){
    if(item.synthetic_only!==true||item.confirmed!==false||item.customer_notified!==false)throw Error("Unsafe Testing record detected");
-   const li=document.createElement("li");const pick=document.createElement("button");pick.className="button alt";pick.type="button";pick.textContent="Preview follow-up · "+item.service_name+" · "+item.service_area+" · "+item.kind+" · "+(item.estimated_total===null?"Quote required":"$"+item.estimated_total);pick.onclick=()=>{selectedSyntheticRequest={kind:item.kind,service_name:item.service_name,service_area:item.service_area,estimated_total:item.estimated_total};$("followup-panel").hidden=false;$("followup-message").hidden=true;};li.append(pick);$("staging-records").append(li);
+   const li=document.createElement("li");const pick=document.createElement("button");pick.className="button alt";pick.type="button";pick.textContent="Preview follow-up · "+item.service_name+" · "+item.service_area+" · "+item.kind+" · "+(item.estimated_total===null?"Quote required":"$"+item.estimated_total);pick.onclick=()=>{selectedSyntheticRequest={kind:item.kind,service_name:item.service_name,service_area:item.service_area,estimated_total:item.estimated_total,synthetic_only:item.synthetic_only,confirmed:item.confirmed,customer_notified:item.customer_notified,consent_to_contact:item.consent_to_contact,created_at:item.created_at};$("followup-panel").hidden=false;$("followup-message").hidden=true;$("followup-decision").hidden=true;$("followup-quote-ready").checked=false;$("followup-sent").value="no";$("followup-sim-time").value="";};li.append(pick);$("staging-records").append(li);
   }
   testStatus("Verified "+(data.requests||[]).length+" synthetic Testing record(s).");
  }catch(e){$("staging-records").replaceChildren();selectedSyntheticRequest=null;$("followup-panel").hidden=true;testStatus(e.message)}finally{$("staging-list").disabled=!testingToken}
 };
 
+
+
+function followupDecision(){
+ const when=$("followup-sim-time").value;
+ const now=when?new Date(when).getTime():Date.now();
+ return evaluateSyntheticFollowup(selectedSyntheticRequest,{
+  now,language:$("followup-language").value,
+  alreadySent:$("followup-sent").value==="yes",
+  quoteReady:$("followup-quote-ready").checked
+ });
+}
+$("check-followup").onclick=()=>{
+ if(!testingToken||!selectedSyntheticRequest){testStatus("Select a verified Testing request first.");return}
+ const decision=followupDecision();
+ $("followup-decision").hidden=false;
+ $("followup-decision").textContent=(decision.eligible?"ELIGIBLE FOR DRAFT REVIEW ONLY · ":"BLOCKED · ")+decision.reason+(decision.hours_since_request===undefined?"":" · Age: "+decision.hours_since_request+" hours")+". No message is scheduled or sent.";
+ if(decision.eligible)$("followup-type").value=decision.stage;
+};
 
 function createFollowupPreview(item,stage,lang){
  if(!item||!["booking_request","quote_request"].includes(item.kind)||!["received","followup","quote"].includes(stage)||!["en","es"].includes(lang))throw Error("Unsupported synthetic follow-up");
