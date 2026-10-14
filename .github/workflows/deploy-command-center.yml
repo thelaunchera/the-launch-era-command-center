@@ -46,6 +46,7 @@ jobs:
           npx playwright install --with-deps chromium
           node scripts/qa-jessy-compact-browser.mjs
           node scripts/qa-booking-studio-functional-browser.mjs
+          node scripts/qa-booking-studio-followup-rules.mjs
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
