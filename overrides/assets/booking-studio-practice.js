@@ -204,7 +204,7 @@ $("staging-list").onclick=async()=>{
    pick.onclick=()=>{
     selectedSyntheticRequest={id:item.id,kind:item.kind,service_name:item.service_name,service_area:item.service_area,estimated_total:item.estimated_total,synthetic_only:item.synthetic_only,confirmed:item.confirmed,customer_notified:item.customer_notified,consent_to_contact:item.consent_to_contact,created_at:item.created_at};
     $("followup-panel").hidden=false;$("followup-message").hidden=true;$("followup-decision").hidden=true;
-    $("followup-quote-ready").checked=false;$("followup-sent").value="no";$("followup-sim-time").value="";
+    $("followup-quote-ready").checked=false;$("followup-sent").value="no";$("followup-sim-time").value="";$("followup-type").value="received";$("followup-history").hidden=true;
     const decision=followupDecision();
     $("followup-decision").hidden=false;
     $("followup-decision").textContent=decision.eligible?"Ready for a draft review. Nothing will be sent.":friendlyFollowupReason(decision.reason);
