@@ -10,7 +10,7 @@ const required=[
 "auth-recovery.html","auth-recovery/index.html","manifest-tle.webmanifest",
 "manifest-cb-depot.webmanifest","assets/clients/cb-depot/approved-favicon-192.png",
 "assets/brand/tle-mark.svg","assets/brand/tle-wordmark.svg",
-"favicon.png","sw.js","CNAME","404.html","robots.txt","deployment-source.json"
+"favicon.png","assets/jessy-avatar.webp","sw.js","CNAME","404.html","robots.txt","deployment-source.json"
 ];
 for(const file of required){
  const p=join(root,file);
@@ -28,6 +28,9 @@ for(const file of ["index.html","access.html","manifest-tle.webmanifest"]){
  assert.ok(!read(file).includes("dailinsegura17.workers.dev"),"Legacy Cloudflare favicon in "+file);
 }
 assert.ok(!read("sw.js").includes("/command-center/"),"Push links target stale website path");
+assert.ok(read("assets/jessy-owner.js").includes('/assets/jessy-avatar.webp'),"Jessie avatar path unexpectedly changed");
+assert.ok(read("assets/command-center-notification-settings.js").includes('getRegistration("/")'),"Notification preferences still use old service worker scope");
+assert.ok(read("assets/command-center-app.js").includes("navigator.serviceWorker.register('/sw.js',{scope:'/'})"),"App still registers old service worker scope");
 const manifest=JSON.parse(read("manifest-tle.webmanifest"));
 assert.ok(manifest.start_url.startsWith("./"),"PWA must stay on command hostname");
 const info=JSON.parse(read("deployment-source.json"));
