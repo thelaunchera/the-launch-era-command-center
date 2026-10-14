@@ -39,6 +39,7 @@ assert.ok(practiceJs.includes('createFollowupPreview(item,stage,lang)')&&practic
 assert.ok(practiceJs.includes('item.synthetic_only!==true||item.confirmed!==false||item.customer_notified!==false'),"Follow-up selection must verify Testing-only records");
 assert.ok(!/fetch\([^)]*method:"(?:PATCH|PUT|DELETE)"/.test(practiceJs),"Practice cannot mutate customer records");
 assert.ok(!practiceJs.includes("localStorage.setItem"),"Practice cannot persist sensitive state");
+assert.ok(practiceJs.includes("friendlyFollowupReason")&&practiceJs.includes("record-card"),"Practice request cards must be friendly");
 const testPage=read("booking-studio-qa.html");
 assert.ok(testPage.includes("noindex,nofollow"),"Temporary staging QA must not be indexed");
 assert.ok(testPage.includes("afyiltvdfqnuyzcqsnoh"),"Staging QA must target only Testing Supabase");
