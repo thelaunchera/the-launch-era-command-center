@@ -187,13 +187,39 @@ $("staging-list").onclick=async()=>{
   const data=await testCall({action:"list"});$("staging-records").replaceChildren();
   for(const item of data.requests||[]){
    if(item.synthetic_only!==true||item.confirmed!==false||item.customer_notified!==false)throw Error("Unsafe Testing record detected");
-   const li=document.createElement("li");const pick=document.createElement("button");pick.className="button alt";pick.type="button";pick.textContent="Preview follow-up · "+item.service_name+" · "+item.service_area+" · "+item.kind+" · "+(item.estimated_total===null?"Quote required":"$"+item.estimated_total);pick.onclick=()=>{selectedSyntheticRequest={kind:item.kind,service_name:item.service_name,service_area:item.service_area,estimated_total:item.estimated_total,synthetic_only:item.synthetic_only,confirmed:item.confirmed,customer_notified:item.customer_notified,consent_to_contact:item.consent_to_contact,created_at:item.created_at};$("followup-panel").hidden=false;$("followup-message").hidden=true;$("followup-decision").hidden=true;$("followup-quote-ready").checked=false;$("followup-sent").value="no";$("followup-sim-time").value="";};li.append(pick);$("staging-records").append(li);
+   const card=document.createElement("article");card.className="record-card";
+   const icon=document.createElement("div");icon.style.fontSize="25px";icon.textContent=item.kind==="quote_request"?"✉":"⌂";
+   const tag=document.createElement("span");tag.className="soft-status";tag.textContent=item.kind==="quote_request"?"Quote to review":"Cleaning request";
+   const heading=document.createElement("h3");heading.textContent=item.service_name;
+   const location=document.createElement("p");location.textContent="📍 "+item.service_area+" · "+(item.frequency||"One time").replaceAll("_"," ");
+   const price=document.createElement("div");price.className="price";price.textContent=item.estimated_total===null?"Personalized quote":"Estimated $"+Number(item.estimated_total).toFixed(2);
+   const date=document.createElement("p");date.textContent="Received "+new Date(item.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+   const pick=document.createElement("button");pick.className="button alt";pick.type="button";pick.textContent="Review next step →";
+   pick.onclick=()=>{
+    selectedSyntheticRequest={kind:item.kind,service_name:item.service_name,service_area:item.service_area,estimated_total:item.estimated_total,synthetic_only:item.synthetic_only,confirmed:item.confirmed,customer_notified:item.customer_notified,consent_to_contact:item.consent_to_contact,created_at:item.created_at};
+    $("followup-panel").hidden=false;$("followup-message").hidden=true;$("followup-decision").hidden=true;
+    $("followup-quote-ready").checked=false;$("followup-sent").value="no";$("followup-sim-time").value="";
+    const decision=followupDecision();
+    $("followup-decision").hidden=false;
+    $("followup-decision").textContent=decision.eligible?"Ready for a draft review. Nothing will be sent.":friendlyFollowupReason(decision.reason);
+    $("followup-panel").scrollIntoView({behavior:"smooth",block:"start"});
+   };
+   card.append(icon,tag,heading,location,price,date,pick);$("staging-records").append(card);
   }
   testStatus((data.requests||[]).length+" practice request(s) ready to explore. Nothing was sent to a customer.");
  }catch(e){$("staging-records").replaceChildren();selectedSyntheticRequest=null;$("followup-panel").hidden=true;testStatus(e.message)}finally{$("staging-list").disabled=!testingToken}
 };
 
 
+
+function friendlyFollowupReason(reason){
+ if(reason.includes("24 hours"))return "Not yet — this request is new. We wait 24 hours before suggesting a follow-up.";
+ if(reason.includes("14 days"))return "This request needs a personal review because it is older than 14 days.";
+ if(reason.includes("Quote is not confirmed"))return "Review the quote first, then check whether a follow-up makes sense.";
+ if(reason.includes("Consent"))return "A follow-up is blocked until permission to contact is verified.";
+ if(reason.includes("already marked"))return "A follow-up was already marked as sent in this simulation.";
+ return "A manual review is needed before preparing a follow-up.";
+}
 
 function followupDecision(){
  const when=$("followup-sim-time").value;
@@ -208,7 +234,7 @@ $("check-followup").onclick=()=>{
  if(!testingToken||!selectedSyntheticRequest){testStatus("Select a verified Testing request first.");return}
  const decision=followupDecision();
  $("followup-decision").hidden=false;
- $("followup-decision").textContent=(decision.eligible?"ELIGIBLE FOR DRAFT REVIEW ONLY · ":"BLOCKED · ")+decision.reason+(decision.hours_since_request===undefined?"":" · Age: "+decision.hours_since_request+" hours")+". No message is scheduled or sent.";
+ $("followup-decision").textContent=(decision.eligible?"Ready to review a draft. ":"Not ready yet. ")+(decision.eligible?"This is a practice recommendation only.":friendlyFollowupReason(decision.reason))+" No message is scheduled or sent.";
  if(decision.eligible)$("followup-type").value=decision.stage;
 };
 
