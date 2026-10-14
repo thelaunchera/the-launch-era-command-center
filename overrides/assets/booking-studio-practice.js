@@ -92,7 +92,7 @@ for(const id of ["service","frequency","area","property","oven","fridge"])$(id).
 $("test-booking").onclick=()=>{
  const name=$("guest").value.trim(),date=$("test-date").value;
  if(name.length<2||name.length>80){$("booking-result").hidden=false;$("booking-result").textContent="Enter a fictional test name (2–80 characters).";$("guest").focus();return}
- if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||date<$("test-date").min){$("booking-result").hidden=false;$("booking-result").textContent="Select a valid date today or later.";$("test-date").focus();return}
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date<$("test-date").min){$("booking-result").hidden=false;$("booking-result").textContent="Select a valid date today or later.";$("test-date").focus();return}
  if(!$("practice-consent").checked){$("booking-result").hidden=false;$("booking-result").textContent="Please confirm this is a fictional test first.";return}
  const data=readFlow(),result=calculateFlow(data);
  const kind=result.kind==="quote"?"quote request":"booking request";
