@@ -29,6 +29,10 @@ assert.ok(testPage.includes("afyiltvdfqnuyzcqsnoh"),"Staging QA must target only
 assert.ok(testPage.includes("tle-booking-studio-staging-qa"),"Staging QA endpoint missing");
 assert.ok(!testPage.includes('id="signup"'),"Hosted staging QA must not allow public sign-up");
 assert.ok(testPage.includes("booking-studio-qa-recovery.html"),"Testing recovery must not redirect to marketing");
+assert.ok(testPage.includes("Please check the synthetic test consent"),"Synthetic consent validation feedback missing");
+assert.ok(testPage.includes('el("submit").disabled=true'),"Synthetic submission must prevent double click");
+assert.ok(testPage.includes('finally{el("submit").disabled=!token}'),"Submit control must recover from failed request");
+assert.ok(testPage.includes("await refresh();"),"Signed-in Testing requests must load automatically");
 assert.ok(!testPage.includes('el("signup").disabled'),"Removed signup must not crash Testing login");
 const resetPage=read("booking-studio-qa-reset.html");
 assert.ok(testPage.includes('href="/booking-studio-qa-reset.html"'),"Reset control must work as a direct link");
