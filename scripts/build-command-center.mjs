@@ -60,6 +60,16 @@ await copyFile(resolve("overrides/jessy-owner.css"),join(dest,"assets/jessy-owne
 for(const relative of ["index.html","assets/jessy-owner-standalone.mjs"])
  await rewrite(relative,s=>s.replaceAll("jessy-owner.js?v=20261014-unified-team-v1","jessy-owner.js?v=20261014-compact-alert-v1"));
 
+// Booking Studio is a separate owner-only UI. Backend re-verifies owner JWT on every call.
+await copyFile(resolve("overrides/booking-studio.html"),join(dest,"booking-studio.html"));
+await copyFile(resolve("overrides/assets/booking-studio.js"),join(dest,"assets/booking-studio.js"));
+await copyFile(resolve("overrides/assets/booking-studio-preview.mjs"),join(dest,"assets/booking-studio-preview.mjs"));
+// Add navigation only; never alter the existing AI Team runtime or buyer agent permissions.
+await rewrite("ai-team.html",s=>s.replace(
+ '<a class="ait-back" href="./">← Command Center</a>',
+ '<a class="ait-back" href="./booking-studio.html">Booking Studio</a><a class="ait-back" href="./">← Command Center</a>'
+));
+
 await writeFile(join(dest,"CNAME"),DOMAIN+"\n","utf8");
 await writeFile(join(dest,".nojekyll"),"","utf8");
 await writeFile(join(dest,"robots.txt"),"User-agent: *\nDisallow: /\n","utf8");
