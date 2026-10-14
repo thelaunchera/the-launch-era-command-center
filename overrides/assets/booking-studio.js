@@ -6,6 +6,7 @@ const PUBLISHABLE="sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
 const endpoint=SUPA+"/functions/v1/tle-booking-studio-owner";
 const emailEndpoint=SUPA+"/functions/v1/tle-booking-studio-email-review";
 const clientReviewEndpoint=SUPA+"/functions/v1/tle-client-review";
+const clientInviteEndpoint=SUPA+"/functions/v1/tle-booking-studio-review-invite";
 const db=window.supabase?.createClient?.(SUPA,PUBLISHABLE,{auth:{storageKey:"tle-crm-auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const qaIds=["tenant_isolation","payment_verified","intake_verified","assets_licensed","brand_accuracy","no_invented_claims","services_and_prices","booking_and_quote","frequency_and_addons","service_area","email_permissions","links","mobile","tablet","desktop","accessibility","en_es","customer_data_protected"];
 let state={jobs:[],accounts:[],selected:null,account:null};
@@ -321,7 +322,31 @@ async function loadClientReview(){
  }
 }
 $("client-review-refresh").onclick=()=>loadClientReview();
-$("client-preview-gate").onclick=()=>{};
+$("client-review-preflight").onclick=async()=>{
+ const j=state.selected;
+ $("client-preview-gate").disabled=true;
+ if(!j){setText("client-review-state","Choose a paid Booking Studio project first.");return}
+ try{
+  const data=await api({action:"check",job_id:j.id},clientInviteEndpoint);
+  if(!data.ready){
+   setText("client-review-state","Client invitation is blocked until these checks pass: "+(data.reasons||[]).join(" · ")+". No email sent.");
+   return;
+  }
+  $("client-preview-gate").disabled=false;
+  setText("client-review-state","✓ Ready to send private design preview to "+data.recipient+". Verify the recipient and select Send for Client Approval. One invitation per approved version.");
+ }catch(e){setText("client-review-state","Could not verify client invitation: "+errText(e)+". No email sent.")}
+};
+$("client-preview-gate").onclick=async()=>{
+ const button=$("client-preview-gate"),job=state.selected;
+ if(!job||button.disabled)return;
+ if(!window.confirm("Send ONE private design-review invitation to this paid client's verified email? This contacts a real customer; it does not publish or deliver the Booking Page."))return;
+ button.disabled=true;
+ try{
+  const result=await api({action:"send",job_id:job.id,owner_confirmed:true},clientInviteEndpoint);
+  setText("client-review-state",result.accepted?"✓ Private invitation accepted by email provider. Client review is pending; final delivery stays blocked.":"No invitation sent.");
+ }catch(e){setText("client-review-state","Invitation not sent: "+errText(e)+". Recheck readiness before trying again.")}
+};
+
 $("client-delivery-gate").onclick=()=>{};
 
 async function boot(){
