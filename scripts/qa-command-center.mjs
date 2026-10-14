@@ -38,7 +38,7 @@ assert.ok(testPage.includes("noindex,nofollow"),"Temporary staging QA must not b
 assert.ok(testPage.includes("afyiltvdfqnuyzcqsnoh"),"Staging QA must target only Testing Supabase");
 assert.ok(testPage.includes("tle-booking-studio-staging-qa"),"Staging QA endpoint missing");
 assert.ok(!testPage.includes('id="signup"'),"Hosted staging QA must not allow public sign-up");
-assert.ok(testPage.includes("booking-studio-qa-recovery.html"),"Testing recovery must not redirect to marketing");
+assert.ok(testPage.includes('href="/booking-studio-qa-reset.html"')&&read("booking-studio-qa-reset.html").includes("booking-studio-qa-recovery.html"),"Testing reset must stay on the private Command Center and recover into Testing");
 assert.ok(testPage.includes("Please check the synthetic test consent"),"Synthetic consent validation feedback missing");
 assert.ok(testPage.includes('el("submit").disabled=true'),"Synthetic submission must prevent double click");
 assert.ok(testPage.includes('finally{el("submit").disabled=!token}'),"Submit control must recover from failed request");
