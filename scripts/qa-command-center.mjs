@@ -31,6 +31,9 @@ assert.ok(practice.includes('id="compare-draft"')&&practice.includes('id="compar
 assert.ok(practiceJs.includes('$("compare-draft").srcdoc')&&practiceJs.includes('$("compare-revision").srcdoc'),"Practice must render both concepts, not just toggle");
 assert.ok(practiceJs.includes('action:"list"')&&practiceJs.includes("data.owner_only!==true"),"Practice must verify owner through backend");
 assert.ok(practiceJs.includes("synthetic-bright-rooms")&&practiceJs.includes("SIMULATED APPROVAL BLOCKED"),"Practice must use only fictional data and block real approvals");
+assert.ok(practice.includes('id="booking-flow"')&&practice.includes('id="test-booking"'),"Practice must expose a functional synthetic booking form");
+assert.ok(practiceJs.includes("calculateFlow(input)")&&practiceJs.includes("LOCAL TEST PASSED"),"Practice booking estimate and confirmation flow missing");
+assert.ok(practiceJs.includes("No appointment, email, payment or record was created."),"Practice must explicitly avoid real side effects");
 assert.ok(!/fetch\([^)]*method:"(?:PATCH|PUT|DELETE)"/.test(practiceJs),"Practice cannot mutate customer records");
 assert.ok(!practiceJs.includes("localStorage.setItem"),"Practice cannot persist sensitive state");
 const testPage=read("booking-studio-qa.html");
