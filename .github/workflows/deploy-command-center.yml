@@ -1,0 +1,60 @@
+name: Deploy isolated Command Center to GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: command-center-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout dedicated Command Center deployment
+        uses: actions/checkout@v4
+
+      - name: Checkout approved public Command Center source (pinned)
+        uses: actions/checkout@v4
+        with:
+          repository: thelaunchera/the-launch-era-new-website-
+          ref: 40efa83acf5c4f28f0df2aef5cd3c8d88c7de651
+          path: upstream
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Prepare isolated Pages artifact
+        run: node scripts/build-command-center.mjs
+
+      - name: Verify private routes, assets and separate domain
+        run: node scripts/qa-command-center.mjs
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload only the isolated private portal files
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .site
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish dedicated Command Center
+        id: deployment
+        uses: actions/deploy-pages@v4
