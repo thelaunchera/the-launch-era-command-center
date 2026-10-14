@@ -67,6 +67,11 @@ assert.ok(studio.includes('id="client-review-panel"')&&studio.includes('id="clie
 assert.ok(studioJs.includes('tle-client-review')&&studioJs.includes('action:"owner_get"'),"Buyer review status must reuse existing authenticated backend");
 assert.ok(studio.includes('id="client-delivery-gate" disabled'),"Final delivery must remain disabled until separate release safety is validated");
 
+assert.ok(studio.includes('data-preview-device="phone"')&&studio.includes('data-preview-device="tablet"')&&studio.includes('data-preview-device="desktop"'),"Client builder preview must support phone tablet desktop");
+assert.ok(studio.includes("Your marketing domain is not the client"),"No marketing-site fallback for client booking URL");
+assert.ok(studioJs.includes('button.dataset.previewDevice'),"Preview device controls must be connected");
+
+
 assert.ok(studio.includes('id="client-review-preflight"'),"Client invite requires independent readiness check");
 assert.ok(studioJs.includes('tle-booking-studio-review-invite')&&studioJs.includes('action:"check"'),"Invitation must use backend preflight");
 assert.ok(studioJs.includes('action:"send"')&&studioJs.includes('owner_confirmed:true'),"Invite requires explicit owner action");
