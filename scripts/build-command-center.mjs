@@ -22,6 +22,8 @@ await mkdir(dest,{recursive:true});
 // The source is already a published public static application, never private user data.
 await copy("command-center",".");
 await copy("assets/brand");
+// Jessie owner avatar is a public brand asset, not customer data.
+await copy("assets/jessy-avatar.webp");
 await copy("assets/clients/cb-depot");
 for(const file of ["favicon.png","favicon.ico","apple-touch-icon.png","auth-recovery.html"])await copy(file);
 await mkdir(join(dest,"access"),{recursive:true});
@@ -37,11 +39,18 @@ const legacyIcon=/https:\/\/the-launch-era-crm\.dailinsegura17\.workers\.dev\/ap
 for(const relative of ["index.html","access.html","access/index.html","manifest-tle.webmanifest"])
  await rewrite(relative,s=>s.replace(legacyIcon,"/favicon.png"));
 // Notifications launched on the new, independent hostname stay on its root portal.
-await rewrite("sw.js",s=>s.replaceAll("/command-center/","/"));
+await rewrite("sw.js",s=>s.replaceAll("/command-center/","/").replaceAll('provided.pathname.startsWith("/")','provided.pathname.startsWith("/")').replaceAll('requested.pathname.startsWith("/")','requested.pathname.startsWith("/")'));
 // The internal OWNER marketing-demo iframe is intentionally served by the website.
 // All private sign-in, recovery, workspaces and AI Team navigation remain on this origin.
 await rewrite("assets/command-center-app.js",s=>
- s.replaceAll("frame.src='/booking-demo/?lang='","frame.src='https://thelaunchera.com/booking-demo/?lang='"));
+ s.replaceAll("navigator.serviceWorker.register(new URL('sw.js',location.href).pathname)","navigator.serviceWorker.register('/sw.js',{scope:'/'})")
+ .replaceAll("frame.src='/booking-demo/?lang='","frame.src='https://thelaunchera.com/booking-demo/?lang='"));
+// GitHub Pages hosts this portal at /, not at /command-center/.
+await rewrite("assets/command-center-notification-settings.js",s=>
+ s.replaceAll('getRegistration("/command-center/")','getRegistration("/")')
+  .replaceAll('register("/command-center/sw.js",{scope:"/command-center/"})','register("/sw.js",{scope:"/"})')
+  .replace('note(t("Could not save your preferences. Please try again.","No se pudieron guardar las preferencias. Inténtalo otra vez."));console.warn("Alert preferences",e.message)',
+   'note(t("Could not save preferences: ","No se pudieron guardar las preferencias: ")+String(e?.message||"Connection error").slice(0,180));console.warn("Alert preferences",e.message)'));
 await rewrite("index.html",s=>s.replace('href="/booking-bundle/','href="https://thelaunchera.com/booking-bundle/'));
 await writeFile(join(dest,"CNAME"),DOMAIN+"\n","utf8");
 await writeFile(join(dest,".nojekyll"),"","utf8");
