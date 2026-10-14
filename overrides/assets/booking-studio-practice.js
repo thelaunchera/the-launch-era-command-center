@@ -1,4 +1,5 @@
 import {renderBookingStudioPreview} from "./booking-studio-preview.mjs";
+import {renderBookingStudioFunctionalPreview} from "./booking-studio-functional-preview.mjs";
 /* Owner-only Practice Studio. No writes, no customer data, no persistent state. */
 const $=id=>document.getElementById(id);
 const SUPA="https://bowacxhmjvrqixtwaikv.supabase.co";
@@ -21,7 +22,7 @@ const revised={...base,design:{...base.design,layout:"split",cards:"editorial",t
  hero_title:"A little more calm, right at home.",
  hero_body:"From everyday upkeep to a deeper refresh, tell us what your space needs. We'll help with the next step.",
  design_rationale:"Owner-requested softer split editorial layout and clearer, warmer copy."}};
-let version="draft",device="desktop",requestNotes="",compareMode=false;
+let version="draft",device="desktop",requestNotes="",compareMode=false,functionalMode=false;
 const status=t=>{$("result").hidden=false;$("result").textContent=t};
 function draw(){
  const job=version==="draft"?base:revised;
@@ -31,19 +32,26 @@ function draw(){
  $("revision").setAttribute("aria-pressed",String(version==="revision"));
  for(const d of ["phone","tablet","desktop"])$(""+d).setAttribute("aria-pressed",String(d===device));
  const frame=$("preview");frame.className="frame "+device;
- frame.srcdoc=renderBookingStudioPreview(job,{watermark:"FICTIONAL PRACTICE · NOT A REAL CLIENT"});
+ frame.srcdoc=functionalMode?renderBookingStudioFunctionalPreview(job):renderBookingStudioPreview(job,{watermark:"FICTIONAL PRACTICE · NOT A REAL CLIENT"});
+ $("visual-mode").setAttribute("aria-pressed",String(!functionalMode));
+ $("functional-mode").setAttribute("aria-pressed",String(functionalMode));
+ $("functional-note").hidden=!functionalMode;
  $("single-preview").hidden=compareMode;
- $("comparison").hidden=!compareMode;
+ $("comparison").hidden=!compareMode||functionalMode;
+ $("single-preview").hidden=compareMode&&!functionalMode;
  $("comparison").className="comparison "+device;
  $("compare").setAttribute("aria-pressed",String(compareMode));
  $("compare").textContent=compareMode?"Close comparison":"Compare side by side";
- if(compareMode){
+ $("compare").disabled=functionalMode;
+ if(compareMode&&!functionalMode){
   $("compare-draft").srcdoc=renderBookingStudioPreview(base,{watermark:"FICTIONAL · FIRST CONCEPT"});
   $("compare-revision").srcdoc=renderBookingStudioPreview(revised,{watermark:"FICTIONAL · REVISED CONCEPT"});
   for(const id of ["compare-draft","compare-revision"]){const f=$(id);f.style.width=device==="phone"?"390px":device==="tablet"?"768px":"100%";}
  }
  $("status-chip").textContent="NOT APPROVED · DEMO";
 }
+$("visual-mode").onclick=()=>{functionalMode=false;draw();status("Design review: static and non-interactive.")};
+$("functional-mode").onclick=()=>{functionalMode=true;compareMode=false;draw();status("Interactive fictional Booking Page enabled. Scroll within the preview to test the booking form.")};
 $("draft").onclick=()=>{version="draft";compareMode=false;draw();status("Viewing the first fictional concept.")};
 $("revision").onclick=()=>{version="revision";compareMode=false;draw();status("Viewing the fictional revision. No AI job or real approval was run.")};
 for(const d of ["phone","tablet","desktop"])$(d).onclick=()=>{device=d;draw()};
@@ -106,6 +114,62 @@ $("reset-booking").onclick=()=>{
 };
 refreshEstimate();
 
+
+const TEST_BASE="https://afyiltvdfqnuyzcqsnoh.supabase.co";
+const TEST_KEY="sb_publishable_ECdkPd5gkDR55JOWEqsnPA_cJE8bENc";
+const TEST_ENDPOINT=TEST_BASE+"/functions/v1/tle-booking-studio-staging-qa";
+let testingToken="";
+const testStatus=t=>{$("staging-result").hidden=false;$("staging-result").textContent=t};
+function testingControls(ready){
+ $("staging-submit").disabled=!ready;$("staging-list").disabled=!ready;
+ $("testing-logout").disabled=!ready;$("testing-login").disabled=ready;
+}
+async function testCall(body){
+ if(!testingToken)throw Error("Sign in to Testing first");
+ const response=await fetch(TEST_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json",apikey:TEST_KEY,Authorization:"Bearer "+testingToken},body:JSON.stringify(body),cache:"no-store"});
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok||!data.ok)throw Error(data.error||"Testing request failed");
+ if(data.synthetic_only!==true)throw Error("Testing backend did not confirm synthetic-only response");
+ return data;
+}
+$("testing-login").onclick=async()=>{
+ $("testing-login").disabled=true;$("testing-auth-status").textContent="Verifying Testing credentials…";
+ try{
+  const response=await fetch(TEST_BASE+"/auth/v1/token?grant_type=password",{method:"POST",headers:{"Content-Type":"application/json",apikey:TEST_KEY},body:JSON.stringify({email:$("test-email").value.trim(),password:$("test-password").value}),cache:"no-store"});
+  const data=await response.json().catch(()=>({}));
+  $("test-password").value="";
+  if(!response.ok||!data.access_token)throw Error("Testing sign-in failed. Use the separate Testing password.");
+  testingToken=data.access_token;
+  // Verify staging owner identity before enabling any write controls.
+  await testCall({action:"list"});
+  testingControls(true);$("testing-auth-status").textContent="Verified Testing account. Synthetic-only database requests enabled.";
+  testStatus("Testing connection verified. No request submitted yet.");
+ }catch(e){testingToken="";testingControls(false);$("testing-auth-status").textContent="Testing sign-in not verified.";testStatus(e.message)}
+ finally{if(!testingToken)$("testing-login").disabled=false}
+};
+$("testing-logout").onclick=()=>{testingToken="";$("test-password").value="";testingControls(false);$("testing-auth-status").textContent="Signed out of Testing.";testStatus("Testing token cleared from this page.");$("staging-records").replaceChildren()};
+$("staging-submit").onclick=async()=>{
+ if(!$("staging-consent").checked){testStatus("Confirm synthetic Testing consent before submission.");return}
+ $("staging-submit").disabled=true;
+ try{
+  const addons=$("staging-addon").value?[$("staging-addon").value]:[];
+  const data=await testCall({action:"submit",service_name:$("staging-service").value,service_area:$("staging-area").value,frequency:$("staging-frequency").value,addons,consent_to_contact:true});
+  if(data.request?.synthetic_only!==true||data.request?.confirmed!==false||data.request?.customer_notified!==false)throw Error("Saved Testing record failed safety verification");
+  testStatus("SAVED IN TESTING ONLY · "+data.request.kind+" · "+data.request.service_name+" · "+(data.request.estimated_total===null?"Quote required":"Server estimate $"+data.request.estimated_total)+". No real booking, email or customer notification.");
+ }catch(e){testStatus(e.message)}finally{$("staging-submit").disabled=!testingToken}
+};
+$("staging-list").onclick=async()=>{
+ $("staging-list").disabled=true;
+ try{
+  const data=await testCall({action:"list"});$("staging-records").replaceChildren();
+  for(const item of data.requests||[]){
+   if(item.synthetic_only!==true||item.confirmed!==false||item.customer_notified!==false)throw Error("Unsafe Testing record detected");
+   const li=document.createElement("li");li.textContent=item.service_name+" · "+item.service_area+" · "+item.kind+" · "+(item.estimated_total===null?"Quote required":"$"+item.estimated_total);$("staging-records").append(li);
+  }
+  testStatus("Verified "+(data.requests||[]).length+" synthetic Testing record(s).");
+ }catch(e){$("staging-records").replaceChildren();testStatus(e.message)}finally{$("staging-list").disabled=!testingToken}
+};
+
 async function verify(){
  try{
   if(!db)throw Error("Sign-in unavailable");
@@ -121,5 +185,5 @@ async function verify(){
   $("auth-error").hidden=false;$("practice").hidden=true;
  }
 }
-db?.auth?.onAuthStateChange(event=>{if(event==="SIGNED_OUT"){$("practice").hidden=true;$("auth-state").textContent="Signed out. Owner access required."; $("auth-error").hidden=false;}});
+db?.auth?.onAuthStateChange(event=>{if(event==="SIGNED_OUT"){testingToken="";testingControls(false);$("practice").hidden=true;$("auth-state").textContent="Signed out. Owner access required."; $("auth-error").hidden=false;}});
 verify();
