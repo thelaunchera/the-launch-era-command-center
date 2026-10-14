@@ -64,6 +64,12 @@ assert.ok(studio.includes('sandbox=""'),"Preview iframe must disable scripts");
 assert.ok(studioJs.includes("db.auth.getSession"),"Booking Studio owner session required");
 assert.ok(studioJs.includes("tle-booking-studio-owner"),"Owner API must be used");
 
+assert.ok(practice.includes('id="handoff-design"'),"Practice needs private design handoff button");
+assert.ok(practiceJs.includes('tle-booking-studio-design-handoff')&&practiceJs.includes('action:"transfer"'),"Transfer must use protected backend");
+assert.ok(studio.includes('id="handoff-library"')&&studioJs.includes('async function refreshHandoffs()'),"Command Center must list transferred design references");
+assert.ok(studioJs.includes('action:"review"')&&studioJs.includes('HANDOFF_ENDPOINT'),"Owner approval and revisions must stay on private endpoint");
+
+
 assert.ok(studio.includes('id="email-subject"')&&studio.includes('id="email-body"'),"Email copy needs editable fields");
 assert.ok(studio.includes('id="email-save"')&&studio.includes('id="email-approve"')&&studio.includes('id="email-revise"'),"Email review controls missing");
 assert.ok(studioJs.includes("tle-booking-studio-email-review"),"Email decisions must call secured persistent endpoint");
