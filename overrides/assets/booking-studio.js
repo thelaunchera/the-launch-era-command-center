@@ -5,6 +5,7 @@ const SUPA="https://bowacxhmjvrqixtwaikv.supabase.co";
 const PUBLISHABLE="sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
 const endpoint=SUPA+"/functions/v1/tle-booking-studio-owner";
 const emailEndpoint=SUPA+"/functions/v1/tle-booking-studio-email-review";
+const clientReviewEndpoint=SUPA+"/functions/v1/tle-client-review";
 const db=window.supabase?.createClient?.(SUPA,PUBLISHABLE,{auth:{storageKey:"tle-crm-auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const qaIds=["tenant_isolation","payment_verified","intake_verified","assets_licensed","brand_accuracy","no_invented_claims","services_and_prices","booking_and_quote","frequency_and_addons","service_area","email_permissions","links","mobile","tablet","desktop","accessibility","en_es","customer_data_protected"];
 let state={jobs:[],accounts:[],selected:null,account:null};
@@ -44,7 +45,7 @@ async function start(id){
  try{const r=await api({action:"start",account_id:id,owner_start_approved:true});await refresh();await openJob(r.job.id);showMessage("Project started. Research evidence is required next.")}catch(e){showMessage(errText(e),true)}
 }
 async function openJob(id){
- try{const r=await api({action:"get",job_id:id});state.selected=r.job;state.account=r.account;paintProject();await loadEmailReview()}catch(e){showMessage(errText(e),true)}
+ try{const r=await api({action:"get",job_id:id});state.selected=r.job;state.account=r.account;paintProject();await Promise.all([loadEmailReview(),loadClientReview()])}catch(e){showMessage(errText(e),true)}
 }
 function paintProject(){
  const j=state.selected;if(!j)return;
@@ -294,6 +295,34 @@ async function refreshHandoffs(){
   item.append(heading,detail,actions);holder.append(item);
  }
 }
+
+
+async function loadClientReview(){
+ const job=state.selected,account=state.account;
+ if(!job||!account){setText("client-review-state","Choose a paid client project first.");return}
+ $("client-preview-gate").disabled=true;$("client-delivery-gate").disabled=true;
+ if(job.stage!=="approved"||job.qa?.passed!==true||job.owner_review?.approved!==true){
+  setText("client-review-state","Private design not yet approved after all QA checks. Finish owner approval first; customer delivery remains locked.");
+  return;
+ }
+ setText("client-review-state","Checking the buyer's existing private approval record…");
+ try{
+  const result=await api({action:"owner_get",subject_type:"booking",subject_id:account.id},clientReviewEndpoint);
+  const status=String(result.status||"unknown");
+  const remaining=Number(result.revisions_remaining);
+  const detail=status==="approved"?"Buyer approved the design. Final activation still requires separate release verification.":
+    status==="changes_requested"?"Buyer requested changes. Return to production; revision remaining: "+remaining+".":
+    status==="ready_for_retest"?"A revised design is ready for the buyer to check in their private space.":
+    status==="pending_review"?"Waiting for buyer review in their private account. Do not send a duplicate invitation.":
+    "Buyer review status: "+status+". Do not deliver until approved.";
+  setText("client-review-state",detail+" This screen does not send notifications, change customer records, or publish a page.");
+ }catch(e){
+  setText("client-review-state","Client approval record unavailable: "+errText(e)+". Nothing was sent.");
+ }
+}
+$("client-review-refresh").onclick=()=>loadClientReview();
+$("client-preview-gate").onclick=()=>{};
+$("client-delivery-gate").onclick=()=>{};
 
 async function boot(){
  try{
