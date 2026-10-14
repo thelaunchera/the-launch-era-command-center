@@ -63,6 +63,11 @@ assert.ok(studio.includes("noindex,nofollow,noarchive"),"Booking Studio must not
 assert.ok(studio.includes('sandbox=""'),"Preview iframe must disable scripts");
 assert.ok(studioJs.includes("db.auth.getSession"),"Booking Studio owner session required");
 assert.ok(studioJs.includes("tle-booking-studio-owner"),"Owner API must be used");
+
+assert.ok(studio.includes('id="domain-mode"')&&studio.includes('value="included_subdomain"')&&studio.includes('value="custom_domain"'),"Both domain options must exist");
+assert.ok(studioJs.includes('tle-booking-studio-domain-request')&&studioJs.includes('action:"configure"'),"Domain choices must persist via authenticated service");
+assert.ok(studio.includes('No link will be sent to the client yet'),"Domain preferences must not be misrepresented as published");
+
 assert.ok(studio.includes('id="client-review-panel"')&&studio.includes('id="client-preview-gate"'),"Owner studio needs customer-review release gates");
 assert.ok(studioJs.includes('tle-client-review')&&studioJs.includes('action:"owner_get"'),"Buyer review status must reuse existing authenticated backend");
 assert.ok(studio.includes('id="client-delivery-gate" disabled'),"Final delivery must remain disabled until separate release safety is validated");
