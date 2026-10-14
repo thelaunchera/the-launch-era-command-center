@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><title>Testing password recovery · The Launch Era</title><style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#191919;background:#f4f8fb}*{box-sizing:border-box}body{margin:0;padding:clamp(20px,5vw,65px)}main{max-width:520px;margin:5vh auto}section{background:white;border:1px solid #d4e2ec;border-radius:22px;padding:clamp(22px,4vw,36px)}h1{font-size:clamp(26px,4vw,36px);letter-spacing:-.045em}p{line-height:1.6}label{display:block;font-weight:650;margin:20px 0 7px}input{width:100%;font:inherit;padding:14px;border:1px solid #9eb7c8;border-radius:12px}button{margin-top:20px;border:0;border-radius:12px;background:#266a91;color:#fff;padding:14px 18px;font:inherit;font-weight:700;cursor:pointer}button:disabled{opacity:.55}a{color:#266a91}#status{overflow-wrap:anywhere}</style></head>
+<body><main><p><strong>THE LAUNCH ERA · TESTING ONLY</strong></p><section><h1>Set your Testing password</h1><p>This password is only for the separate Supabase Testing project. It does not change your website or Command Center login.</p><label for="password">New Testing password (12+ characters)</label><input type="password" id="password" autocomplete="new-password" minlength="12"><label for="confirm">Confirm new password</label><input type="password" id="confirm" autocomplete="new-password" minlength="12"><button id="save" disabled>Save Testing password</button><p id="status" role="status" aria-live="polite">Checking your Testing recovery link…</p><p><a href="/booking-studio-qa.html">Return to Booking Studio QA</a></p></section></main>
+<script type="module">
+const BASE="https://afyiltvdfqnuyzcqsnoh.supabase.co",KEY="sb_publishable_ECdkPd5gkDR55JOWEqsnPA_cJE8bENc";
+const status=msg=>document.getElementById("status").textContent=msg;
+const button=document.getElementById("save");let token="";
+(async()=>{try{
+ const hash=new URLSearchParams(location.hash.slice(1));const search=new URLSearchParams(location.search);
+ const access=hash.get("access_token");const type=hash.get("type");const hashToken=search.get("token_hash");
+ history.replaceState(null,"",location.pathname);
+ if(access&&type==="recovery")token=access;
+ else if(hashToken&&search.get("type")==="recovery"){
+  const r=await fetch(BASE+"/auth/v1/verify",{method:"POST",headers:{"Content-Type":"application/json",apikey:KEY},body:JSON.stringify({token_hash:hashToken,type:"recovery"})});const data=await r.json();if(!r.ok||!data.access_token)throw Error("Recovery link expired or invalid.");token=data.access_token;
+ }else throw Error("Open the password recovery link from your Testing email. Do not use a website login link.");
+ const userResp=await fetch(BASE+"/auth/v1/user",{headers:{apikey:KEY,authorization:"Bearer "+token}});const user=await userResp.json();
+ if(!userResp.ok||user.email?.toLowerCase()!=="hello@thelaunchera.com")throw Error("This recovery link is not for the authorized Testing account.");
+ button.disabled=false;status("Verified Testing account. Choose a new password.");
+ }catch(e){token="";status(e.message)}})();
+button.onclick=async()=>{if(!token)return;const password=document.getElementById("password").value,confirm=document.getElementById("confirm").value;if(password.length<12)return status("Use at least 12 characters.");if(password!==confirm)return status("Passwords do not match.");button.disabled=true;try{const r=await fetch(BASE+"/auth/v1/user",{method:"PUT",headers:{"Content-Type":"application/json",apikey:KEY,authorization:"Bearer "+token},body:JSON.stringify({password})});const data=await r.json();if(!r.ok)throw Error(data.msg||data.error_description||data.message||"Could not update password");token="";document.getElementById("password").value="";document.getElementById("confirm").value="";status("Testing password updated. Return to Booking Studio QA and sign in with your new password.");}catch(e){button.disabled=false;status(e.message)}};
+</script></body></html>
