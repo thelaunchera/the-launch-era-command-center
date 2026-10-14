@@ -67,6 +67,7 @@ await copyFile(resolve("overrides/assets/booking-studio-preview.mjs"),join(dest,
 // Temporary Testing-only browser QA page: no customer records and no navigation link.
 await copyFile(resolve("overrides/booking-studio-qa.html"),join(dest,"booking-studio-qa.html"));
 await copyFile(resolve("overrides/booking-studio-qa-recovery.html"),join(dest,"booking-studio-qa-recovery.html"));
+await copyFile(resolve("overrides/booking-studio-qa-reset.html"),join(dest,"booking-studio-qa-reset.html"));
 // Add navigation only; never alter the existing AI Team runtime or buyer agent permissions.
 await rewrite("ai-team.html",s=>s.replace(
  '<a class="ait-back" href="./">← Command Center</a>',
