@@ -32,4 +32,18 @@ jobs:
           check_denied "Anonymous list" -X POST -H 'Content-Type: application/json' --data '{"action":"list"}'
           check_denied "Invalid bearer list" -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer invalid-not-a-jwt' --data '{"action":"list"}'
           check_denied "Anonymous synthetic submit" -X POST -H 'Content-Type: application/json' --data '{"action":"submit","service_name":"Synthetic QA","service_area":"Miami","frequency":"one_time","addons":[],"consent_to_contact":true}'
-          echo 'PASS: unauthenticated and invalid-token requests denied; no authorized writes performed.'
+          PROD="https://bowacxhmjvrqixtwaikv.supabase.co/functions/v1/tle-booking-studio-owner"
+          check_prod_denied() {
+            local label="$1"
+            shift
+            local status
+            status=$(curl --silent --show-error --max-time 20 -o /tmp/booking-studio-owner-denied-response -w '%{http_code}' "$@" "$PROD")
+            echo "$label: HTTP $status"
+            if [[ "$status" != "401" && "$status" != "403" ]]; then
+              echo "::error::$label unexpectedly returned HTTP $status"
+              exit 1
+            fi
+          }
+          check_prod_denied "Production owner API anonymous list" -X POST -H 'Content-Type: application/json' --data '{"action":"list"}'
+          check_prod_denied "Production owner API invalid bearer list" -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer invalid-not-a-jwt' --data '{"action":"list"}'
+          echo 'PASS: staging and production owner APIs reject anonymous and invalid-token requests; no authorized writes performed.'
