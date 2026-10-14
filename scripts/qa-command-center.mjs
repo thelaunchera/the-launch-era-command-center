@@ -3,7 +3,7 @@ import { join } from "node:path";
 import assert from "node:assert/strict";
 const root=".site";
 const required=[
-"index.html","access.html","access/index.html","ai-team.html","booking-studio.html","booking-studio-qa.html","booking-studio-qa-recovery.html","assets/booking-studio.js","assets/booking-studio-preview.mjs",
+"index.html","access.html","access/index.html","ai-team.html","booking-studio.html","booking-studio-qa.html","booking-studio-qa-recovery.html","booking-studio-qa-reset.html","assets/booking-studio.js","assets/booking-studio-preview.mjs",
 "assets/command-center-app.js","assets/command-center.css","assets/command-center-i18n.js",
 "assets/ai-team.js","assets/jessy-owner.js","assets/ai-team-entry.js",
 "assets/booking-smart-welcome-editor.js","vendor/supabase-js-v2.57.0.umd.js",
@@ -30,6 +30,9 @@ assert.ok(testPage.includes("tle-booking-studio-staging-qa"),"Staging QA endpoin
 assert.ok(!testPage.includes('id="signup"'),"Hosted staging QA must not allow public sign-up");
 assert.ok(testPage.includes("booking-studio-qa-recovery.html"),"Testing recovery must not redirect to marketing");
 assert.ok(!testPage.includes('el("signup").disabled'),"Removed signup must not crash Testing login");
+const resetPage=read("booking-studio-qa-reset.html");
+assert.ok(testPage.includes('href="/booking-studio-qa-reset.html"'),"Reset control must work as a direct link");
+assert.ok(resetPage.includes("/auth/v1/recover?redirect_to=")&&resetPage.includes("booking-studio-qa-recovery.html"),"Reset page must request Testing recovery redirect");
 const recovery=read("booking-studio-qa-recovery.html");
 assert.ok(recovery.includes("afyiltvdfqnuyzcqsnoh")&&recovery.includes('type:"recovery"'),"Recovery must use Testing project and recovery token");
 assert.ok(recovery.includes("history.replaceState"),"Recovery URL must remove tokens");
