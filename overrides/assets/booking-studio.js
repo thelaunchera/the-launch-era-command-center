@@ -4,17 +4,18 @@ const $=id=>document.getElementById(id);
 const SUPA="https://bowacxhmjvrqixtwaikv.supabase.co";
 const PUBLISHABLE="sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
 const endpoint=SUPA+"/functions/v1/tle-booking-studio-owner";
+const emailEndpoint=SUPA+"/functions/v1/tle-booking-studio-email-review";
 const db=window.supabase?.createClient?.(SUPA,PUBLISHABLE,{auth:{storageKey:"tle-crm-auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const qaIds=["tenant_isolation","payment_verified","intake_verified","assets_licensed","brand_accuracy","no_invented_claims","services_and_prices","booking_and_quote","frequency_and_addons","service_area","email_permissions","links","mobile","tablet","desktop","accessibility","en_es","customer_data_protected"];
 let state={jobs:[],accounts:[],selected:null,account:null};
 const setText=(id,value)=>{$(id).textContent=String(value??"")};
 const showMessage=(text,error=false)=>{const el=$("message");el.hidden=false;el.textContent=String(text);el.style.background=error?"#fff1ef":"#f1f7fb";el.style.color=error?"#9b4136":"#34566d"};
 const errText=e=>String(e?.message||"Request unavailable");
-async function api(payload){
+async function api(payload,target=endpoint){
  if(!db)throw Error("Owner authentication is unavailable");
  const {data:{session},error}=await db.auth.getSession();
  if(error||!session?.access_token)throw Error("Please sign in to your private Command Center first.");
- const response=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json",apikey:PUBLISHABLE,Authorization:"Bearer "+session.access_token},body:JSON.stringify(payload),cache:"no-store"});
+ const response=await fetch(target,{method:"POST",headers:{"Content-Type":"application/json",apikey:PUBLISHABLE,Authorization:"Bearer "+session.access_token},body:JSON.stringify(payload),cache:"no-store"});
  const data=await response.json().catch(()=>({error:"Invalid server response"}));
  if(!response.ok||!data.ok)throw Error(data.error||"Request failed");
  return data;
@@ -43,7 +44,7 @@ async function start(id){
  try{const r=await api({action:"start",account_id:id,owner_start_approved:true});await refresh();await openJob(r.job.id);showMessage("Project started. Research evidence is required next.")}catch(e){showMessage(errText(e),true)}
 }
 async function openJob(id){
- try{const r=await api({action:"get",job_id:id});state.selected=r.job;state.account=r.account;paintProject()}catch(e){showMessage(errText(e),true)}
+ try{const r=await api({action:"get",job_id:id});state.selected=r.job;state.account=r.account;paintProject();await loadEmailReview()}catch(e){showMessage(errText(e),true)}
 }
 function paintProject(){
  const j=state.selected;if(!j)return;
@@ -150,7 +151,8 @@ $("preview-button").onclick=()=>{
   $("preview-wrap").scrollIntoView({behavior:"smooth",block:"start"});
  }catch(e){showMessage("Private preview unavailable: "+errText(e),true)}
 };
-const emailReview={approved:new Map(),current:null};
+
+const emailReview={row:null,seq:0,key:"",loading:false};
 function customerEmailDraft(){
  const job=state.selected,account=state.account;
  if(!job||!account)throw Error("Choose a verified client project first.");
@@ -163,18 +165,104 @@ function customerEmailDraft(){
  const [subject,body]=templates[lang][stage];
  return {jobId:String(job.id),stage,lang,subject,body};
 }
-function emailKey(d){return [d.jobId,d.stage,d.lang,d.subject,d.body].join("|")}
+
+function emailContext(){
+ const d=customerEmailDraft();
+ return {job_id:d.jobId,stage:d.stage,lang:d.lang};
+}
+function emailDirty(){
+ const row=emailReview.row;
+ return !row||$("email-subject").value.trim()!==row.subject||$("email-body").value.trim()!==row.body;
+}
+function emailButtons(){
+ const row=emailReview.row,dirty=emailDirty(),valid=!!state.selected&&!emailReview.loading;
+ $("email-save").disabled=!valid;
+ $("email-preview").disabled=!valid;
+ $("email-approve").disabled=!valid||!row||dirty||row.review_status!=="draft";
+ $("email-revise").disabled=!valid||!row||dirty||row.review_status==="changes_requested";
+}
+async function loadEmailReview(){
+ const current=++emailReview.seq;
+ emailReview.row=null;
+ emailReview.loading=true;
+ emailReview.key="";
+ $("email-subject").value="";$("email-body").value="";
+ setText("email-version","Loading private email history…");
+ setText("email-result","No customer message has been sent.");
+ emailButtons();
+ if(!state.selected)return;
+ try{
+  const ctx=emailContext(),result=await api({action:"get",...ctx},emailEndpoint);
+  if(current!==emailReview.seq)return;
+  const defaultDraft=customerEmailDraft(),row=result.latest||null;
+  emailReview.row=row;
+  emailReview.key=[ctx.job_id,ctx.stage,ctx.lang].join("|");
+  $("email-subject").value=row?.subject||defaultDraft.subject;
+  $("email-body").value=row?.body||defaultDraft.body;
+  $("email-notes").value=row?.revision_notes||"";
+  setText("email-version",row?"Version "+row.version+" · "+row.review_status.replaceAll("_"," ")+" · Saved privately":"Not yet saved · Starting draft for this client");
+  const entries=(result.history||[]).map(v=>"v"+v.version+" · "+v.review_status.replaceAll("_"," ")+(v.approved_at?" · approved":""));
+  setText("email-history",entries.length?"Previous versions: "+entries.join("  /  "):"No previous versions for this message.");
+ }catch(e){
+  if(current!==emailReview.seq)return;
+  setText("email-version","Could not load the saved review.");
+  setText("email-result",errText(e));
+  emailReview.key="";
+ }finally{
+  if(current===emailReview.seq){emailReview.loading=false;emailButtons();}
+ }
+}
+function requireCurrentEmail(){
+ const ctx=emailContext();
+ if(emailReview.loading||emailReview.key!==[ctx.job_id,ctx.stage,ctx.lang].join("|"))throw Error("This email is still loading. Select it again.");
+ return ctx;
+}
+$("email-stage").onchange=()=>loadEmailReview();
+$("email-language").onchange=()=>loadEmailReview();
+$("email-subject").oninput=emailButtons;
+$("email-body").oninput=emailButtons;
 $("email-preview").onclick=()=>{
- try{const d=customerEmailDraft();emailReview.current=d;$("email-result").textContent="DRAFT PREVIEW — NOT SENT\\nSubject: "+d.subject+"\\n\\n"+d.body+"\\n\\nNo email or automation was activated.";}
- catch(e){$("email-result").textContent=e.message}
+ try{
+  requireCurrentEmail();
+  setText("email-result","PRIVATE EMAIL PREVIEW — NOT SENT\n\nSubject: "+$("email-subject").value.trim()+"\n\n"+$("email-body").value.trim()+"\n\nNo automations were activated.");
+ }catch(e){setText("email-result",errText(e))}
 };
-$("email-approve").onclick=()=>{
- try{const d=customerEmailDraft();if(!window.confirm("Approve this email COPY for private review only? No messages will be sent."))return;emailReview.approved.set(emailKey(d),true);$("email-result").textContent="✓ Draft copy approved in this browser session only. No email sent, no automation enabled. Production approval persistence is not configured yet.";}
- catch(e){$("email-result").textContent=e.message}
+$("email-save").onclick=async()=>{
+ const button=$("email-save");button.disabled=true;
+ try{
+  const ctx=requireCurrentEmail(),subject=$("email-subject").value.trim(),body=$("email-body").value.trim();
+  if(!subject||!body)throw Error("Please enter a subject and message.");
+  const saved=await api({action:"save",...ctx,subject,body,expected_version:emailReview.row?.version||0},emailEndpoint);
+  await loadEmailReview();
+  setText("email-result",saved.unchanged?"Copy already saved. Nothing sent.":"Saved as version "+saved.latest.version+". Review it before approving; nothing was sent.");
+ }catch(e){setText("email-result",errText(e))}
+ finally{emailButtons();}
 };
-$("email-revise").onclick=()=>{
- try{const d=customerEmailDraft();emailReview.approved.delete(emailKey(d));$("email-result").textContent="Revision requested. The draft is not approved. No message sent. Edit the copy during the next production review.";}
- catch(e){$("email-result").textContent=e.message}
+$("email-approve").onclick=async()=>{
+ const button=$("email-approve");
+ try{
+  const ctx=requireCurrentEmail(),row=emailReview.row;
+  if(!row||emailDirty())throw Error("Save the exact message before approving.");
+  if(!window.confirm("Approve this saved version of the EMAIL COPY only? It will not send any emails or activate automations."))return;
+  button.disabled=true;
+  const r=await api({action:"approve",...ctx,version:row.version,content_hash:row.content_hash},emailEndpoint);
+  await loadEmailReview();
+  setText("email-result","✓ Version "+r.latest.version+" approved and saved securely. Sending remains disabled.");
+ }catch(e){setText("email-result",errText(e))}
+ finally{emailButtons();}
+};
+$("email-revise").onclick=async()=>{
+ const button=$("email-revise");
+ try{
+  const ctx=requireCurrentEmail(),row=emailReview.row,notes=$("email-notes").value.trim();
+  if(!row||emailDirty())throw Error("Save the current message first, then request changes.");
+  if(!notes)throw Error("Write the changes you want before sending it back.");
+  button.disabled=true;
+  const r=await api({action:"revise",...ctx,version:row.version,content_hash:row.content_hash,notes},emailEndpoint);
+  await loadEmailReview();
+  setText("email-result","Changes requested for version "+r.latest.version+". Edit the text and save a NEW version for approval. Nothing sent.");
+ }catch(e){setText("email-result",errText(e))}
+ finally{emailButtons();}
 };
 $("refresh").onclick=()=>refresh().catch(e=>showMessage(errText(e),true));
 async function boot(){
@@ -187,5 +275,5 @@ async function boot(){
   showMessage(errText(e),true);
  }
 }
-db?.auth?.onAuthStateChange((event)=>{if(event==="SIGNED_OUT"){location.replace("/command-center/")}});
+db?.auth?.onAuthStateChange((event)=>{if(event==="SIGNED_OUT"){location.replace("/")}});
 boot();
