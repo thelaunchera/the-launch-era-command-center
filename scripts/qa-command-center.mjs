@@ -3,7 +3,7 @@ import { join } from "node:path";
 import assert from "node:assert/strict";
 const root=".site";
 const required=[
-"index.html","access.html","access/index.html","ai-team.html","booking-studio.html","assets/booking-studio.js","assets/booking-studio-preview.mjs",
+"index.html","access.html","access/index.html","ai-team.html","booking-studio.html","booking-studio-qa.html","assets/booking-studio.js","assets/booking-studio-preview.mjs",
 "assets/command-center-app.js","assets/command-center.css","assets/command-center-i18n.js",
 "assets/ai-team.js","assets/jessy-owner.js","assets/ai-team-entry.js",
 "assets/booking-smart-welcome-editor.js","vendor/supabase-js-v2.57.0.umd.js",
@@ -23,6 +23,12 @@ assert.ok(index.includes("./assets/command-center-app.js"),"Private application 
 assert.ok(ai.includes("assets/ai-team.js"),"Private team entry missing");
 assert.ok(ai.includes("./booking-studio.html"),"Owner AI Team must link to Booking Studio");
 const studio=read("booking-studio.html"),studioJs=read("assets/booking-studio.js");
+const testPage=read("booking-studio-qa.html");
+assert.ok(testPage.includes("noindex,nofollow"),"Temporary staging QA must not be indexed");
+assert.ok(testPage.includes("afyiltvdfqnuyzcqsnoh"),"Staging QA must target only Testing Supabase");
+assert.ok(testPage.includes("tle-booking-studio-staging-qa"),"Staging QA endpoint missing");
+assert.ok(!testPage.includes('id="signup"'),"Hosted staging QA must not allow public sign-up");
+assert.ok(!testPage.includes("SUPABASE_SERVICE_ROLE_KEY"),"Secret key cannot be in hosted QA");
 assert.ok(studio.includes("noindex,nofollow,noarchive"),"Booking Studio must not be indexed");
 assert.ok(studio.includes('sandbox=""'),"Preview iframe must disable scripts");
 assert.ok(studioJs.includes("db.auth.getSession"),"Booking Studio owner session required");
