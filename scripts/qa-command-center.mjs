@@ -3,7 +3,7 @@ import { join } from "node:path";
 import assert from "node:assert/strict";
 const root=".site";
 const required=[
-"index.html","access.html","access/index.html","ai-team.html","booking-studio.html","booking-studio-practice.html","assets/booking-studio-practice.js","booking-studio-qa.html","booking-studio-qa-recovery.html","booking-studio-qa-reset.html","assets/booking-studio.js","assets/booking-studio-preview.mjs","assets/booking-studio-functional-preview.mjs",
+"index.html","access.html","access/index.html","ai-team.html","booking-studio.html","booking-studio-practice.html","assets/booking-studio-practice.js","booking-studio-qa.html","booking-studio-qa-recovery.html","booking-studio-qa-reset.html","assets/booking-studio.js","assets/booking-studio-preview.mjs","assets/booking-studio-functional-preview.mjs","assets/booking-studio-followup-rules.mjs",
 "assets/command-center-app.js","assets/command-center.css","assets/command-center-i18n.js",
 "assets/ai-team.js","assets/jessy-owner.js","assets/ai-team-entry.js",
 "assets/booking-smart-welcome-editor.js","vendor/supabase-js-v2.57.0.umd.js",
