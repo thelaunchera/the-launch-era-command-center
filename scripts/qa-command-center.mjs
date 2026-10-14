@@ -67,6 +67,12 @@ assert.ok(studio.includes('id="client-review-panel"')&&studio.includes('id="clie
 assert.ok(studioJs.includes('tle-client-review')&&studioJs.includes('action:"owner_get"'),"Buyer review status must reuse existing authenticated backend");
 assert.ok(studio.includes('id="client-delivery-gate" disabled'),"Final delivery must remain disabled until separate release safety is validated");
 
+assert.ok(studio.includes('id="client-review-preflight"'),"Client invite requires independent readiness check");
+assert.ok(studioJs.includes('tle-booking-studio-review-invite')&&studioJs.includes('action:"check"'),"Invitation must use backend preflight");
+assert.ok(studioJs.includes('action:"send"')&&studioJs.includes('owner_confirmed:true'),"Invite requires explicit owner action");
+assert.ok(studio.includes('id="client-preview-gate" disabled'),"Invitation must start disabled");
+
+
 
 assert.ok(practice.includes('id="handoff-design"'),"Practice needs private design handoff button");
 assert.ok(practiceJs.includes('tle-booking-studio-design-handoff')&&practiceJs.includes('action:"transfer"'),"Transfer must use protected backend");
