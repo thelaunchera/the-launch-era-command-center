@@ -294,6 +294,25 @@ $("preview-followup").onclick=()=>{
  }catch(e){testStatus(e.message)}
 };
 
+
+const HANDOFF_ENDPOINT=SUPA+"/functions/v1/tle-booking-studio-design-handoff";
+$("handoff-design").onclick=async()=>{
+ const button=$("handoff-design"),notice=$("handoff-status");
+ notice.hidden=false;
+ if(!db){notice.textContent="Sign in to your Command Center first.";return}
+ if(!window.confirm("Save this FICTIONAL design concept as a private reference in your Command Center? This does NOT create a customer project or notify anyone."))return;
+ button.disabled=true;notice.textContent="Saving your private design reference…";
+ try{
+  const {data:{session}}=await db.auth.getSession();
+  if(!session?.access_token)throw Error("Owner sign-in required.");
+  const response=await fetch(HANDOFF_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json",apikey:KEY,Authorization:"Bearer "+session.access_token},body:JSON.stringify({action:"transfer",version}),cache:"no-store"});
+  const result=await response.json();
+  if(!response.ok||!result.ok)throw Error(result.error||"Could not save the reference");
+  notice.textContent="✓ Saved privately. Open Booking Studio to review it. No client was contacted.";
+ }catch(e){notice.textContent=String(e.message||"Could not save the reference")}
+ finally{button.disabled=false}
+};
+
 async function verify(){
  try{
   if(!db)throw Error("Sign-in unavailable");
