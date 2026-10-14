@@ -32,6 +32,16 @@ function draw(){
  for(const d of ["phone","tablet","desktop"])$(""+d).setAttribute("aria-pressed",String(d===device));
  const frame=$("preview");frame.className="frame "+device;
  frame.srcdoc=renderBookingStudioPreview(job,{watermark:"FICTIONAL PRACTICE · NOT A REAL CLIENT"});
+ $("single-preview").hidden=compareMode;
+ $("comparison").hidden=!compareMode;
+ $("comparison").className="comparison "+device;
+ $("compare").setAttribute("aria-pressed",String(compareMode));
+ $("compare").textContent=compareMode?"Close comparison":"Compare side by side";
+ if(compareMode){
+  $("compare-draft").srcdoc=renderBookingStudioPreview(base,{watermark:"FICTIONAL · FIRST CONCEPT"});
+  $("compare-revision").srcdoc=renderBookingStudioPreview(revised,{watermark:"FICTIONAL · REVISED CONCEPT"});
+  for(const id of ["compare-draft","compare-revision"]){const f=$(id);f.style.width=device==="phone"?"390px":device==="tablet"?"768px":"100%";}
+ }
  $("status-chip").textContent="NOT APPROVED · DEMO";
 }
 $("draft").onclick=()=>{version="draft";compareMode=false;draw();status("Viewing the first fictional concept.")};
@@ -44,9 +54,8 @@ $("request").onclick=()=>{
  status("SIMULATED: Request changes → Creative revision → Developer rebuild → repeat QA. Your note: "+requestNotes+". This is a prepared example; no agent executed a real task.");
 };
 $("compare").onclick=()=>{
- compareMode=!compareMode;
- version=version==="draft"?"revision":"draft";draw();
- status("Comparison mode: use First concept and Revised concept to inspect both layouts. No changes are saved.");
+ compareMode=!compareMode;draw();
+ status(compareMode?"Side-by-side comparison of the two fictional concepts. No changes are saved.":"Single-design preview restored.");
 };
 $("approve").onclick=()=>{
  status("SIMULATED APPROVAL BLOCKED: This visual example has no verified photo license, complete functional QA, paid order or client tenant. In a real project, the owner can approve only after all required evidence passes. Nothing was approved or published.");
