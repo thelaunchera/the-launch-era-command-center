@@ -202,7 +202,7 @@ $("staging-list").onclick=async()=>{
    const date=document.createElement("p");date.textContent="Received "+new Date(item.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
    const pick=document.createElement("button");pick.className="button alt";pick.type="button";pick.textContent="Review next step →";
    pick.onclick=()=>{
-    selectedSyntheticRequest={kind:item.kind,service_name:item.service_name,service_area:item.service_area,estimated_total:item.estimated_total,synthetic_only:item.synthetic_only,confirmed:item.confirmed,customer_notified:item.customer_notified,consent_to_contact:item.consent_to_contact,created_at:item.created_at};
+    selectedSyntheticRequest={id:item.id,kind:item.kind,service_name:item.service_name,service_area:item.service_area,estimated_total:item.estimated_total,synthetic_only:item.synthetic_only,confirmed:item.confirmed,customer_notified:item.customer_notified,consent_to_contact:item.consent_to_contact,created_at:item.created_at};
     $("followup-panel").hidden=false;$("followup-message").hidden=true;$("followup-decision").hidden=true;
     $("followup-quote-ready").checked=false;$("followup-sent").value="no";$("followup-sim-time").value="";
     const decision=followupDecision();
@@ -244,6 +244,27 @@ $("check-followup").onclick=()=>{
  if(decision.eligible)$("followup-type").value=decision.stage;
 };
 
+$("save-followup-draft").onclick=async()=>{
+ const button=$("save-followup-draft");button.disabled=true;
+ try{
+  if(!testingToken||!selectedSyntheticRequest?.id)throw Error("Select a verified Testing request.");
+  const decision=followupDecision();
+  const stage=$("followup-type").value;
+  if(stage!=="received"&&(!decision.eligible||stage!==decision.stage))throw Error("This follow-up is not ready for draft review. "+friendlyFollowupReason(decision.reason));
+  if(stage==="received"&&(!selectedSyntheticRequest.consent_to_contact||!selectedSyntheticRequest.synthetic_only))throw Error("Verified Testing consent required.");
+  const data=await testCall({action:"followup_save",request_id:selectedSyntheticRequest.id,stage,language:$("followup-language").value});
+  $("followup-history").hidden=false;$("followup-history").textContent="✓ Draft saved for review in Testing. Nothing was sent. Reference: "+data.followup.id.slice(0,8);
+ }catch(e){$("followup-history").hidden=false;$("followup-history").textContent=e.message}finally{button.disabled=false}
+};
+$("view-followup-history").onclick=async()=>{
+ const button=$("view-followup-history");button.disabled=true;
+ try{
+  const data=await testCall({action:"followup_list"});
+  const items=(data.followups||[]).filter(x=>x.synthetic_only===true&&x.customer_notified===false);
+  $("followup-history").hidden=false;
+  $("followup-history").textContent=items.length?items.length+" saved review draft(s). Nothing sent.\\n"+items.map(x=>x.stage+" · "+x.language.toUpperCase()+" · "+x.status+" · "+new Date(x.created_at).toLocaleDateString()).join("\\n"):"No saved review drafts yet.";
+ }catch(e){$("followup-history").hidden=false;$("followup-history").textContent=e.message}finally{button.disabled=false}
+};
 function createFollowupPreview(item,stage,lang){
  if(!item||!["booking_request","quote_request"].includes(item.kind)||!["received","followup","quote"].includes(stage)||!["en","es"].includes(lang))throw Error("Unsupported synthetic follow-up");
  const service=String(item.service_name||"").slice(0,100);
