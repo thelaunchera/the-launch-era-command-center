@@ -64,6 +64,14 @@ textarea{min-height:94px;resize:vertical}.form-grid{display:grid;grid-template-c
 <form id="review-form" hidden><h3>Jessie · Owner decision</h3><p class="note">This review is for the verified private build. Approving here does not publish or email anyone.</p>
 <label>Notes / revision request<textarea name="notes"></textarea></label>
 <div class="actions"><button type="button" class="action secondary" id="approve">Approve private build</button><button type="button" class="action danger" id="request-changes">Request changes</button></div></form>
+<section class="panel" id="booking-domain-panel" aria-label="Booking Page address" style="padding:18px 0"><h2>Client Booking Link</h2>
+<p class="intro">Choose an included address or the customer's own domain. The address remains private until hosting, DNS, SSL and tenant isolation are verified. No link will be sent to the client yet.</p>
+<div class="form-grid"><label>Booking address option<select id="domain-mode"><option value="included_subdomain">Included booking link · No client domain</option><option value="custom_domain">Client's own domain</option></select></label>
+<label id="domain-slug-label">Business link name<input id="domain-slug" autocomplete="off" maxlength="40" placeholder="sparklecleaning"></label>
+<label id="domain-host-label" hidden>Authorized client hostname<input id="domain-host" autocomplete="off" maxlength="180" placeholder="book.clientdomain.com"></label></div>
+<div class="actions"><button id="domain-save" type="button" class="action secondary">Save booking address preference</button><button id="domain-refresh" type="button" class="action secondary">Check address status</button></div>
+<div id="domain-status" class="note" role="status" aria-live="polite" style="margin-top:12px">Choose a paid client project first. No public link has been generated.</div>
+</section>
 <section class="panel" id="client-review-panel" aria-label="Client approval and final delivery" style="padding:18px 0">
 <h2>Client approval &amp; delivery</h2>
 <p class="intro">Your private QA approval comes first. Then review the buyer's existing approval record. Client notification and final activation remain separate gated actions.</p>
