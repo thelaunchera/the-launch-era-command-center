@@ -60,6 +60,52 @@ $("compare").onclick=()=>{
 $("approve").onclick=()=>{
  status("SIMULATED APPROVAL BLOCKED: This visual example has no verified photo license, complete functional QA, paid order or client tenant. In a real project, the owner can approve only after all required evidence passes. Nothing was approved or published.");
 };
+
+// Fictional front-end booking engine: intentionally NO persistence, network or email.
+// Quotes always require a human confirmation; the example prices are not TLE prices.
+const examplePricing=Object.freeze({standard:120,deep:null,move:null});
+const discounts=Object.freeze({one_time:0,weekly:.15,biweekly:.10,monthly:.05});
+const labels=Object.freeze({standard:"Everyday Home Cleaning",deep:"Deep Home Reset",move:"Moving Day Cleaning"});
+const today=new Date();const yyyy=today.getFullYear(),mm=String(today.getMonth()+1).padStart(2,"0"),dd=String(today.getDate()).padStart(2,"0");
+$("test-date").min=[yyyy,mm,dd].join("-");
+const readFlow=()=>({
+ service:$("service").value,frequency:$("frequency").value,area:$("area").value,
+ property:$("property").value,oven:$("oven").checked,fridge:$("fridge").checked
+});
+function calculateFlow(input){
+ if(!Object.hasOwn(examplePricing,input.service)||!Object.hasOwn(discounts,input.frequency)||!["miami","miami_beach"].includes(input.area)||!["house","apartment"].includes(input.property))throw Error("Unsupported test selection");
+ const extras=(input.oven?25:0)+(input.fridge?20:0);
+ const base=examplePricing[input.service];
+ if(base===null)return {kind:"quote",total:null,extras};
+ const beforeDiscount=base+(input.property==="house"?30:0)+extras;
+ return {kind:"estimate",total:Math.round(beforeDiscount*(1-discounts[input.frequency])*100)/100,extras};
+}
+function refreshEstimate(){
+ const input=readFlow(),price=calculateFlow(input);
+ $("estimate").textContent=price.kind==="quote"?"Personalized quote required":"Estimated $"+price.total.toFixed(2);
+ $("estimate-details").textContent=price.kind==="quote"
+  ?"This service needs a personalized quote. Add-ons and property details will be reviewed before any price is confirmed."
+  :"Fictional price example · "+Math.round(discounts[input.frequency]*100)+"% frequency discount · Final price subject to review.";
+ $("booking-result").hidden=true;
+}
+for(const id of ["service","frequency","area","property","oven","fridge"])$(id).addEventListener("change",refreshEstimate);
+$("test-booking").onclick=()=>{
+ const name=$("guest").value.trim(),date=$("test-date").value;
+ if(name.length<2||name.length>80){$("booking-result").hidden=false;$("booking-result").textContent="Enter a fictional test name (2–80 characters).";$("guest").focus();return}
+ if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||date<$("test-date").min){$("booking-result").hidden=false;$("booking-result").textContent="Select a valid date today or later.";$("test-date").focus();return}
+ if(!$("practice-consent").checked){$("booking-result").hidden=false;$("booking-result").textContent="Please confirm this is a fictional test first.";return}
+ const data=readFlow(),result=calculateFlow(data);
+ const kind=result.kind==="quote"?"quote request":"booking request";
+ $("booking-result").hidden=false;
+ $("booking-result").textContent="LOCAL TEST PASSED · "+kind.toUpperCase()+" · "+name+" · "+labels[data.service]+" · "+date+" · "+(result.total===null?"Personalized quote required":"Estimated $"+result.total.toFixed(2))+". No appointment, email, payment or record was created.";
+};
+$("reset-booking").onclick=()=>{
+ for(const id of ["service","frequency","area","property"])$(id).selectedIndex=0;
+ for(const id of ["oven","fridge","practice-consent"])$(id).checked=false;
+ $("guest").value="";$("test-date").value="";$("booking-result").hidden=true;refreshEstimate();
+};
+refreshEstimate();
+
 async function verify(){
  try{
   if(!db)throw Error("Sign-in unavailable");
