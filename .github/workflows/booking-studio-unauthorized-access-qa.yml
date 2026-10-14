@@ -49,4 +49,19 @@ jobs:
           check_prod_denied "Anonymous owner start blocked" -X POST -H 'Content-Type: application/json' --data '{"action":"start","account_id":"00000000-0000-4000-8000-000000000000","owner_start_approved":true}'
           check_prod_denied "Anonymous owner approval blocked" -X POST -H 'Content-Type: application/json' --data '{"action":"review","job_id":"00000000-0000-4000-8000-000000000000","decision":"approve","owner_confirmed":true}'
           check_prod_denied "Invalid bearer change request blocked" -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer invalid-not-a-jwt' --data '{"action":"review","job_id":"00000000-0000-4000-8000-000000000000","decision":"request_changes","notes":"Synthetic negative security test"}'
-          echo 'PASS: staging and production owner APIs reject anonymous and invalid-token reads, starts, approvals and revisions; no authorized writes performed.'
+          EMAIL_API="https://bowacxhmjvrqixtwaikv.supabase.co/functions/v1/tle-booking-studio-email-review"
+          check_email_denied() {
+            local label="$1"
+            shift
+            local status
+            status=$(curl --silent --show-error --max-time 20 -o /tmp/booking-email-denied-response -w '%{http_code}' "$@" "$EMAIL_API")
+            echo "$label: HTTP $status"
+            if [[ "$status" != "401" && "$status" != "403" ]]; then
+              echo "::error::$label unexpectedly returned HTTP $status"
+              exit 1
+            fi
+          }
+          check_email_denied "Anonymous email history read blocked" -X POST -H 'Content-Type: application/json' --data '{"action":"get","job_id":"00000000-0000-4000-8000-000000000000","stage":"received","lang":"en"}'
+          check_email_denied "Invalid bearer email approval blocked" -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer invalid-not-a-jwt' --data '{"action":"approve","job_id":"00000000-0000-4000-8000-000000000000","stage":"received","lang":"en","version":1,"content_hash":"invalid"}'
+          check_email_denied "Anonymous email version insert blocked" -X POST -H 'Content-Type: application/json' --data '{"action":"save","job_id":"00000000-0000-4000-8000-000000000000","stage":"received","lang":"en","subject":"Test","body":"Not sent","expected_version":0}'
+          echo 'PASS: owner and email-review production endpoints reject unauthenticated reads, saves, and approvals; no authorized writes performed.'

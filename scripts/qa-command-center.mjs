@@ -63,6 +63,14 @@ assert.ok(studio.includes("noindex,nofollow,noarchive"),"Booking Studio must not
 assert.ok(studio.includes('sandbox=""'),"Preview iframe must disable scripts");
 assert.ok(studioJs.includes("db.auth.getSession"),"Booking Studio owner session required");
 assert.ok(studioJs.includes("tle-booking-studio-owner"),"Owner API must be used");
+
+assert.ok(studio.includes('id="email-subject"')&&studio.includes('id="email-body"'),"Email copy needs editable fields");
+assert.ok(studio.includes('id="email-save"')&&studio.includes('id="email-approve"')&&studio.includes('id="email-revise"'),"Email review controls missing");
+assert.ok(studioJs.includes("tle-booking-studio-email-review"),"Email decisions must call secured persistent endpoint");
+assert.ok(studioJs.includes('action:"get"')&&studioJs.includes('action:"save"')&&studioJs.includes('action:"approve"')&&studioJs.includes('action:"revise"'),"Persisted email review actions missing");
+assert.ok(studioJs.includes("expected_version")&&studioJs.includes("content_hash"),"Email approvals must bind to immutable saved version");
+assert.ok(!studioJs.includes("new Map(),current:null"),"Session-only email approval cannot remain");
+
 assert.ok(!studioJs.includes("innerHTML="),"Unsafe HTML injection in owner studio");
 assert.ok(recover.includes("/vendor/supabase-js-v2.57.0.umd.js"),"Recovery points to another host/path");
 assert.ok(!recover.includes("/command-center/"),"Recovery would leave private root path");

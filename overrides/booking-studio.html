@@ -62,7 +62,27 @@ textarea{min-height:94px;resize:vertical}.form-grid{display:grid;grid-template-c
 <form id="review-form" hidden><h3>Jessie · Owner decision</h3><p class="note">This review is for the verified private build. Approving here does not publish or email anyone.</p>
 <label>Notes / revision request<textarea name="notes"></textarea></label>
 <div class="actions"><button type="button" class="action secondary" id="approve">Approve private build</button><button type="button" class="action danger" id="request-changes">Request changes</button></div></form>
-<section class="panel" id="email-approval-panel" aria-label="Customer email approval"><h2>Customer email review</h2><p class="intro">Review the messages your customer may receive before any real automation is enabled. Drafts are private and nothing on this screen sends an email.</p><div class="form-grid"><label>Email stage<select id="email-stage"><option value="received">Request received</option><option value="followup">Friendly follow-up</option><option value="quote">Quote ready for review</option></select></label><label>Language<select id="email-language"><option value="en">English</option><option value="es">Español</option></select></label></div><div class="actions"><button type="button" class="action secondary" id="email-preview">Preview customer email</button><button type="button" class="action secondary" id="email-approve">Approve draft copy (private)</button><button type="button" class="action secondary" id="email-revise">Request copy changes</button></div><div class="note" id="email-result" role="status" aria-live="polite">Select a client project to preview the draft. This is not a sending tool.</div><p class="intro">Email approval is separate from page approval. No production email or follow-up is activated by these controls.</p></section>
+<section class="panel" id="email-approval-panel" aria-label="Customer email approval">
+<h2>Customer email review</h2>
+<p class="intro">Preview and edit customer-facing messages for this business. Saving or approving copy does not send emails or turn on automations.</p>
+<div class="form-grid">
+<label>Email stage<select id="email-stage"><option value="received">Request received</option><option value="followup">Friendly follow-up</option><option value="quote">Quote ready for review</option></select></label>
+<label>Language<select id="email-language"><option value="en">English</option><option value="es">Español</option></select></label>
+<label class="full">Subject<input id="email-subject" type="text" maxlength="180" autocomplete="off"></label>
+<label class="full">Email message<textarea id="email-body" rows="7" maxlength="3000"></textarea></label>
+<label class="full">Notes for changes<textarea id="email-notes" rows="3" maxlength="800" placeholder="What should be changed in this email?"></textarea></label>
+</div>
+<div class="actions">
+<button type="button" class="action secondary" id="email-preview">Preview email</button>
+<button type="button" class="action secondary" id="email-save">Save draft</button>
+<button type="button" class="action" id="email-approve" disabled>Approve this version</button>
+<button type="button" class="action danger" id="email-revise" disabled>Request changes</button>
+</div>
+<div class="note" id="email-version" role="status" aria-live="polite">Choose a project to load its email versions.</div>
+<div class="note" id="email-result" role="status" aria-live="polite">Email drafts are private. No email is sent from here.</div>
+<p class="intro" id="email-history">Version history will appear here after your first save.</p>
+<p class="intro">Only the latest saved version can be approved. An approved draft is not permission to publish or send it.</p>
+</section>
 <div id="approved-state" hidden class="note success">Owner approved this private build. Publishing remains disabled pending a separate authorized release workflow.</div>
 </div></section></div><div id="message" role="status" aria-live="polite" hidden></div>
 </main>
