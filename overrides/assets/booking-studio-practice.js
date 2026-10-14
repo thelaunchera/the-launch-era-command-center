@@ -178,7 +178,13 @@ $("staging-submit").onclick=async()=>{
   const addons=$("staging-addon").value?[$("staging-addon").value]:[];
   const data=await testCall({action:"submit",service_name:$("staging-service").value,service_area:$("staging-area").value,frequency:$("staging-frequency").value,addons,consent_to_contact:true});
   if(data.request?.synthetic_only!==true||data.request?.confirmed!==false||data.request?.customer_notified!==false)throw Error("Saved Testing record failed safety verification");
-  testStatus("SAVED IN TESTING ONLY · "+data.request.kind+" · "+data.request.service_name+" · "+(data.request.estimated_total===null?"Quote required":"Server estimate $"+data.request.estimated_total)+". No real booking, email or customer notification.");
+  friendlyResult($("staging-result"),{
+   title:data.request.kind==="quote_request"?"Your practice quote is saved":"Your practice request is saved!",
+   subtitle:"Everything worked in our private Testing environment.",
+   fields:[["Cleaning service",data.request.service_name],["Service area",data.request.service_area],["Next step",data.request.kind==="quote_request"?"Review a personalized quote":"Review the cleaning request"],["Price",data.request.estimated_total===null?"Personalized quote":"Estimated $"+Number(data.request.estimated_total).toFixed(2)]],
+   footnote:"Testing only. No real booking, email or customer notification was created.",
+   icon:"✓"
+  });
  }catch(e){testStatus(e.message)}finally{$("staging-submit").disabled=!testingToken}
 };
 $("staging-list").onclick=async()=>{
@@ -257,7 +263,13 @@ $("preview-followup").onclick=()=>{
   if(!testingToken||!selectedSyntheticRequest)throw Error("Select a verified synthetic Testing request first");
   const draft=createFollowupPreview(selectedSyntheticRequest,$("followup-type").value,$("followup-language").value);
   $("followup-message").hidden=false;
-  $("followup-message").textContent="DRAFT ONLY · NOT SENT\nSubject: "+draft.subject+"\n\n"+draft.text+"\n\nNo email, notification or scheduled follow-up was created.";
+  $("followup-message").className="friendly-result";
+  $("followup-message").replaceChildren();
+  const title=document.createElement("h3");title.textContent="Email preview · Not sent";
+  const subject=document.createElement("p");const strong=document.createElement("strong");strong.textContent=draft.subject;subject.append(strong);
+  const body=document.createElement("p");body.textContent=draft.text;
+  const foot=document.createElement("p");foot.className="footnote";foot.textContent="No email, notification or scheduled follow-up was created.";
+  $("followup-message").append(title,subject,body,foot);
  }catch(e){testStatus(e.message)}
 };
 
