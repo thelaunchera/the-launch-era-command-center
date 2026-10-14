@@ -26,6 +26,7 @@ await copy("assets/brand");
 await copy("assets/jessy-avatar.webp");
 await copy("assets/clients/cb-depot");
 for(const file of ["favicon.png","favicon.ico","apple-touch-icon.png","auth-recovery.html"])await copy(file);
+await copyFile(resolve("brand/favicon-tle.svg"),join(dest,"favicon-tle.svg"));
 await mkdir(join(dest,"access"),{recursive:true});
 await copyFile(join(dest,"access.html"),join(dest,"access/index.html"));
 await mkdir(join(dest,"auth-recovery"),{recursive:true});
@@ -37,7 +38,7 @@ for(const relative of ["auth-recovery.html","auth-recovery/index.html"])
 // Old worker is not a hosting or favicon dependency of this GitHub Pages site.
 const legacyIcon=/https:\/\/the-launch-era-crm\.dailinsegura17\.workers\.dev\/app-icons\/tle-(?:180|192|512)\.png(?:\?v=[A-Za-z0-9_-]+)?/g;
 for(const relative of ["index.html","access.html","access/index.html","manifest-tle.webmanifest"])
- await rewrite(relative,s=>s.replace(legacyIcon,"/favicon.png"));
+ await rewrite(relative,s=>s.replace(legacyIcon,"/favicon-tle.svg?v=20261014").replaceAll('type="image/png"','type="image/svg+xml"').replaceAll('favicon.type="image/png"','favicon.type="image/svg+xml"'));
 // Notifications launched on the new, independent hostname stay on its root portal.
 await rewrite("sw.js",s=>s.replaceAll("/command-center/","/").replaceAll('provided.pathname.startsWith("/")','provided.pathname.startsWith("/")').replaceAll('requested.pathname.startsWith("/")','requested.pathname.startsWith("/")'));
 // The internal OWNER marketing-demo iframe is intentionally served by the website.
