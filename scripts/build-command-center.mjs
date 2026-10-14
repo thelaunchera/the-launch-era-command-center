@@ -66,6 +66,7 @@ await copyFile(resolve("overrides/booking-studio-practice.html"),join(dest,"book
 await copyFile(resolve("overrides/assets/booking-studio-practice.js"),join(dest,"assets/booking-studio-practice.js"));
 await copyFile(resolve("overrides/assets/booking-studio.js"),join(dest,"assets/booking-studio.js"));
 await copyFile(resolve("overrides/assets/booking-studio-preview.mjs"),join(dest,"assets/booking-studio-preview.mjs"));
+await copyFile(resolve("overrides/assets/booking-studio-functional-preview.mjs"),join(dest,"assets/booking-studio-functional-preview.mjs"));
 // Practice Studio is owner-verified, synthetic-only, and cannot write or publish.
 // Temporary Testing-only browser QA page: no customer records and no navigation link.
 await copyFile(resolve("overrides/booking-studio-qa.html"),join(dest,"booking-studio-qa.html"));
