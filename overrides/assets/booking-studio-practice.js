@@ -191,7 +191,7 @@ $("preview-followup").onclick=()=>{
   if(!testingToken||!selectedSyntheticRequest)throw Error("Select a verified synthetic Testing request first");
   const draft=createFollowupPreview(selectedSyntheticRequest,$("followup-type").value,$("followup-language").value);
   $("followup-message").hidden=false;
-  $("followup-message").textContent="DRAFT ONLY · NOT SENT\\nSubject: "+draft.subject+"\\n\\n"+draft.text+"\\n\\nNo email, notification or scheduled follow-up was created.";
+  $("followup-message").textContent="DRAFT ONLY · NOT SENT\nSubject: "+draft.subject+"\n\n"+draft.text+"\n\nNo email, notification or scheduled follow-up was created.";
  }catch(e){testStatus(e.message)}
 };
 
