@@ -3,7 +3,7 @@ import { join } from "node:path";
 import assert from "node:assert/strict";
 const root=".site";
 const required=[
-"index.html","access.html","access/index.html","ai-team.html",
+"index.html","access.html","access/index.html","ai-team.html","booking-studio.html","assets/booking-studio.js","assets/booking-studio-preview.mjs",
 "assets/command-center-app.js","assets/command-center.css","assets/command-center-i18n.js",
 "assets/ai-team.js","assets/jessy-owner.js","assets/ai-team-entry.js",
 "assets/booking-smart-welcome-editor.js","vendor/supabase-js-v2.57.0.umd.js",
@@ -21,6 +21,13 @@ const index=read("index.html"),recover=read("auth-recovery.html"),ai=read("ai-te
 assert.ok(index.includes('id="authForm"'),"Private login form missing");
 assert.ok(index.includes("./assets/command-center-app.js"),"Private application missing");
 assert.ok(ai.includes("assets/ai-team.js"),"Private team entry missing");
+assert.ok(ai.includes("./booking-studio.html"),"Owner AI Team must link to Booking Studio");
+const studio=read("booking-studio.html"),studioJs=read("assets/booking-studio.js");
+assert.ok(studio.includes("noindex,nofollow,noarchive"),"Booking Studio must not be indexed");
+assert.ok(studio.includes('sandbox=""'),"Preview iframe must disable scripts");
+assert.ok(studioJs.includes("db.auth.getSession"),"Booking Studio owner session required");
+assert.ok(studioJs.includes("tle-booking-studio-owner"),"Owner API must be used");
+assert.ok(!studioJs.includes("innerHTML="),"Unsafe HTML injection in owner studio");
 assert.ok(recover.includes("/vendor/supabase-js-v2.57.0.umd.js"),"Recovery points to another host/path");
 assert.ok(!recover.includes("/command-center/"),"Recovery would leave private root path");
 assert.equal(read("CNAME").trim(),"command.thelaunchera.com");
