@@ -35,3 +35,26 @@ body.crm-owner-view #ownerOverviewHub .nav-link.active{background:inherit}
 @media(max-width:780px){.od-feature-grid,.od-bottom-grid{grid-template-columns:1fr}.od-welcome{align-items:flex-start;flex-direction:column}.od-date{align-self:flex-start;text-align:left}.od-section-head>span{display:none}body.crm-owner-view .od-feature{min-height:90px!important}}
 @media(max-width:480px){body.crm-owner-view #ownerOverviewHub{max-width:100%;overflow-wrap:anywhere}.od-welcome{padding:20px;border-radius:20px}.od-feature-grid{gap:9px}.od-feature-icon{width:39px;height:39px;flex-basis:39px}body.crm-owner-view .od-feature{padding:14px!important;gap:11px!important}.od-card{padding:15px}.od-action-stack{gap:8px}.od-section-head{margin-top:20px}}
 @media(prefers-reduced-motion:reduce){.od-feature{transition:none!important}}
+
+
+/* Live owner prospect summary — only within verified private owner view. */
+body.crm-owner-view .od-leads-panel{min-width:0;margin-top:17px;padding:21px;background:#fff;border:1px solid #ccdfeb;border-radius:20px;box-shadow:0 4px 18px #244e6e0b}
+.od-leads-heading{display:flex;justify-content:space-between;align-items:center;gap:14px}
+.od-leads-heading h3{font:800 21px/1.25 Prompt,Arial,sans-serif;color:#191919;margin:7px 0}
+.od-leads-heading p{font-size:13px;line-height:1.5;color:#5c7180;margin:0}
+body.crm-owner-view .od-leads-all{width:auto!important;flex-shrink:0;min-width:0!important;min-height:40px!important;border:1px solid #c3dcf0!important;border-radius:12px!important;padding:9px 12px!important;background:#e6f4ff!important;color:#204966!important;font-size:12px!important;text-decoration:none!important}
+.od-leads-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:17px}
+body.crm-owner-view .od-leads-stat{width:100%!important;min-width:0!important;display:grid!important;justify-items:start!important;gap:6px!important;min-height:90px!important;background:#f6faff!important;color:#191919!important;border:1px solid #dcebf5!important;border-radius:15px!important;text-align:left!important;padding:14px!important;white-space:normal!important;box-shadow:none!important}
+body.crm-owner-view .od-leads-stat strong{font:800 clamp(23px,3vw,31px)/1 Prompt,Arial,sans-serif}
+body.crm-owner-view .od-leads-stat span{font-size:12px;line-height:1.35;color:#536a7a}
+.od-leads-next{margin-top:18px}
+.od-leads-next h4{font:750 15px Prompt,Arial,sans-serif;margin:0 0 10px;color:#191919}
+#odLeadPreview{display:grid;gap:7px}
+body.crm-owner-view .od-lead-item{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;padding:12px 13px!important;min-height:56px!important;border:1px solid #e1eaf0!important;border-radius:12px!important;width:100%!important;background:#FAF8F3!important;color:#191919!important;white-space:normal!important;text-align:left!important;box-shadow:none!important}
+.od-lead-item span:first-child{min-width:0;display:grid;gap:4px}
+.od-lead-item strong{font-size:13px;overflow-wrap:anywhere}
+.od-lead-item small{font-size:11px;line-height:1.4;color:#667b89;overflow-wrap:anywhere}
+.od-lead-item>span:last-child{color:#3a7597;flex-shrink:0;font-size:12px}
+.od-leads-empty{background:#f7f9fb;border:1px dashed #d2e0e9;border-radius:12px;padding:13px;font-size:13px;line-height:1.5;color:#526979;margin:0}
+.od-leads-note{font-size:11px;line-height:1.5;color:#647989;margin:13px 0 0}
+@media(max-width:600px){body.crm-owner-view .od-leads-panel{padding:16px}.od-leads-heading{flex-direction:column;align-items:stretch}.od-leads-all{align-self:flex-start}.od-leads-metrics{gap:7px}body.crm-owner-view .od-leads-stat{padding:10px!important;min-height:83px!important}body.crm-owner-view .od-leads-stat span{font-size:11px}}
