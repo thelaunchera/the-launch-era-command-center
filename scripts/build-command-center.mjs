@@ -111,7 +111,7 @@ await rewrite("assets/command-center-app.js",s=>{
  exact(" $('ownerSupportPanel').classList.toggle('hidden',v!=='owner-support'||!workspace?.is_internal);",
        " $('ownerSupportPanel').classList.toggle('hidden',v!=='owner-support'||!workspace?.is_internal);\n $('ownerOverviewHub').classList.toggle('hidden',v!=='owner-dashboard'||!workspace?.is_internal);");
  exact(" const ownerTitles={\n"," const ownerTitles={\n  'owner-dashboard':['MY PRIVATE ADMIN / OVERVIEW','Your Command Center'],\n");
- exact("['owner-pages','owner-calendar','leads','pipeline','calendar','clients','inbox','emails','settings','owner-support','owner-help','notifications']",
+ exact("['owner-pages','owner-calendar','leads','calendar','clients','inbox','emails','settings','owner-support','owner-help','notifications']",
        "['owner-dashboard','owner-pages','owner-calendar','leads','pipeline','calendar','clients','inbox','emails','settings','owner-support','owner-help','notifications']");
  exact('["owner-pages","owner-calendar","leads","pipeline","calendar"',
        '["owner-dashboard","owner-pages","owner-calendar","leads","pipeline","calendar"');
