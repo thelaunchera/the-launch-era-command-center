@@ -54,6 +54,10 @@ await rewrite("assets/command-center-notification-settings.js",s=>
    'note(t("Could not save preferences: ","No se pudieron guardar las preferencias: ")+String(e?.message||"Connection error").slice(0,180));console.warn("Alert preferences",e.message)'));
 await rewrite("index.html",s=>s.replace('href="/booking-bundle/','href="https://thelaunchera.com/booking-bundle/'));
 
+// Static purchase rehearsal: fictional data, no payment or backend writes.
+await mkdir(join(dest,"order-practice"),{recursive:true});
+await copyFile(resolve("overrides/order-practice/index.html"),join(dest,"order-practice/index.html"));
+
 // Compact owner-only Jessy alert; preserve pinned source and all private routing.
 await copyFile(resolve("overrides/jessy-owner.js"),join(dest,"assets/jessy-owner.js"));
 await copyFile(resolve("overrides/jessy-owner.css"),join(dest,"assets/jessy-owner.css"));
