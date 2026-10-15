@@ -103,6 +103,10 @@ await rewrite("assets/command-center-app.js",s=>{
  const before=s;
  const exact=(from,to)=>{if(!s.includes(from))throw Error("Owner dashboard routing anchor missing: "+from.slice(0,85));s=s.replace(from,to)};
  exact("if(workspace?.is_internal&&target==='home')target='owner-pages';","/* Owner dashboard is a dedicated private view. */");
+ // Opening the prospect list should always start unfiltered. Stale search or
+ // outreach filters were capable of making stored leads appear missing.
+ exact(" const leadSection=['leads','calendar','clients','inbox','emails'].includes(target);",
+       " if(workspace?.is_internal&&target==='leads'){$('search').value='';$('outreachFilter').value='';}\n const leadSection=['leads','calendar','clients','inbox','emails'].includes(target);");
  exact("if(target==='home'){\n if(workspace&&!workspace.is_internal)",
        "if(target==='home'){\n if(workspace?.is_internal){setView('owner-dashboard');$('ownerOverviewHub').scrollIntoView({behavior:'smooth'});return}\n if(workspace&&!workspace.is_internal)");
  exact("  setView('owner-pages');\n  const target=","  setView('owner-dashboard');\n  const target=");
