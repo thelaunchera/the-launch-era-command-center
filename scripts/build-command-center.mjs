@@ -129,6 +129,14 @@ await rewrite("assets/command-center-app.js",s=>{
  return s;
 });
 
+// CB Depot phone-only single-surface correction. The pinned upstream stays unchanged;
+// use an isolated local stylesheet so owner and future tenants cannot be affected.
+await copyFile(resolve("overrides/cb-depot-mobile-edge.css"),join(dest,"assets/cb-depot-mobile-edge.css"));
+await rewrite("index.html",s=>{
+ if(!s.includes("</head>"))throw Error("CB Depot mobile CSS injection anchor missing");
+ return s.replace("</head>",'<link rel="stylesheet" href="./assets/cb-depot-mobile-edge.css?v=20261014-mobile-edge-v1"></head>');
+});
+
 await writeFile(join(dest,"CNAME"),DOMAIN+"\n","utf8");
 await writeFile(join(dest,".nojekyll"),"","utf8");
 await writeFile(join(dest,"robots.txt"),"User-agent: *\nDisallow: /\n","utf8");
