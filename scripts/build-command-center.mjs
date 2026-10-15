@@ -108,6 +108,16 @@ await rewrite("ai-team.html",s=>{
   .replace(source,'<script src="./assets/ai-team-easy-check.js?v=20261014-mobile-v1"></script>\n<script type="module" src="./assets/ai-team.js');
 });
 
+// Owner-only Idea Vault. No buyer navigation and no automatic task execution.
+await copyFile(resolve("overrides/idea-vault.html"),join(dest,"idea-vault.html"));
+await copyFile(resolve("overrides/assets/idea-vault.css"),join(dest,"assets/idea-vault.css"));
+await copyFile(resolve("overrides/assets/idea-vault.js"),join(dest,"assets/idea-vault.js"));
+await rewrite("index.html",s=>{
+ const nav='<div class="nav-caption" id="ownerOrdersCaption">THE LAUNCH ERA · PRIVATE</div>';
+ if(!s.includes(nav))throw Error("Private navigation anchor changed; abort Idea Vault insertion");
+ return s.replace(nav,nav+'\n<a class="nav-link" id="ownerIdeasNav" href="./idea-vault.html" style="text-decoration:none">🎙 <span>Idea Vault</span></a>');
+});
+
 // Owner dashboard is isolated from buyer workspaces and the marketing website.
 const ownerDashboardMarkup=await readFile(resolve("overrides/owner-dashboard.html"),"utf8");
 await copyFile(resolve("overrides/owner-dashboard.css"),join(dest,"assets/owner-dashboard.css"));
