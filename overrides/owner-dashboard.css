@@ -1,0 +1,37 @@
+/* Dedicated owner landing. Never modify buyer or public website layouts. */
+body:not(.crm-owner-view) #ownerOverviewHub{display:none!important}
+body.crm-owner-view #ownerOverviewHub:not(.hidden){display:block}
+.od-welcome{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:clamp(19px,3vw,31px);background:linear-gradient(115deg,#e6f4ff 0%,#f6fbff 65%,#FAF8F3 100%);border:1px solid #bed9ee;border-radius:24px;color:#191919;min-width:0}
+.od-welcome-copy{min-width:0}
+.od-eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;color:#446783}
+.od-welcome h2{font:800 clamp(24px,3vw,36px)/1.15 Prompt,Arial,sans-serif;letter-spacing:-.035em;margin:12px 0 10px}
+.od-welcome p{font:400 14px/1.65 Futura,"Avenir Next",Arial,sans-serif;color:#425d70;margin:0;max-width:640px}
+.od-date{flex-shrink:0;text-align:center;border-radius:18px;background:#fffaf1;padding:12px 16px;border:1px solid #f0dd9c;font-weight:700;font-size:12px;line-height:1.5;max-width:210px;color:#303b42}
+.od-section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:24px 0 12px}
+.od-section-head h3,.od-card h3{font:800 19px/1.3 Prompt,Arial,sans-serif;color:#191919;margin:0}
+.od-section-head>span{color:#617686;font-size:12px}
+.od-feature-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+body.crm-owner-view .od-feature{display:flex!important;align-items:center!important;gap:13px!important;width:100%!important;min-width:0!important;min-height:108px!important;text-align:left!important;background:#fff!important;border:1px solid #d9e5ec!important;border-radius:19px!important;padding:18px!important;color:#191919!important;box-shadow:0 4px 18px #244e6e0b!important;text-decoration:none!important;white-space:normal!important;transition:border-color .15s,transform .15s!important}
+body.crm-owner-view .od-feature:hover{border-color:#9ecae3!important;transform:translateY(-2px)}
+.od-feature-icon,.od-card-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:13px;background:#e1f0fc;color:#284f68;font-size:21px}
+.od-feature-copy{display:grid;gap:6px;flex:1;min-width:0;overflow-wrap:anywhere}
+.od-feature-copy strong,.od-action strong{font:750 15px/1.3 Prompt,Arial,sans-serif;color:#191919}
+.od-feature-copy small,.od-action small{display:block;font:400 12px/1.5 Futura,"Avenir Next",Arial,sans-serif;color:#607485;white-space:normal;overflow-wrap:anywhere}
+.od-arrow{flex-shrink:0;font-size:20px;color:#607c91;margin-left:auto}
+.od-bottom-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+.od-card{min-width:0;background:#fff;border:1px solid #d9e5ec;border-radius:20px;padding:20px}
+.od-card-head{display:flex;align-items:center;gap:11px}
+.od-card-icon{width:34px;height:34px;flex-basis:34px;border-radius:11px;font-size:17px;background:#fff3c0;color:#59451b}
+.od-card>p{font-size:12px;line-height:1.6;color:#607485;margin:11px 0 15px}
+.od-action-stack{display:grid;gap:8px}
+body.crm-owner-view .od-action{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;min-width:0!important;width:100%!important;min-height:64px!important;margin:0!important;background:#FAF8F3!important;border:1px solid #ebebe6!important;border-radius:13px!important;padding:11px 13px!important;color:#191919!important;text-align:left!important;font-weight:400!important;text-decoration:none!important;white-space:normal!important}
+.od-action>span:first-child{min-width:0}
+.od-action>span:last-child{flex-shrink:0;font-size:18px;color:#7598ac}
+body.crm-owner-view .od-action:hover{border-color:#a9c9dd!important;background:#f2faff!important;box-shadow:none!important}
+.od-help{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:20px 2px 6px;font-size:12px;line-height:1.55;color:#5e7383}
+body.crm-owner-view .od-help-link{display:inline!important;width:auto!important;min-width:0!important;min-height:36px!important;background:transparent!important;border:0!important;padding:4px 2px!important;margin:0!important;font-size:12px!important;color:#225b80!important;text-decoration:underline!important}
+body.crm-owner-view #ownerOverviewHub .nav-link:focus-visible,.od-action:focus-visible{outline:3px solid #257fb5!important;outline-offset:2px}
+body.crm-owner-view #ownerOverviewHub .nav-link.active{background:inherit}
+@media(max-width:780px){.od-feature-grid,.od-bottom-grid{grid-template-columns:1fr}.od-welcome{align-items:flex-start;flex-direction:column}.od-date{align-self:flex-start;text-align:left}.od-section-head>span{display:none}body.crm-owner-view .od-feature{min-height:90px!important}}
+@media(max-width:480px){body.crm-owner-view #ownerOverviewHub{max-width:100%;overflow-wrap:anywhere}.od-welcome{padding:20px;border-radius:20px}.od-feature-grid{gap:9px}.od-feature-icon{width:39px;height:39px;flex-basis:39px}body.crm-owner-view .od-feature{padding:14px!important;gap:11px!important}.od-card{padding:15px}.od-action-stack{gap:8px}.od-section-head{margin-top:20px}}
+@media(prefers-reduced-motion:reduce){.od-feature{transition:none!important}}
