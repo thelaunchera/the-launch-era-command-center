@@ -22,6 +22,12 @@ const vault=read("idea-vault.html"),vaultJs=read("assets/idea-vault.js"),vaultCs
 assert.ok(index.includes('id="ownerIdeasNav"')&&index.includes('./idea-vault.html'),"Idea Vault must be linked only from private owner navigation");
 assert.ok(index.includes('data-od-en="Idea Vault"'),"Idea Vault dashboard card missing");
 assert.ok(vault.includes('id="voiceButton"')&&vault.includes('id="saveIdea"'),"Voice/text capture controls missing");
+assert.ok(vault.includes('id="ideaSearch"')&&vault.includes('id="areaFilter"')&&vault.includes('id="exportIdeas"'),"Idea Vault must support searching, area filters and private backup");
+assert.ok(vault.includes('id="draftStatus"')&&vault.includes('id="metricInbox"'),"Idea Vault needs recoverable draft feedback and quick overview");
+assert.ok(vaultJs.includes('rememberDraft')&&vaultJs.includes('restoreDraft')&&vaultJs.includes('suggestArea'),"Idea Vault lost draft protection or area suggestions");
+assert.ok(vaultJs.includes('No duplicate')||vaultJs.includes('duplicado'),"Idea Vault duplicate safety missing");
+assert.ok(vaultJs.includes('Owner Idea Vault v2')&&vaultJs.includes("tle_owner_ideas"),"Owner Idea Vault v2 script not connected");
+
 assert.ok(vault.includes('./vendor/supabase-js-v2.57.0.umd.js'),"Idea Vault must load pinned local Auth client");
 assert.ok(vaultJs.includes("storageKey:'tle-crm-auth'")&&vaultJs.includes(".eq('is_internal',true)"),"Idea Vault owner authentication gate missing");
 assert.ok(vaultJs.includes("tle_owner_ideas")&&vaultJs.includes("status:'inbox'"),"Ideas must persist as inbox, not work tasks");
