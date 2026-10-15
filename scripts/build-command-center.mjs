@@ -79,6 +79,48 @@ await rewrite("ai-team.html",s=>s.replace(
  '<a class="ait-back" href="./booking-studio.html">Booking Studio</a><a class="ait-back" href="./">← Command Center</a>'
 ));
 
+// Owner dashboard is isolated from buyer workspaces and the marketing website.
+const ownerDashboardMarkup=await readFile(resolve("overrides/owner-dashboard.html"),"utf8");
+await copyFile(resolve("overrides/owner-dashboard.css"),join(dest,"assets/owner-dashboard.css"));
+await copyFile(resolve("overrides/assets/owner-dashboard.js"),join(dest,"assets/owner-dashboard.js"));
+await rewrite("index.html",s=>{
+ const markers=[
+  '<div class="nav-caption" id="ownerOrdersCaption">THE LAUNCH ERA · PRIVATE</div>',
+  '<button type="button" class="nav-link" id="ownerSupportNav"',
+  '<section id="pipeline" class="hidden">',
+  '</head>',
+  '</body>'
+ ];
+ for(const marker of markers)if(!s.includes(marker))throw Error("Owner overview missing markup anchor: "+marker);
+ return s
+  .replace(markers[0],'<div class="nav-caption" id="ownerOrdersCaption">THE LAUNCH ERA · PRIVATE</div>\n<button type="button" class="nav-link" id="ownerOverviewNav" data-target="home">⌂ <span>Dashboard</span></button>')
+  .replace(markers[1],'<details class="workspace-nav-group" id="ownerWorkToolsGroup"><summary>Work tools</summary><div class="workspace-nav-items"><a class="nav-link" href="./booking-studio.html">◈ <span>Booking Studio</span></a><a class="nav-link" href="./ai-team.html">✦ <span>AI Team</span></a></div></details>\n'+markers[1])
+  .replace(markers[2],markers[2]+ownerDashboardMarkup)
+  .replace('</head>','<link rel="stylesheet" href="./assets/owner-dashboard.css?v=20261014-owner-layout-v1"></head>')
+  .replace('</body>','<script src="./assets/owner-dashboard.js?v=20261014-owner-layout-v1" defer></script></body>');
+});
+await rewrite("assets/command-center-app.js",s=>{
+ const before=s;
+ const exact=(from,to)=>{if(!s.includes(from))throw Error("Owner dashboard routing anchor missing: "+from.slice(0,85));s=s.replace(from,to)};
+ exact("if(workspace?.is_internal&&target==='home')target='owner-pages';","/* Owner dashboard is a dedicated private view. */");
+ exact("if(target==='home'){\n if(workspace&&!workspace.is_internal)",
+       "if(target==='home'){\n if(workspace?.is_internal){setView('owner-dashboard');$('ownerOverviewHub').scrollIntoView({behavior:'smooth'});return}\n if(workspace&&!workspace.is_internal)");
+ exact("  setView('owner-pages');\n  const target=","  setView('owner-dashboard');\n  const target=");
+ exact("b.dataset.target==='owner-pages'));\n  hideTleLoading()", "b.dataset.target==='home'));\n  hideTleLoading()");
+ exact("const organizedTarget={'buyer-dashboard':'home'","const organizedTarget={'owner-dashboard':'home','buyer-dashboard':'home'");
+ exact(" $('ownerSupportPanel').classList.toggle('hidden',v!=='owner-support'||!workspace?.is_internal);",
+       " $('ownerSupportPanel').classList.toggle('hidden',v!=='owner-support'||!workspace?.is_internal);\n $('ownerOverviewHub').classList.toggle('hidden',v!=='owner-dashboard'||!workspace?.is_internal);");
+ exact(" const ownerTitles={\n"," const ownerTitles={\n  'owner-dashboard':['MY PRIVATE ADMIN / OVERVIEW','Your Command Center'],\n");
+ exact("['owner-pages','owner-calendar','leads','pipeline','calendar','clients','inbox','emails','settings','owner-support','owner-help','notifications']",
+       "['owner-dashboard','owner-pages','owner-calendar','leads','pipeline','calendar','clients','inbox','emails','settings','owner-support','owner-help','notifications']");
+ exact('["owner-pages","owner-calendar","leads","pipeline","calendar"',
+       '["owner-dashboard","owner-pages","owner-calendar","leads","pipeline","calendar"');
+ exact('const labels={"owner-pages":"Clients & Purchases"',
+       'const labels={"owner-dashboard":"Overview","owner-pages":"Clients & Purchases"');
+ if(s===before)throw Error("Owner dashboard rewrite produced no change");
+ return s;
+});
+
 await writeFile(join(dest,"CNAME"),DOMAIN+"\n","utf8");
 await writeFile(join(dest,".nojekyll"),"","utf8");
 await writeFile(join(dest,"robots.txt"),"User-agent: *\nDisallow: /\n","utf8");
