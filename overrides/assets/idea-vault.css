@@ -21,3 +21,34 @@ footer{text-align:center;color:#78909d;font-size:12px;padding:27px 12px;line-hei
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 @media(max-width:540px){.vault-app{padding:16px 14px 24px}.topbar{padding-bottom:20px}.top-brand{font-size:10px}.top-brand-sub{display:none}.intro{padding-bottom:18px}.capture,.saved{border-radius:20px}.pill{font-size:10px}.capture-actions{align-items:stretch}.mic,.save{padding:13px 14px;font-size:12px}.idea-fields select{max-width:145px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* Idea Vault v2 — supportive, owner-only organization */
+.vault-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:0 0 18px}
+.vault-metric{min-width:0;display:flex;align-items:baseline;gap:12px;padding:15px 17px;border:1px solid #dce9f0;border-radius:17px;background:#fffdf9}
+.vault-metric strong{font-size:clamp(22px,3.2vw,29px);color:#306d99;font-weight:800;letter-spacing:-.04em}
+.vault-metric span{font-size:12px;line-height:1.4;font-weight:650;color:#688091}
+.draft-status{margin:13px 0 0;background:#fffbee;border:1px solid #f1e3bd;border-radius:11px;padding:9px 12px;font-size:12px;line-height:1.5;color:#866d34}
+.review-note{display:flex;align-items:center;gap:10px;margin-bottom:15px;border-radius:13px;background:linear-gradient(95deg,#e7f4fc,#f7fbfe);color:#4b728c;font-size:12px;line-height:1.45;padding:12px 14px}
+.review-note span[aria-hidden]{font-size:19px}
+.vault-toolbar{display:flex;align-items:center;gap:9px;margin-bottom:12px;flex-wrap:wrap}
+.search-field{display:flex;align-items:center;gap:7px;flex:1 1 195px;min-width:0;border:1px solid #d9e6ef;background:white;border-radius:13px;padding:0 11px;color:#447a9c}
+.search-field input{font-size:14px;min-width:0;width:100%;outline:none;border:0;background:transparent;padding:12px 0;color:#243d4b}
+.search-field input::placeholder{color:#8397a4}
+.area-field{flex:0 1 auto;min-width:0}.area-field select{background:white;color:#385c74;border:1px solid #d9e6ef;border-radius:13px;font-size:12px;max-width:170px;min-height:43px;padding:0 11px}
+.backup-button{flex:0 0 auto;min-height:43px;border:1px solid #d1e5ef;border-radius:13px;padding:10px 12px;background:#f2f8fc;color:#32658b;font-size:12px;font-weight:750}
+.idea-card .idea-header{display:flex;align-items:start;justify-content:space-between;gap:10px}
+.idea-card .idea-title{margin-bottom:7px}.idea-card .idea-description{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.idea-card .idea-description.expanded{display:block}
+.idea-card .idea-note-bar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:10px 0 12px}
+.idea-card .idea-note-bar span{background:#eef6fc;border-radius:8px;color:#50718a;padding:5px 9px;font-size:10px;font-weight:650}
+.idea-card .idea-edit,.idea-card .idea-view-more,.idea-card .idea-cancel,.idea-card .idea-edit-save{font-size:12px;font-weight:700;border-radius:10px;padding:8px 10px;white-space:nowrap}
+.idea-card .idea-edit,.idea-card .idea-view-more,.idea-card .idea-cancel{border:1px solid #d7e4ed;background:#fff;color:#477393}
+.idea-card .idea-edit-save{border:0;background:#191919;color:white}
+.idea-card .idea-editor{display:grid;gap:8px;margin:8px 0 15px}
+.idea-card .idea-editor textarea{min-height:125px;max-height:280px;background:white;padding:13px;font-size:14px;resize:vertical}
+.idea-card .idea-editor-actions{display:flex;gap:8px;justify-content:flex-end}
+.idea-card .idea-view-more{margin:-2px 0 12px}
+.idea-card .idea-meta{margin-top:4px}
+.idea-card select:focus-visible,.vault-toolbar input:focus-visible,.vault-toolbar select:focus-visible,.idea-card button:focus-visible{outline:3px solid #acd9fa;outline-offset:2px}
+@media(max-width:650px){.vault-metric{display:grid;gap:4px;padding:12px 10px}.vault-metric span{font-size:11px}.vault-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto}.search-field{grid-column:1/-1}.area-field{grid-column:1}.area-field select{width:100%;max-width:none}.backup-button{grid-column:2}.vault-metrics{gap:7px}}
+@media(max-width:390px){.vault-metrics{gap:6px}.vault-metric{padding:11px 8px}.idea-card .idea-fields{width:100%;gap:7px}.idea-card .idea-fields select{max-width:calc(50vw - 30px)}}
