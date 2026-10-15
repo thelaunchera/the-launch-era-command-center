@@ -154,6 +154,13 @@ await rewrite("assets/command-center-app.js",s=>{
  return s;
 });
 
+// Owner-only per-lead delivery and consent timeline. IDs come from the authenticated CRM, not inferred names.
+await rewrite("assets/command-center-app.js",s=>{
+ const from="card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label','Open '+x.business);";
+ if(!s.includes(from))throw Error("Lead card identity anchor changed");
+ return s.replace(from,"card.tabIndex=0;card.dataset.leadId=x.id;card.setAttribute('role','button');card.setAttribute('aria-label','Open '+x.business);");
+});
+
 // CB Depot phone-only single-surface correction. The pinned upstream stays unchanged;
 // use an isolated local stylesheet so owner and future tenants cannot be affected.
 await copyFile(resolve("overrides/cb-depot-mobile-edge.css"),join(dest,"assets/cb-depot-mobile-edge.css"));
