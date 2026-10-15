@@ -79,6 +79,31 @@ await rewrite("ai-team.html",s=>s.replace(
  '<a class="ait-back" href="./booking-studio.html">Booking Studio</a><a class="ait-back" href="./">← Command Center</a>'
 ));
 
+// The private AI Team shows an agent's verified report beside the action that
+// opened it, rather than jumping the owner down to the execution archive.
+await copyFile(resolve("overrides/assets/ai-team-easy-check.css"),join(dest,"assets/ai-team-easy-check.css"));
+await copyFile(resolve("overrides/assets/ai-team-easy-check.js"),join(dest,"assets/ai-team-easy-check.js"));
+await rewrite("assets/ai-team.js",s=>{
+ const replacements=[
+  ['const card=el("article","ait-agent"+(i===0?" lead":""));','const card=el("article","ait-agent"+(i===0?" lead":""));card.dataset.agentKey=a.key;'],
+  ['const go=el("button","",tx("create")+" →");','const go=el("button","",window.innerWidth<=600?(language==="es"?"+ Tarea":"+ Task"):tx("create")+" →");'],
+  ['const run=el("button","ait-run-btn",tx("run")+" ↗");','const run=el("button","ait-run-btn",window.innerWidth<=600?(language==="es"?"Revisar ↗":"Check ↗"):tx("run")+" ↗");'],
+  ['document.getElementById("runs-section")?.scrollIntoView({behavior:"smooth",block:"start"});','window.TLEAITeamEasyCheck?.showAgentReport(agentKey,(runs||[]).find(item=>item.agent_key===agentKey),language);'],
+  ['document.getElementById("team-overview")?.scrollIntoView({behavior:"smooth",block:"start"})','window.TLEAITeamEasyCheck?.showTeamScan(scan,language)']
+ ];
+ for(const [before,after] of replacements){
+  if(!s.includes(before))throw Error("AI Team mobile anchor missing: "+before.slice(0,90));
+  s=s.replace(before,after);
+ }
+ return s;
+});
+await rewrite("ai-team.html",s=>{
+ const source='<script type="module" src="./assets/ai-team.js';
+ if(!s.includes(source)||!s.includes("</head>"))throw Error("AI Team mobile insertion anchor missing");
+ return s.replace("</head>",'<link rel="stylesheet" href="./assets/ai-team-easy-check.css?v=20261014-mobile-v1"></head>')
+  .replace(source,'<script src="./assets/ai-team-easy-check.js?v=20261014-mobile-v1"></script>\\n<script type="module" src="./assets/ai-team.js');
+});
+
 // Owner dashboard is isolated from buyer workspaces and the marketing website.
 const ownerDashboardMarkup=await readFile(resolve("overrides/owner-dashboard.html"),"utf8");
 await copyFile(resolve("overrides/owner-dashboard.css"),join(dest,"assets/owner-dashboard.css"));
