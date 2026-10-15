@@ -173,6 +173,18 @@ await rewrite("index.html",s=>{
  return s.replace("</head>",'<link rel="stylesheet" href="./assets/cb-depot-mobile-edge.css?v=20261014-mobile-edge-v1"></head>');
 });
 
+// Owner-approved portrait and display name; preserve internal gateway identifiers.
+await copyFile(resolve("overrides/jessie-avatar.webp"),join(dest,"assets/jessie-avatar.webp"));
+for(const relative of ["index.html","ai-team.html","assets/command-center-app.js","assets/jessy-owner-standalone.mjs","assets/owner-dashboard.js"])
+ await rewrite(relative,s=>s.replace(/\bJessy\b/g,"Jessie"));
+await rewrite("assets/jessy-owner-standalone.mjs",s=>s.replaceAll("20261014-compact-alert-v1","20261015-jessie-avatar-v1"));
+await rewrite("index.html",s=>s.replaceAll("jessy-owner.js?v=20261014-compact-alert-v1","jessy-owner.js?v=20261015-jessie-avatar-v1"));
+await rewrite("assets/ai-team.js",s=>{
+ const before='card.append(el("div","symbol",a.icon),el("h3","",a.name),el("p","",a[language]));';
+ if(!s.includes(before))throw Error("Agent portrait anchor missing");
+ return s.replace(before,'const symbol=el("div","symbol",a.icon);if(a.key==="jessie"){const portrait=document.createElement("img");portrait.src="./assets/jessie-avatar.webp?v=20261015";portrait.alt="Jessie";portrait.width=48;portrait.height=48;portrait.style.cssText="width:100%;height:100%;object-fit:cover;border-radius:inherit";symbol.style.overflow="hidden";symbol.replaceChildren(portrait)}card.append(symbol,el("h3","",a.name),el("p","",a[language]));');
+});
+
 await writeFile(join(dest,"CNAME"),DOMAIN+"\n","utf8");
 await writeFile(join(dest,".nojekyll"),"","utf8");
 await writeFile(join(dest,"robots.txt"),"User-agent: *\nDisallow: /\n","utf8");

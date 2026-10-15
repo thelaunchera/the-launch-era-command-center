@@ -121,7 +121,7 @@ for(const file of ["index.html","access.html","manifest-tle.webmanifest"]){
  assert.ok(!read(file).includes("dailinsegura17.workers.dev"),"Legacy Cloudflare favicon in "+file);
 }
 assert.ok(!read("sw.js").includes("/command-center/"),"Push links target stale website path");
-assert.ok(read("assets/jessy-owner.js").includes('/assets/jessy-avatar.webp'),"Jessie avatar path unexpectedly changed");
+assert.ok(read("assets/jessy-owner.js").includes('/assets/jessie-avatar.webp?v=20261015'),"Jessie avatar path unexpectedly changed");
 assert.ok(read("assets/command-center-notification-settings.js").includes('getRegistration("/")'),"Notification preferences still use old service worker scope");
 assert.ok(read("assets/command-center-app.js").includes("navigator.serviceWorker.register('/sw.js',{scope:'/'})"),"App still registers old service worker scope");
 const manifest=JSON.parse(read("manifest-tle.webmanifest"));

@@ -1,14 +1,14 @@
-/* Jessy — private Owner Command Center helper. No public chat or buyer access. */
+/* Jessie — private Owner Command Center helper. No public chat or buyer access. */
 (function(){
 "use strict";
 if(window.__tleOwnerJessyInstalled)return;
 window.__tleOwnerJessyInstalled=true;
-const ASSET="/assets/jessy-avatar.webp",CSS="./assets/jessy-owner.css?v=20261014-compact-alert-v1";
+const ASSET="/assets/jessie-avatar.webp?v=20261015",CSS="./assets/jessy-owner.css?v=20261014-compact-alert-v1";
 let root=null,log=null,form=null,input=null,send=null,quick=null,open=false,waiting=false,language="en",history=[],previousFocus=null;
 let notificationTimer=0;
 const copy={
- en:{open:"Ask Jessy",intro:"Hi! 👋 I'm Jessy, your Command Center assistant. Want to check leads, follow-ups or a client delivery?",subtitle:"Your private workspace helper",placeholder:"Ask about leads, clients or your next step…",send:"Send",close:"Close Jessy",thinking:"Checking your workspace…",error:"I couldn't check that right now. Try again or open the section directly.",note:"Private owner assistance · Drafts require your approval. Jessy never sends emails.",label:"Open this section →",quick:[["Mark alerts read","Mark all Command Center notifications as read"],["Notifications","Open my notifications"],["WhatsApp alerts","jessy-whatsapp-settings"],["Prepare follow-up draft","Prepare a follow-up email draft"],["Today's priorities","Review the AI Team priorities"],["Follow-ups","Which prospect follow-ups are due?"],["Website leads","Any new website inquiries?"],["Client readiness","What is missing for each client?"],["Support","I need help with a problem"]]},
- es:{open:"Pregúntale a Jessy",intro:"¡Hola! 👋 Soy Jessy, tu asistente del Command Center. ¿Revisamos leads, seguimientos o entregas?",subtitle:"Tu asistente privada de operaciones",placeholder:"Pregunta sobre leads, clientes o el próximo paso…",send:"Enviar",close:"Cerrar Jessy",thinking:"Revisando tu espacio…",error:"Ahora no pude comprobarlo. Inténtalo otra vez o abre la sección directamente.",note:"Asistencia privada · Los borradores requieren tu aprobación. Jessy no envía correos.",label:"Abrir esta sección →",quick:[["Marcar avisos leídos","Marca todas las notificaciones como leídas"],["Notificaciones","Abre mis notificaciones"],["Avisos WhatsApp","jessy-whatsapp-settings"],["Preparar seguimiento","Prepara un borrador de seguimiento"],["Prioridades de hoy","Revisa las prioridades del equipo IA"],["Seguimientos","¿Qué seguimientos de prospectos están pendientes?"],["Leads web","¿Hay nuevas consultas del website?"],["Revisar intakes","¿Qué le falta a cada cliente?"],["Soporte","Necesito ayuda con un problema"]]}
+ en:{open:"Ask Jessie",intro:"Hi! 👋 I'm Jessie, your Command Center assistant. Want to check leads, follow-ups or a client delivery?",subtitle:"Your private workspace helper",placeholder:"Ask about leads, clients or your next step…",send:"Send",close:"Close Jessie",thinking:"Checking your workspace…",error:"I couldn't check that right now. Try again or open the section directly.",note:"Private owner assistance · Drafts require your approval. Jessie never sends emails.",label:"Open this section →",quick:[["Mark alerts read","Mark all Command Center notifications as read"],["Notifications","Open my notifications"],["WhatsApp alerts","jessy-whatsapp-settings"],["Prepare follow-up draft","Prepare a follow-up email draft"],["Today's priorities","Review the AI Team priorities"],["Follow-ups","Which prospect follow-ups are due?"],["Website leads","Any new website inquiries?"],["Client readiness","What is missing for each client?"],["Support","I need help with a problem"]]},
+ es:{open:"Pregúntale a Jessie",intro:"¡Hola! 👋 Soy Jessie, tu asistente del Command Center. ¿Revisamos leads, seguimientos o entregas?",subtitle:"Tu asistente privada de operaciones",placeholder:"Pregunta sobre leads, clientes o el próximo paso…",send:"Enviar",close:"Cerrar Jessie",thinking:"Revisando tu espacio…",error:"Ahora no pude comprobarlo. Inténtalo otra vez o abre la sección directamente.",note:"Asistencia privada · Los borradores requieren tu aprobación. Jessie no envía correos.",label:"Abrir esta sección →",quick:[["Marcar avisos leídos","Marca todas las notificaciones como leídas"],["Notificaciones","Abre mis notificaciones"],["Avisos WhatsApp","jessy-whatsapp-settings"],["Preparar seguimiento","Prepara un borrador de seguimiento"],["Prioridades de hoy","Revisa las prioridades del equipo IA"],["Seguimientos","¿Qué seguimientos de prospectos están pendientes?"],["Leads web","¿Hay nuevas consultas del website?"],["Revisar intakes","¿Qué le falta a cada cliente?"],["Soporte","Necesito ayuda con un problema"]]}
 };
 const sections={
  "owner-pages":["Clients & Purchases","Clientes y compras"],
@@ -84,7 +84,7 @@ function syncContext(){
  const label=contextLabel();
  root.dataset.currentSection=activeContext().section;
  const small=root.querySelector(".jo-heading small");
- if(small)small.textContent="Jessy · "+label;
+ if(small)small.textContent="Jessie · "+label;
  shortcuts();
 }
 function hide(restoreFocus=true){if(!root)return;root.querySelector(".jo-panel").hidden=true;root.querySelector(".jo-fab").hidden=false;open=false;document.body.classList.remove("jo-open");if(restoreFocus&&previousFocus?.isConnected)previousFocus.focus()}
@@ -94,11 +94,11 @@ function build(){
  language=lang();
  root=el("div","jo-root");root.id="tleOwnerJessy";root.setAttribute("data-owner-only","true");
  const fab=b("jo-fab");
- const face=el("img","jo-face");face.src=ASSET;face.alt="Jessy";face.width=48;face.height=48;
+ const face=el("img","jo-face");face.src=ASSET;face.alt="Jessie";face.width=48;face.height=48;
  fab.append(face,el("span","",t("open")));fab.setAttribute("aria-label",t("open"));
- const panel=el("section","jo-panel");panel.hidden=true;panel.setAttribute("role","dialog");panel.setAttribute("aria-label","Jessy · Owner Command Center");panel.setAttribute("aria-modal","false");
+ const panel=el("section","jo-panel");panel.hidden=true;panel.setAttribute("role","dialog");panel.setAttribute("aria-label","Jessie · Owner Command Center");panel.setAttribute("aria-modal","false");
  const head=el("header","jo-head"),pic=el("img","jo-face");pic.src=ASSET;pic.alt="";pic.width=46;pic.height=46;
- const heading=el("div","jo-heading");heading.append(el("strong","","Jessy"),el("small","",t("subtitle")));
+ const heading=el("div","jo-heading");heading.append(el("strong","","Jessie"),el("small","",t("subtitle")));
  const close=b("jo-close","×");close.setAttribute("aria-label",t("close"));head.append(pic,heading,close);
  log=el("div","jo-log");log.setAttribute("role","log");log.setAttribute("aria-live","polite");
  quick=el("div","jo-quick-list");
@@ -129,8 +129,8 @@ function onOwnerNotifications(event){
  const en=language!=="es";
  const count=initial?total:added;
  const message=en
-  ?"Jessy: "+count+(initial?(count===1?" unread alert":" unread alerts"):(count===1?" new alert":" new alerts"))+" · View →"
-  :"Jessy: "+count+(initial?(count===1?" aviso sin leer":" avisos sin leer"):(count===1?" aviso nuevo":" avisos nuevos"))+" · Ver →";
+  ?"Jessie: "+count+(initial?(count===1?" unread alert":" unread alerts"):(count===1?" new alert":" new alerts"))+" · View →"
+  :"Jessie: "+count+(initial?(count===1?" aviso sin leer":" avisos sin leer"):(count===1?" aviso nuevo":" avisos nuevos"))+" · Ver →";
  if(open){if(!initial)bubble(message.replace(/ →$/,""),"bot")}
  else{alert.textContent=message;alert.hidden=false;clearTimeout(notificationTimer);
   notificationTimer=setTimeout(()=>{if(alert.isConnected)alert.hidden=true},13000)}
@@ -149,7 +149,7 @@ async function showWhatsAppSettings(){
  const es=language==="es";
  const panel=el("section","jo-wa-settings");
  panel.setAttribute("aria-label",es?"Avisos a WhatsApp personal":"Personal WhatsApp alert setup");
- const title=el("strong","jo-draft-title",es?"📱 Avisos de Jessy por WhatsApp":"📱 Jessy WhatsApp alerts");
+ const title=el("strong","jo-draft-title",es?"📱 Avisos de Jessie por WhatsApp":"📱 Jessie WhatsApp alerts");
  const subtitle=el("p","jo-draft-disclaimer",es?
   "Configura tu número personal aquí. El envío seguirá desactivado hasta conectar WhatsApp Business y aprobar su plantilla.":
   "Set your personal number here. Sending remains off until WhatsApp Business is connected and its alert template approved.");
@@ -294,8 +294,8 @@ function showProjectReadiness(result){
  panel.setAttribute("aria-label",es?"Revisión privada de proyectos":"Private project review");
  const title=el("strong","jo-draft-title",es?"Revisión de clientes":"Client readiness");
  const hint=el("p","jo-draft-disclaimer",es?
-  "Revisión de Booking Automation y AI Assistant. No incluye automáticamente otros servicios. Jessy no aprueba inicios ni envía correos.":
-  "Booking Automation and AI Assistant only. Other services are not yet included. Jessy does not approve kickoffs or send emails.");
+  "Revisión de Booking Automation y AI Assistant. No incluye automáticamente otros servicios. Jessie no aprueba inicios ni envía correos.":
+  "Booking Automation and AI Assistant only. Other services are not yet included. Jessie does not approve kickoffs or send emails.");
  panel.append(title,hint);
  if(!projects.length)panel.append(el("p","jo-draft-disclaimer",es?"Sin pedidos para mostrar.":"No orders to show."));
  for(const p of projects.slice(0,25)){
