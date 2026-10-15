@@ -1,0 +1,42 @@
+/* Owner AI Team: compact cards and in-place read-only check reports. */
+.ait-agent{scroll-margin-top:18px}
+.ait-agent-inline{margin-top:4px;padding:14px;border-radius:16px;border:1px solid #bbdce9;background:#f0f8fc;color:#191919;min-width:0;overflow-wrap:anywhere}
+.ait-agent.lead .ait-agent-inline{background:#eaf5fc;color:#191919}
+.ait-inline-report-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.ait-inline-report-top strong{font:700 13px "Prompt",Arial,sans-serif}
+.ait-inline-state{font:700 11px "Futura",Arial,sans-serif;border-radius:20px;padding:5px 9px;background:#fff8d7;color:#503d14}
+.ait-inline-state.success{background:#dcefe8;color:#205545}
+.ait-inline-description{font-size:12px!important;line-height:1.55!important;color:#374b55!important;margin:10px 0!important}
+.ait-inline-facts{display:grid;gap:7px}
+.ait-inline-fact{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;padding:7px 0;border-bottom:1px solid #d1e6ef;font-size:11px}
+.ait-inline-fact span{min-width:0;flex:1;color:#43515a}.ait-inline-fact b{max-width:45%;text-align:right;overflow-wrap:anywhere}
+.ait-inline-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.ait-inline-controls button,.ait-inline-report details summary{border:1px solid #bad4e2;border-radius:30px;background:white;padding:8px 12px;color:#193748;font-size:11px;font-weight:700;cursor:pointer;text-decoration:none}
+.ait-inline-report details{margin-top:12px}.ait-inline-report details summary{display:inline-block;list-style:none}.ait-inline-report details summary::-webkit-details-marker{display:none}
+.ait-inline-detail{margin-top:8px;font-size:11px;line-height:1.6;color:#354854}
+.ait-inline-scan{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:13px;padding:12px 14px;border-radius:14px;background:#fffefc;border:1px solid #bddde9;font-size:12px;line-height:1.5}
+.ait-inline-scan strong{flex:1;min-width:160px}.ait-inline-scan button{border:1px solid #bad4e2;border-radius:28px;background:#dcedf8;color:#1b3444;padding:8px 11px;font-size:11px;font-weight:700}
+@media(max-width:600px){
+ .ait-layout{padding:15px 13px 65px}
+ .ait-section-head{margin-bottom:12px}
+ .ait-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:9px}
+ .ait-agent,.ait-agent.lead{min-height:0!important;padding:13px 14px!important;border-radius:18px!important;display:grid;grid-template-columns:40px minmax(0,1fr);align-items:center;column-gap:11px;row-gap:8px;box-shadow:none}
+ .ait-agent .symbol{grid-column:1;grid-row:1;width:40px;height:40px;font-size:21px;border-radius:13px}
+ .ait-agent h3{grid-column:2;grid-row:1;min-width:0;font-size:14px!important;line-height:1.32!important}
+ .ait-agent>p{display:none}
+ .ait-agent-actions{grid-column:1/-1;grid-row:2;width:100%;margin:1px 0 0;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);flex-direction:row!important;align-items:stretch!important;gap:8px!important}
+ .ait-agent-actions button{display:flex;align-items:center;justify-content:center;min-width:0;width:100%!important;min-height:39px!important;max-width:100%;font-size:12px!important;font-weight:700!important;line-height:1.2!important;white-space:normal;text-align:center!important;text-decoration:none!important;border-radius:24px;padding:7px 10px!important}
+ .ait-agent-actions button:first-child{background:#fff!important;color:#191919!important;border:1px solid #cbdde6!important}
+ .ait-agent-actions .ait-run-btn{background:#dceffa!important;color:#191919!important;border:1px solid #b9d9ea!important}
+ .ait-agent-inline{grid-column:1/-1;grid-row:3;padding:13px;margin-top:0}
+ .ait-agent-inline .ait-inline-description{display:block!important;grid-column:auto;grid-row:auto;flex:unset}
+ .ait-agent-inline .ait-inline-state{font-size:10px}
+ .ait-owner-diagnostic,.ait-provider{margin-block:16px}
+ .ait-runs-section,.ait-outputs-section{margin-top:30px}
+ .ait-hero-actions{gap:9px}
+}
+@media(max-width:360px){
+ .ait-agent{grid-template-columns:36px minmax(0,1fr)}
+ .ait-agent h3{font-size:13px!important}
+ .ait-agent-actions button{font-size:11px!important}
+}
