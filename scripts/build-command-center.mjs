@@ -96,8 +96,8 @@ await rewrite("index.html",s=>{
   .replace(markers[0],'<div class="nav-caption" id="ownerOrdersCaption">THE LAUNCH ERA · PRIVATE</div>\n<button type="button" class="nav-link" id="ownerOverviewNav" data-target="home">⌂ <span>Dashboard</span></button>')
   .replace(markers[1],'<details class="workspace-nav-group" id="ownerWorkToolsGroup"><summary>Work tools</summary><div class="workspace-nav-items"><a class="nav-link" href="./booking-studio.html">◈ <span>Booking Studio</span></a><a class="nav-link" href="./ai-team.html">✦ <span>AI Team</span></a></div></details>\n'+markers[1])
   .replace(markers[2],markers[2]+ownerDashboardMarkup)
-  .replace('</head>','<link rel="stylesheet" href="./assets/owner-dashboard.css?v=20261014-owner-layout-v1"></head>')
-  .replace('</body>','<script src="./assets/owner-dashboard.js?v=20261014-owner-layout-v1" defer></script></body>');
+  .replace('</head>','<link rel="stylesheet" href="./assets/owner-dashboard.css?v=20261014-owner-leads-v2"></head>')
+  .replace('</body>','<script src="./assets/owner-dashboard.js?v=20261014-owner-leads-v2" defer></script></body>');
 });
 await rewrite("assets/command-center-app.js",s=>{
  const before=s;
@@ -106,6 +106,10 @@ await rewrite("assets/command-center-app.js",s=>{
  exact("if(target==='home'){\n if(workspace&&!workspace.is_internal)",
        "if(target==='home'){\n if(workspace?.is_internal){setView('owner-dashboard');$('ownerOverviewHub').scrollIntoView({behavior:'smooth'});return}\n if(workspace&&!workspace.is_internal)");
  exact("  setView('owner-pages');\n  const target=","  setView('owner-dashboard');\n  const target=");
+ // Load the real prospect records on initial owner dashboard. The existing
+ // database query remains tenant-scoped and excludes intentionally archived leads.
+ exact("  hideTleLoading(); // verified owner can use navigation while purchases fetch in the background\\n  await loadOwnerPages();",
+       "  hideTleLoading(); // verified owner can use navigation while purchases fetch in the background\\n  void load(); // fill the owner dashboard live prospect summary\\n  await loadOwnerPages();");
  exact("b.dataset.target==='owner-pages'));\n  hideTleLoading()", "b.dataset.target==='home'));\n  hideTleLoading()");
  exact("const organizedTarget={'buyer-dashboard':'home'","const organizedTarget={'owner-dashboard':'home','buyer-dashboard':'home'");
  exact(" $('ownerSupportPanel').classList.toggle('hidden',v!=='owner-support'||!workspace?.is_internal);",
