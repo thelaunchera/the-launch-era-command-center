@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 const root=".site";
 const required=[
 "index.html","access.html","access/index.html","ai-team.html","booking-studio.html","booking-studio-practice.html","assets/booking-studio-practice.js","booking-studio-qa.html","booking-studio-qa-recovery.html","booking-studio-qa-reset.html","assets/booking-studio.js","assets/booking-studio-preview.mjs","assets/booking-studio-functional-preview.mjs","assets/booking-studio-followup-rules.mjs",
-"assets/command-center-app.js","assets/command-center.css","assets/command-center-i18n.js",
+"assets/command-center-app.js","assets/command-center.css","assets/command-center-i18n.js","assets/cb-depot-mobile-edge.css",
 "assets/ai-team.js","assets/jessy-owner.js","assets/ai-team-entry.js",
 "assets/booking-smart-welcome-editor.js","vendor/supabase-js-v2.57.0.umd.js",
 "auth-recovery.html","auth-recovery/index.html","manifest-tle.webmanifest",
@@ -20,6 +20,12 @@ const read=f=>readFileSync(join(root,f),"utf8");
 const index=read("index.html"),recover=read("auth-recovery.html"),ai=read("ai-team.html");
 assert.ok(index.includes('id="authForm"'),"Private login form missing");
 assert.ok(index.includes("./assets/command-center-app.js"),"Private application missing");
+assert.ok(index.includes("./assets/cb-depot-mobile-edge.css?v=20261014-mobile-edge-v1"),"CB Depot phone-side fix not linked");
+const cbEdge=read("assets/cb-depot-mobile-edge.css");
+assert.ok(cbEdge.includes("body.cb-depot-buyer")&&cbEdge.includes("max(10px, env(safe-area-inset-left, 0px))"),"Mobile sides must preserve 10px gutters and CB Depot tenant scope");
+assert.ok(cbEdge.includes("section.premium-emailhub")&&cbEdge.includes("border-radius: 0 !important"),"Double outer mobile card was not flattened");
+assert.ok(cbEdge.includes("#buyerRequestDetail")&&cbEdge.includes("grid-template-columns: minmax(0, 1fr)"),"Mobile request detail containment missing");
+
 assert.ok(ai.includes("assets/ai-team.js"),"Private team entry missing");
 assert.ok(ai.includes("./booking-studio.html"),"Owner AI Team must link to Booking Studio");
 const studio=read("booking-studio.html"),studioJs=read("assets/booking-studio.js");
