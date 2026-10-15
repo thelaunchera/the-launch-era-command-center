@@ -33,7 +33,7 @@ try {
   assert(layout.outer.x>=0&&layout.outer.right<=width+.5,"Outer card cut off at "+width);
   assert(layout.inner.x>=0&&layout.inner.right<=width+.5,"Inner request card cut off at "+width);
   if(width<=760){
-   assert(layout.workspace.x>=9&&layout.workspace.x<=14,"Phone gutter not approximately 10px at "+width+": "+layout.workspace.x);
+   assert(layout.outer.x>=9&&layout.outer.x<=14,"Phone content gutter not approximately 10px at "+width+": "+layout.outer.x);
    assert(layout.outer.width>=width-30,"Outer view not full available width at "+width);
    assert(layout.border==="0px"&&layout.radius==="0px","Nested outer rounded rectangle still visible at "+width);
    assert(layout.inner.width<=layout.outer.width,"Request detail exceeds available width at "+width);
