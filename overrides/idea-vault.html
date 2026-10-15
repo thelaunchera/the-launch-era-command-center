@@ -4,9 +4,9 @@
 <meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#FAF8F3">
 <title>Idea Vault | The Launch Era Command Center</title>
 <link rel="icon" href="./favicon-tle.svg" type="image/svg+xml">
-<link rel="stylesheet" href="./assets/idea-vault.css?v=20261015-1">
+<link rel="stylesheet" href="./assets/idea-vault.css?v=20261015-2">
 <script defer src="./vendor/supabase-js-v2.57.0.umd.js"></script>
-<script defer src="./assets/idea-vault.js?v=20261015-1"></script>
+<script defer src="./assets/idea-vault.js?v=20261015-2"></script>
 </head><body>
 <main class="vault-app" id="vaultApp" hidden>
   <header class="topbar">
@@ -18,6 +18,11 @@
     <span class="kicker">✦ <span data-i18n="eyebrow">YOUR SPACE TO THINK</span></span>
     <h1>Idea <em>Vault</em> <span aria-hidden="true">🎙️</span></h1>
     <p data-i18n="intro">Capture the thought. You do not have to work on it today.</p>
+  </section>
+  <section class="vault-metrics" aria-label="Idea overview">
+    <div class="vault-metric"><strong id="metricInbox">0</strong><span data-i18n="metricInbox">For later</span></div>
+    <div class="vault-metric"><strong id="metricApproved">0</strong><span data-i18n="metricApproved">Approved</span></div>
+    <div class="vault-metric"><strong id="metricTotal">0</strong><span data-i18n="metricTotal">All ideas</span></div>
   </section>
   <section class="capture" aria-labelledby="captureTitle">
     <div class="capture-header">
@@ -31,12 +36,22 @@
       <button type="button" class="save" id="saveIdea" data-i18n="save">Save idea →</button>
     </div>
     <p class="small-note" data-i18n="voiceHelp">On iPhone, you can also tap the microphone on your keyboard to dictate your idea.</p>
+    <p id="draftStatus" class="draft-status" role="status" aria-live="polite" hidden></p>
     <p id="captureStatus" class="status-message" role="status" aria-live="polite"></p>
   </section>
   <section class="saved" aria-labelledby="savedTitle">
     <div class="saved-heading">
       <div><span class="kicker" data-i18n="peace">NO RUSH. NO PRESSURE.</span><h2 id="savedTitle" data-i18n="allIdeas">Saved ideas</h2></div>
       <button class="refresh" id="refreshIdeas" type="button" data-i18n="refresh">↻ Refresh</button>
+    </div>
+    <div class="review-note"><span aria-hidden="true">☁</span><span data-i18n="reviewNote">Capture now. Decide what to build only when you choose to review.</span></div>
+    <div class="vault-toolbar">
+      <label class="search-field">
+        <span class="sr-only" data-i18n="searchLabel">Search your ideas</span>
+        <span aria-hidden="true">⌕</span><input type="search" id="ideaSearch" autocomplete="off" data-placeholder-en="Find an idea..." data-placeholder-es="Buscar una idea..." placeholder="Find an idea..." maxlength="120">
+      </label>
+      <label class="area-field"><span class="sr-only" data-i18n="areaFilterLabel">Filter by area</span><select id="areaFilter" aria-label="Filter by area"><option value="all" data-i18n="allAreas">All areas</option></select></label>
+      <button class="backup-button" type="button" id="exportIdeas" data-i18n="export">↓ Backup</button>
     </div>
     <div class="filters" role="group" aria-label="Idea filters">
       <button type="button" class="filter active" data-filter="inbox" data-i18n="filterInbox">Inbox</button>
