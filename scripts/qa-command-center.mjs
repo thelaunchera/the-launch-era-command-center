@@ -5,7 +5,7 @@ const root=".site";
 const required=[
 "index.html","access.html","access/index.html","ai-team.html","booking-studio.html","booking-studio-practice.html","assets/booking-studio-practice.js","booking-studio-qa.html","booking-studio-qa-recovery.html","booking-studio-qa-reset.html","assets/booking-studio.js","assets/booking-studio-preview.mjs","assets/booking-studio-functional-preview.mjs","assets/booking-studio-followup-rules.mjs",
 "assets/command-center-app.js","assets/command-center.css","assets/command-center-i18n.js","assets/cb-depot-mobile-edge.css",
-"assets/ai-team.js","assets/jessy-owner.js","assets/ai-team-entry.js",
+"assets/ai-team.js","assets/ai-team-easy-check.js","assets/ai-team-easy-check.css","assets/jessy-owner.js","assets/ai-team-entry.js",
 "assets/booking-smart-welcome-editor.js","vendor/supabase-js-v2.57.0.umd.js",
 "auth-recovery.html","auth-recovery/index.html","manifest-tle.webmanifest",
 "manifest-cb-depot.webmanifest","assets/clients/cb-depot/approved-favicon-192.png",
@@ -27,6 +27,16 @@ assert.ok(cbEdge.includes("section.premium-emailhub")&&cbEdge.includes("border-r
 assert.ok(cbEdge.includes("#buyerRequestDetail")&&cbEdge.includes("grid-template-columns: minmax(0, 1fr)"),"Mobile request detail containment missing");
 
 assert.ok(ai.includes("assets/ai-team.js"),"Private team entry missing");
+assert.ok(ai.includes("assets/ai-team-easy-check.css")&&ai.includes("assets/ai-team-easy-check.js"),"AI Team phone UX overrides missing from HTML");
+const teamJs=read("assets/ai-team.js"),inlineJs=read("assets/ai-team-easy-check.js"),inlineCss=read("assets/ai-team-easy-check.css");
+assert.ok(teamJs.includes("card.dataset.agentKey=a.key"),"Agent cards must identify the target for inline reports");
+assert.ok(teamJs.includes("TLEAITeamEasyCheck?.showAgentReport"),"Live agent run must display its own inline report");
+const agentRunBody=teamJs.split("async function runAgent(")[1]?.split("function renderRuns(")[0]||"";
+assert.ok(!agentRunBody.includes("scrollIntoView"),"Running an agent must never force-scroll to archive");
+assert.ok(teamJs.includes("TLEAITeamEasyCheck?.showTeamScan"),"Workspace scan must show local summary");
+assert.ok(inlineJs.includes("role")&&inlineJs.includes("showAgentReport")&&inlineJs.includes("read-only")===false,"AI Team inline report must have an accessible, owned-only presentation");
+assert.ok(inlineCss.includes("@media(max-width:600px)")&&inlineCss.includes(".ait-agent-inline"),"Responsive inline agent reports CSS missing");
+
 assert.ok(ai.includes("./booking-studio.html"),"Owner AI Team must link to Booking Studio");
 const studio=read("booking-studio.html"),studioJs=read("assets/booking-studio.js");
 const practice=read("booking-studio-practice.html"),practiceJs=read("assets/booking-studio-practice.js");
