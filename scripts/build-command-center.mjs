@@ -2,7 +2,7 @@ import { cp, copyFile, mkdir, readFile, writeFile, rm, stat } from "node:fs/prom
 import { join, resolve, dirname } from "node:path";
 
 const from=resolve("upstream/public"), dest=resolve(".site");
-const sourceId="40efa83acf5c4f28f0df2aef5cd3c8d88c7de651";
+const sourceId="44b5edc6e32ee850be1f5e6fca441dd17e0a4d4c";
 const DOMAIN="command.thelaunchera.com";
 async function exists(p){try{await stat(p);return true}catch{return false}}
 async function copy(relative, target=relative){
@@ -172,6 +172,9 @@ await rewrite("index.html",s=>{
  if(!s.includes("</head>"))throw Error("CB Depot mobile CSS injection anchor missing");
  return s.replace("</head>",'<link rel="stylesheet" href="./assets/cb-depot-mobile-edge.css?v=20261014-mobile-edge-v1"></head>');
 });
+
+// AI setup remains hosted by the website; never navigate to a missing private-host route.
+await rewrite("assets/command-center-app.js",s=>s.replaceAll("'/ai-booking-assistant/owner-delivery/'","'https://thelaunchera.com/ai-booking-assistant/owner-delivery/'"));
 
 // Owner-approved portrait and display name; preserve internal gateway identifiers.
 await copyFile(resolve("overrides/jessie-avatar.webp"),join(dest,"assets/jessie-avatar.webp"));

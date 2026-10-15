@@ -135,3 +135,9 @@
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)void refresh(true)});
  void refresh();
 })();
+
+// Route through existing authenticated owner navigation, then apply its bundle filter.
+document.querySelectorAll('[data-owner-bundles]').forEach(button=>button.addEventListener('click',()=>{
+ if(!document.body.classList.contains('crm-owner-view'))return;
+ setTimeout(()=>{const filter=document.getElementById('ownerPurchaseFilter');if(filter){filter.value='bundle';filter.dispatchEvent(new Event('change',{bubbles:true}));document.getElementById('ownerOrderControl')?.scrollIntoView({behavior:'smooth',block:'start'})}},0);
+}));
