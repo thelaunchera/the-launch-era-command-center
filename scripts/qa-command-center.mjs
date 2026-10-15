@@ -3,7 +3,7 @@ import { join } from "node:path";
 import assert from "node:assert/strict";
 const root=".site";
 const required=[
-"index.html","access.html","access/index.html","ai-team.html","booking-studio.html","booking-studio-practice.html","assets/booking-studio-practice.js","booking-studio-qa.html","booking-studio-qa-recovery.html","booking-studio-qa-reset.html","assets/booking-studio.js","assets/booking-studio-preview.mjs","assets/booking-studio-functional-preview.mjs","assets/booking-studio-followup-rules.mjs",
+"index.html","idea-vault.html","assets/idea-vault.css","assets/idea-vault.js","access.html","access/index.html","ai-team.html","booking-studio.html","booking-studio-practice.html","assets/booking-studio-practice.js","booking-studio-qa.html","booking-studio-qa-recovery.html","booking-studio-qa-reset.html","assets/booking-studio.js","assets/booking-studio-preview.mjs","assets/booking-studio-functional-preview.mjs","assets/booking-studio-followup-rules.mjs",
 "assets/command-center-app.js","assets/command-center.css","assets/command-center-i18n.js","assets/cb-depot-mobile-edge.css",
 "assets/ai-team.js","assets/ai-team-easy-check.js","assets/ai-team-easy-check.css","assets/jessy-owner.js","assets/ai-team-entry.js",
 "assets/booking-smart-welcome-editor.js","vendor/supabase-js-v2.57.0.umd.js",
@@ -18,6 +18,16 @@ for(const file of required){
 }
 const read=f=>readFileSync(join(root,f),"utf8");
 const index=read("index.html"),recover=read("auth-recovery.html"),ai=read("ai-team.html");
+const vault=read("idea-vault.html"),vaultJs=read("assets/idea-vault.js"),vaultCss=read("assets/idea-vault.css");
+assert.ok(index.includes('id="ownerIdeasNav"')&&index.includes('./idea-vault.html'),"Idea Vault must be linked only from private owner navigation");
+assert.ok(index.includes('data-od-en="Idea Vault"'),"Idea Vault dashboard card missing");
+assert.ok(vault.includes('id="voiceButton"')&&vault.includes('id="saveIdea"'),"Voice/text capture controls missing");
+assert.ok(vault.includes('./vendor/supabase-js-v2.57.0.umd.js'),"Idea Vault must load pinned local Auth client");
+assert.ok(vaultJs.includes("storageKey:'tle-crm-auth'")&&vaultJs.includes(".eq('is_internal',true)"),"Idea Vault owner authentication gate missing");
+assert.ok(vaultJs.includes("tle_owner_ideas")&&vaultJs.includes("status:'inbox'"),"Ideas must persist as inbox, not work tasks");
+assert.ok(!vaultJs.includes("tle_ai_team_tasks")&&!vaultJs.includes("tle_crm_leads"),"Saving an idea must never create work tasks or mutate leads");
+assert.ok(vaultCss.includes('@media(max-width:540px)'),"Idea Vault phone layout missing");
+new Function(vaultJs);
 assert.ok(index.includes('id="authForm"'),"Private login form missing");
 assert.ok(index.includes("./assets/command-center-app.js"),"Private application missing");
 assert.ok(index.includes("./assets/cb-depot-mobile-edge.css?v=20261014-mobile-edge-v1"),"CB Depot phone-side fix not linked");
