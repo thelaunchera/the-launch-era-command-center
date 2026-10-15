@@ -44,6 +44,7 @@ jobs:
         run: |
           npm install --no-save --package-lock=false playwright@1.58.2
           npx playwright install --with-deps chromium
+          node scripts/qa-ai-team-easy-check-browser.mjs
           node scripts/qa-jessy-compact-browser.mjs
           node scripts/qa-cb-depot-mobile-edge-browser.mjs
           node scripts/qa-booking-studio-functional-browser.mjs
