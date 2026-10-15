@@ -108,8 +108,8 @@ await rewrite("assets/command-center-app.js",s=>{
  exact("  setView('owner-pages');\n  const target=","  setView('owner-dashboard');\n  const target=");
  // Load the real prospect records on initial owner dashboard. The existing
  // database query remains tenant-scoped and excludes intentionally archived leads.
- exact("  hideTleLoading(); // verified owner can use navigation while purchases fetch in the background\\n  await loadOwnerPages();",
-       "  hideTleLoading(); // verified owner can use navigation while purchases fetch in the background\\n  void load(); // fill the owner dashboard live prospect summary\\n  await loadOwnerPages();");
+ exact("  hideTleLoading(); // verified owner can use navigation while purchases fetch in the background\n  await loadOwnerPages();",
+       "  hideTleLoading(); // verified owner can use navigation while purchases fetch in the background\n  void load(); // fill the owner dashboard live prospect summary\n  await loadOwnerPages();");
  exact("b.dataset.target==='owner-pages'));\n  hideTleLoading()", "b.dataset.target==='home'));\n  hideTleLoading()");
  exact("const organizedTarget={'buyer-dashboard':'home'","const organizedTarget={'owner-dashboard':'home','buyer-dashboard':'home'");
  exact(" $('ownerSupportPanel').classList.toggle('hidden',v!=='owner-support'||!workspace?.is_internal);",
