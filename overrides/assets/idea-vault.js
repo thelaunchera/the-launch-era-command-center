@@ -173,7 +173,7 @@ saveIdea=async function(source){
  const normalized=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
  if(body&&ideas.some(item=>normalized(item.body)===normalized(body))){announce(T('duplicate'));return}
  await originalSave(source);
- if(!$('ideaBody').value.trim()&&owner){try{localStorage.removeItem(draftKey())}catch{};$('draftStatus').hidden=true}
+ if(!$('ideaBody').value.trim()&&owner){try{localStorage.removeItem(draftKey())}catch{};$('draftStatus').hidden=true;$('ideaSearch').value='';$('areaFilter').value='all';render()}
  else rememberDraft();
 };
 function backup(){
