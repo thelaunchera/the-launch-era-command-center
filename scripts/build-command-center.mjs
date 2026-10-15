@@ -101,7 +101,7 @@ await rewrite("ai-team.html",s=>{
  const source='<script type="module" src="./assets/ai-team.js';
  if(!s.includes(source)||!s.includes("</head>"))throw Error("AI Team mobile insertion anchor missing");
  return s.replace("</head>",'<link rel="stylesheet" href="./assets/ai-team-easy-check.css?v=20261014-mobile-v1"></head>')
-  .replace(source,'<script src="./assets/ai-team-easy-check.js?v=20261014-mobile-v1"></script>\\n<script type="module" src="./assets/ai-team.js');
+  .replace(source,'<script src="./assets/ai-team-easy-check.js?v=20261014-mobile-v1"></script>\n<script type="module" src="./assets/ai-team.js');
 });
 
 // Owner dashboard is isolated from buyer workspaces and the marketing website.
