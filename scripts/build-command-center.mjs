@@ -198,6 +198,15 @@ await rewrite("assets/ai-team.js",s=>{
  return s.replace(before,'const symbol=el("div","symbol",a.icon);if(a.key==="jessie"){const portrait=document.createElement("img");portrait.src="./assets/jessie-avatar.webp?v=20261015";portrait.alt="Jessie";portrait.width=48;portrait.height=48;portrait.style.cssText="width:100%;height:100%;object-fit:cover;border-radius:inherit";symbol.style.overflow="hidden";symbol.replaceChildren(portrait)}card.append(symbol,el("h3","",a.name),el("p","",a[language]));');
 });
 
+// Owner-only premium CRM interactions. No customer workspaces, payments, or data contract changes.
+await copyFile(resolve("overrides/assets/crm-premium-upgrade.css"),join(dest,"assets/crm-premium-upgrade.css"));
+await copyFile(resolve("overrides/assets/crm-premium-upgrade.js"),join(dest,"assets/crm-premium-upgrade.js"));
+await rewrite("index.html",s=>{
+ if(!s.includes("</head>")||!s.includes("</body>"))throw Error("Owner premium injection anchors changed");
+ return s.replace("</head>",'<link rel="stylesheet" href="./assets/crm-premium-upgrade.css?v=20261016-owner-v1"></head>')
+  .replace("</body>",'<script defer src="./assets/crm-premium-upgrade.js?v=20261016-owner-v1"></script></body>');
+});
+
 await writeFile(join(dest,"CNAME"),DOMAIN+"\n","utf8");
 await writeFile(join(dest,".nojekyll"),"","utf8");
 await writeFile(join(dest,"robots.txt"),"User-agent: *\nDisallow: /\n","utf8");

@@ -1,0 +1,46 @@
+name: Review private CRM upgrades
+on:
+  push:
+    branches: [feature/private-crm-ui-20261016]
+  pull_request:
+    paths:
+      - "overrides/assets/crm-premium-upgrade.*"
+      - "scripts/build-command-center.mjs"
+      - "scripts/qa-crm-premium-upgrade.mjs"
+      - ".github/workflows/crm-premium-qa.yml"
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout private deployment repository
+        uses: actions/checkout@v4
+      - name: Checkout pinned source
+        uses: actions/checkout@v4
+        with:
+          repository: thelaunchera/the-launch-era-new-website-
+          ref: 44b5edc6e32ee850be1f5e6fca441dd17e0a4d4c
+          path: upstream
+          persist-credentials: false
+      - name: Install Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate syntax
+        run: |
+          node --check overrides/assets/crm-premium-upgrade.js
+          node --check scripts/build-command-center.mjs
+      - name: Build private site
+        run: node scripts/build-command-center.mjs
+      - name: Verify existing private release gates
+        run: node scripts/qa-command-center.mjs
+      - name: Verify owner-only premium UI
+        run: node scripts/qa-crm-premium-upgrade.mjs
+      - name: Prepare isolated browser QA
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Test synthetic owner UI on four viewports
+        run: node scripts/qa-crm-premium-browser.mjs
