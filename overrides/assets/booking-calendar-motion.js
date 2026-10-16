@@ -62,7 +62,8 @@
     schedule.setAttribute('role','group');
     layout.append(side,schedule);
     bar.append(top,layout);
-    grid.parentElement.insertBefore(bar,grid);
+    const anchor=kind==='buyer'?grid.parentElement:grid;
+    anchor.parentElement.insertBefore(bar,anchor);
     const state={kind,hub,grid,bar,schedule,title,subtitle,controls,previous,next,today,week,month,sideMetric,sideLabel,metrics,side,mode:'week',cursor:null,updateQueued:false};
     states.set(kind,state);
     previous.setAttribute('aria-label','Previous week');
@@ -186,6 +187,6 @@
     state.schedule.setAttribute('aria-label',range);
     state.bar.dataset.ready='true';
   }
-  function init(){for(const id of rootIds){}create('owner');create('buyer');}
+  function init(){create('owner');create('buyer');}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
