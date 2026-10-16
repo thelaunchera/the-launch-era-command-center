@@ -77,15 +77,16 @@ function afterRender(){
      if(Math.abs(dx)>1||Math.abs(dy)>1){card.animate([{transform:'translate('+dx+'px,'+dy+'px)'},{transform:'translate(0,0)'}],{duration:594,easing:'cubic-bezier(.21,.9,.21,1)',fill:'none'});}
     });
    });
+   if(p.restoreFocus)changed.focus({preventScroll:true});
    toast(p.name+' '+tx('moved to','movido a')+' '+stageLabel(p.to));
   }
  }
 }
-function doMove(card,to){
+function doMove(card,to,restoreFocus=false){
  if(!mode()||!board||!stages.includes(to)||!card?.isConnected)return false;
  const lane=card.closest('.premium-lane'),old=lane?.dataset.stage,select=card.querySelector('.premium-stage-control select');
  if(!old||!select||select.disabled||old===to)return false;
- pending={id:card.dataset.leadId||'',name:(card.querySelector('.premium-lead-name')?.textContent||tx('Lead','Prospecto')).trim(),to,positions:snapshot()};
+ pending={id:card.dataset.leadId||'',name:(card.querySelector('.premium-lead-name')?.textContent||tx('Lead','Prospecto')).trim(),to,positions:snapshot(),restoreFocus};
  select.value=to;select.dispatchEvent(new Event('change',{bubbles:true}));
  setTimeout(()=>{if(pending?.id===(card.dataset.leadId||''))pending=null},9000);
  return true;
@@ -130,7 +131,7 @@ function setupDrag(card){
   if(!mode()||e.altKey||e.ctrlKey||e.metaKey||e.target!==card||!['ArrowLeft','ArrowRight'].includes(e.key))return;
   const stage=card.closest('.premium-lane')?.dataset.stage,i=stages.indexOf(stage);
   const next=stages[i+(e.key==='ArrowRight'?1:-1)];
-  if(next){e.preventDefault();doMove(card,next)}
+  if(next){e.preventDefault();doMove(card,next,true)}
  });
 }
 function decorate(){
