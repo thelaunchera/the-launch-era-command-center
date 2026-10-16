@@ -1,0 +1,72 @@
+/* Read-only premium week view, only inside actual owner/buyer calendar hubs. */
+#buyerAppointmentsHub .ml-booking-motion,#ownerCalendarHub .ml-booking-motion{
+  --ml-ink:#191919;--ml-soft:#F3F8FC;--ml-line:#DCE8F2;--ml-blue:#6FAFDC;--ml-blue-deep:#275E86;
+  font:500 13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  color:var(--ml-ink);margin:0 0 15px;background:#fff;border:1px solid var(--ml-line);border-radius:20px;
+  overflow:hidden;box-shadow:0 1px 2px #1a395b08,0 14px 30px #1a395b0d
+}
+#buyerAppointmentsHub .ml-motion-top,#ownerCalendarHub .ml-motion-top{
+  padding:18px 18px 14px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  border-bottom:1px solid var(--ml-line);background:linear-gradient(115deg,#fff 15%,#F1F8FF 100%)
+}
+#buyerAppointmentsHub .ml-motion-heading h3,#ownerCalendarHub .ml-motion-heading h3{margin:0;font-size:clamp(16px,2vw,21px);font-weight:750;letter-spacing:-.025em;color:#191919}
+#buyerAppointmentsHub .ml-motion-heading p,#ownerCalendarHub .ml-motion-heading p{margin:4px 0 0;font-size:12px;color:#5C7182}
+#buyerAppointmentsHub .ml-motion-controls,#ownerCalendarHub .ml-motion-controls{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+#buyerAppointmentsHub .ml-motion-controls button,#ownerCalendarHub .ml-motion-controls button{
+  cursor:pointer;min-height:36px;margin:0;padding:7px 10px;background:#fff;border:1px solid var(--ml-line);
+  border-radius:10px;color:#28485E;font-size:12px;font-weight:700;box-shadow:none;transition:transform .15s ease,background-color .2s ease,box-shadow .2s ease
+}
+#buyerAppointmentsHub .ml-motion-controls button:active,#ownerCalendarHub .ml-motion-controls button:active{transform:scale(.96)}
+#buyerAppointmentsHub .ml-motion-controls .selected,#ownerCalendarHub .ml-motion-controls .selected{background:#DCEFFD;color:#225D85;border-color:#A9CCE7}
+#buyerAppointmentsHub .ml-motion-layout,#ownerCalendarHub .ml-motion-layout{display:grid;grid-template-columns:145px minmax(0,1fr);min-width:0}
+#buyerAppointmentsHub .ml-motion-side,#ownerCalendarHub .ml-motion-side{padding:17px 12px;background:#FAFCFF;border-right:1px solid var(--ml-line);min-width:0}
+#buyerAppointmentsHub .ml-motion-side-head,#ownerCalendarHub .ml-motion-side-head{display:grid;gap:4px;padding:4px}
+#buyerAppointmentsHub .ml-motion-side-metric,#ownerCalendarHub .ml-motion-side-metric{font-size:29px;font-weight:750;line-height:1;color:#191919;font-variant-numeric:tabular-nums}
+#buyerAppointmentsHub .ml-motion-side-label,#ownerCalendarHub .ml-motion-side-label{color:#5D7182;font-size:11px}
+#buyerAppointmentsHub .ml-motion-metrics,#ownerCalendarHub .ml-motion-metrics{display:grid;gap:8px;margin-top:19px}
+#buyerAppointmentsHub .ml-motion-metric,#ownerCalendarHub .ml-motion-metric{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;padding:8px 6px;border-radius:9px;color:#486A80;font-size:11px}
+#buyerAppointmentsHub .ml-motion-metric strong,#ownerCalendarHub .ml-motion-metric strong{color:#191919;font-weight:800}
+#buyerAppointmentsHub .ml-motion-metric.confirmed{background:#E8F3FF}
+#buyerAppointmentsHub .ml-motion-metric.pending{background:#F4F6F9}
+#buyerAppointmentsHub .ml-motion-booking{cursor:pointer;width:100%;margin-top:18px;padding:10px 5px;min-height:42px;background:#DDEFFF;color:#235E87;border:1px solid #B2D7EF;border-radius:11px;font-size:12px;font-weight:750}
+#buyerAppointmentsHub .ml-motion-booking:disabled{cursor:not-allowed;opacity:.45}
+#buyerAppointmentsHub .ml-motion-schedule,#ownerCalendarHub .ml-motion-schedule{
+ display:grid;grid-template-columns:repeat(7,minmax(105px,1fr));min-width:0;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#D2DFEA transparent
+}
+#buyerAppointmentsHub .ml-motion-day,#ownerCalendarHub .ml-motion-day{min-height:215px;display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--ml-line);background:#fff}
+#buyerAppointmentsHub .ml-motion-day:last-child,#ownerCalendarHub .ml-motion-day:last-child{border-right:0}
+#buyerAppointmentsHub .ml-motion-day.is-today,#ownerCalendarHub .ml-motion-day.is-today{background:#F5FAFF}
+#buyerAppointmentsHub .ml-motion-day-head,#ownerCalendarHub .ml-motion-day-head{display:grid;justify-items:center;gap:1px;padding:13px 4px;color:#6C8291;border-bottom:1px solid var(--ml-line);font-size:10px;text-transform:uppercase;font-weight:700}
+#buyerAppointmentsHub .ml-motion-day-head strong,#ownerCalendarHub .ml-motion-day-head strong{font-size:16px;color:#191919;padding:3px 7px;border-radius:50%;font-variant-numeric:tabular-nums}
+#buyerAppointmentsHub .is-today .ml-motion-day-head strong,#ownerCalendarHub .is-today .ml-motion-day-head strong{color:#fff;background:#6FAFDC}
+#buyerAppointmentsHub .ml-motion-entries,#ownerCalendarHub .ml-motion-entries{display:grid;align-content:start;gap:7px;padding:10px 6px;min-height:116px}
+#buyerAppointmentsHub .ml-motion-event,#ownerCalendarHub .ml-motion-event{
+ width:100%;margin:0;padding:8px 7px;border:1px solid #B8D8F0;border-radius:9px;background:#EAF5FF;
+ font-size:11px;font-weight:700;text-align:left;line-height:1.35;overflow-wrap:anywhere;color:#286088;
+ cursor:pointer;box-shadow:none;transition:transform .27s cubic-bezier(.22,1,.36,1),box-shadow .2s ease
+}
+#buyerAppointmentsHub .ml-motion-event:hover,#ownerCalendarHub .ml-motion-event:hover{transform:translateY(-2px);box-shadow:0 4px 11px #5389B328}
+#buyerAppointmentsHub .ml-motion-event.pending{background:#F0F3F7;border-color:#DEE6EE;color:#536F82}
+#ownerCalendarHub .ml-motion-event.planned{background:#FFF6E7;border-color:#F0DEC1;color:#7C5C27}
+#buyerAppointmentsHub .ml-motion-empty,#ownerCalendarHub .ml-motion-empty{margin:2px 0;font-size:11px;color:#93A2AD;line-height:1.5}
+#buyerAppointmentsHub .ml-motion-more,#ownerCalendarHub .ml-motion-more{padding:4px;background:none;border:0;color:#326C97;font-size:11px;cursor:pointer}
+#buyerAppointmentsHub .ml-motion-open,#ownerCalendarHub .ml-motion-open{margin:auto 6px 9px;padding:8px 2px;min-height:33px;border:0;border-radius:8px;color:#397CA7;background:transparent;font-size:10px;font-weight:700;cursor:pointer}
+#buyerAppointmentsHub .ml-motion-open:hover,#ownerCalendarHub .ml-motion-open:hover{background:#E7F3FD}
+#buyerAppointmentsHub .ml-motion-open:disabled,#ownerCalendarHub .ml-motion-open:disabled{opacity:.4;cursor:not-allowed}
+#buyerAppointmentsHub.ml-week-mode .buyer-calendar-scroll,#ownerCalendarHub.ml-week-mode #ownerCalGrid{display:none!important}
+#buyerAppointmentsHub.ml-month-mode .ml-motion-layout,#ownerCalendarHub.ml-month-mode .ml-motion-layout{display:none!important}
+#buyerAppointmentsHub .ml-booking-motion :focus-visible,#ownerCalendarHub .ml-booking-motion :focus-visible{outline:3px solid #6EA8D3;outline-offset:2px}
+@media(max-width:950px){#buyerAppointmentsHub .ml-motion-layout,#ownerCalendarHub .ml-motion-layout{grid-template-columns:1fr}
+#buyerAppointmentsHub .ml-motion-side,#ownerCalendarHub .ml-motion-side{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;border-right:0;border-bottom:1px solid #DCE8F2}
+#buyerAppointmentsHub .ml-motion-metrics,#ownerCalendarHub .ml-motion-metrics{display:flex;align-items:center;gap:8px;margin:0}
+#buyerAppointmentsHub .ml-motion-booking{margin:0;width:auto}
+#buyerAppointmentsHub .ml-motion-day,#ownerCalendarHub .ml-motion-day{min-height:190px}
+}
+@media(max-width:480px){#buyerAppointmentsHub .ml-motion-top,#ownerCalendarHub .ml-motion-top{padding:13px}
+#buyerAppointmentsHub .ml-motion-controls,#ownerCalendarHub .ml-motion-controls{width:100%;justify-content:space-between}
+#buyerAppointmentsHub .ml-motion-side,#ownerCalendarHub .ml-motion-side{padding:10px}
+#buyerAppointmentsHub .ml-motion-metric,#ownerCalendarHub .ml-motion-metric{padding:6px}
+#buyerAppointmentsHub .ml-motion-booking{flex:1}
+#buyerAppointmentsHub .ml-motion-schedule,#ownerCalendarHub .ml-motion-schedule{grid-template-columns:repeat(7,126px)}
+}
+@media(prefers-reduced-motion:reduce){#buyerAppointmentsHub .ml-booking-motion *,#ownerCalendarHub .ml-booking-motion *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
