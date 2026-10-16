@@ -198,6 +198,29 @@ await rewrite("assets/ai-team.js",s=>{
  return s.replace(before,'const symbol=el("div","symbol",a.icon);if(a.key==="jessie"){const portrait=document.createElement("img");portrait.src="./assets/jessie-avatar.webp?v=20261015";portrait.alt="Jessie";portrait.width=48;portrait.height=48;portrait.style.cssText="width:100%;height:100%;object-fit:cover;border-radius:inherit";symbol.style.overflow="hidden";symbol.replaceChildren(portrait)}card.append(symbol,el("h3","",a.name),el("p","",a[language]));');
 });
 
+
+// Adaptive floating pill ONLY on the private sign-in landing, never inside
+// the authenticated Command Center dashboard or any buyer workspace.
+await copyFile(resolve("overrides/assets/command-landing-pill.css"),join(dest,"assets/command-landing-pill.css"));
+await copyFile(resolve("overrides/assets/command-landing-pill.js"),join(dest,"assets/command-landing-pill.js"));
+await rewrite("index.html",s=>{
+ const originalHeader='<header><b>THE LAUNCH ERA · COMMAND CENTER</b><button id="logout" class="hidden">Sign out</button></header>';
+ if(!s.includes(originalHeader)||!s.includes("</head>")||!s.includes("</body>"))
+  throw Error("Private sign-in header anchors changed; abort isolated floating-pill insertion");
+ const newHeader='<span id="tleHeaderScrollSentinel" class="tle-header-scroll-sentinel" aria-hidden="true"></span>'
+  +'<header class="tle-landing-header" aria-label="Command Center sign-in">'
+  +'<span class="tle-header-surface" aria-hidden="true"></span>'
+  +'<div class="tle-header-inner">'
+  +'<b class="tle-header-brand"><span class="tle-header-brand-title">THE LAUNCH ERA</span>'
+  +'<span class="tle-header-brand-subtitle">COMMAND CENTER</span></b>'
+  +'<a class="tle-header-action" href="#authForm">Sign in →</a>'
+  +'<button id="logout" class="hidden">Sign out</button>'
+  +'</div></header>';
+ return s.replace(originalHeader,newHeader)
+  .replace("</head>",'<link rel="stylesheet" href="./assets/command-landing-pill.css?v=20261016-v1"></head>')
+  .replace("</body>",'<script src="./assets/command-landing-pill.js?v=20261016-v1" defer></script></body>');
+});
+
 await writeFile(join(dest,"CNAME"),DOMAIN+"\n","utf8");
 await writeFile(join(dest,".nojekyll"),"","utf8");
 await writeFile(join(dest,"robots.txt"),"User-agent: *\nDisallow: /\n","utf8");
