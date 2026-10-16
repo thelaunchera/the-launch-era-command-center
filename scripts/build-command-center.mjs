@@ -221,6 +221,34 @@ await rewrite("index.html",s=>{
   .replace("</body>",'<script src="./assets/command-landing-pill.js?v=20261016-v2" defer></script></body>');
 });
 
+// Premium week view: use only DOM-rendered, authenticated calendar records.
+// Do not replace the owner's production milestones or CB Depot's real bookings.
+await copyFile(resolve("overrides/assets/booking-calendar-motion.js"),join(dest,"assets/booking-calendar-motion.js"));
+await copyFile(resolve("overrides/assets/booking-calendar-motion.css"),join(dest,"assets/booking-calendar-motion.css"));
+await rewrite("assets/command-center-app.js",s=>{
+ const patches=[
+  ["const b=ownerPageElem('button');b.type='button';", "const b=ownerPageElem('button');b.type='button';b.dataset.dayKey=key;"],
+  ["b.append(pill);\n  }\n  if(list.length>2)", "pill.dataset.calendarKind=event.kind;b.append(pill);\n  }\n  if(list.length>2)"],
+  ["const grid=$('ownerCalGrid');grid.replaceChildren();", "const grid=$('ownerCalGrid');grid.replaceChildren();grid.dataset.monthKey=y+'-'+String(m+1).padStart(2,'0');"],
+  ["const monthKey=buyerDateKey(first).slice(0,7);", "const monthKey=buyerDateKey(first).slice(0,7);grid.dataset.monthKey=monthKey;"],
+  ["cell.setAttribute('role','gridcell');", "cell.setAttribute('role','gridcell');cell.dataset.dayKey=key;"]
+ ];
+ for(const [before,after] of patches){
+  if(!s.includes(before))throw Error("Calendar safe-adapter anchor missing: "+before.slice(0,60));
+  s=s.replace(before,after);
+ }
+ return s;
+});
+await copyFile(resolve("overrides/portfolio.html"),join(dest,"portfolio.html"));
+await rewrite("index.html",s=>{
+ const nav='<div class="nav-caption" id="ownerOrdersCaption">THE LAUNCH ERA · PRIVATE</div>';
+ if(!s.includes(nav)||!s.includes("</head>")||!s.includes("</body>"))
+  throw Error("Portfolio/calendar navigation anchors missing; abort");
+ return s.replace(nav,nav+'\n<a class="nav-link" id="ownerPortfolioNav" href="./portfolio.html" style="text-decoration:none">◈ <span>Portfolio · Coming soon</span></a>')
+  .replace("</head>",'<link rel="stylesheet" href="./assets/booking-calendar-motion.css?v=20261016-1"></head>')
+  .replace("</body>",'<script src="./assets/booking-calendar-motion.js?v=20261016-1" defer></script></body>');
+});
+
 await writeFile(join(dest,"CNAME"),DOMAIN+"\n","utf8");
 await writeFile(join(dest,".nojekyll"),"","utf8");
 await writeFile(join(dest,"robots.txt"),"User-agent: *\nDisallow: /\n","utf8");
