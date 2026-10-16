@@ -253,6 +253,15 @@ await writeFile(join(dest,"CNAME"),DOMAIN+"\n","utf8");
 await writeFile(join(dest,".nojekyll"),"","utf8");
 await writeFile(join(dest,"robots.txt"),"User-agent: *\nDisallow: /\n","utf8");
 await writeFile(join(dest,"404.html"),'<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Private Command Center</title><body style="font:16px system-ui;background:#FAF8F3;color:#191919;max-width:32rem;margin:15vh auto;padding:2rem"><h1>Page unavailable</h1><p>This private Command Center page was not found. Your workspace has not been changed.</p><p><a href="/">Return to secure sign-in</a></p></body></html>\n',"utf8");
+// Owner-only recurring billing overview. Stripe data comes from its own verified
+// read-only Edge Function; demos remain synthetic and no charge is changed here.
+await copyFile(resolve("overrides/subscriptions.html"),join(dest,"subscriptions.html"));
+await rewrite("index.html",s=>{
+ const marker='<div class="nav-caption" id="ownerOrdersCaption">THE LAUNCH ERA · PRIVATE</div>';
+ if(!s.includes(marker))throw Error("Subscriptions owner-only navigation anchor changed");
+ return s.replace(marker,marker+'\n<a class="nav-link" id="ownerSubscriptionsNav" href="./subscriptions.html" style="text-decoration:none">◈ <span>Subscriptions</span></a>');
+});
+
 // Client Support Tickets reuse the existing tenant-scoped support requests table.
 // Owner Form Builder is draft-only: never mutate production intake or buyer records.
 await copyFile(resolve("overrides/support-tickets.html"),join(dest,"support-tickets.html"));
