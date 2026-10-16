@@ -262,15 +262,17 @@ await rewrite("index.html",s=>{
  return s.replace(marker,marker+'\n<a class="nav-link" id="ownerSubscriptionsNav" href="./subscriptions.html" style="text-decoration:none">◈ <span>Subscriptions</span></a>');
 });
 
-// Client Support Tickets reuse the existing tenant-scoped support requests table.
-// Owner Form Builder is draft-only: never mutate production intake or buyer records.
+// Existing client requests remain intact; the new thread and form tools use their
+// own RLS-protected tables and the form publishing endpoint is separate from live legacy intakes.
 await copyFile(resolve("overrides/support-tickets.html"),join(dest,"support-tickets.html"));
+await copyFile(resolve("overrides/support-inbox.html"),join(dest,"support-inbox.html"));
 await copyFile(resolve("overrides/form-builder.html"),join(dest,"form-builder.html"));
+await copyFile(resolve("overrides/published-intake.html"),join(dest,"published-intake.html"));
 await rewrite("index.html",s=>{
  const ownerAnchor='<a class="nav-link" href="./booking-studio.html">◈ <span>Booking Studio</span></a>';
  const buyerAnchor='<button type="button" class="nav-link" id="buyerSupportNav">';
  if(!s.includes(ownerAnchor)||!s.includes(buyerAnchor))throw Error("Support/Form Builder navigation anchor changed: abort");
- return s.replace(ownerAnchor,ownerAnchor+'<a class="nav-link" href="./form-builder.html">▤ <span>Form Builder</span></a>')
+ return s.replace(ownerAnchor,ownerAnchor+'<a class="nav-link" href="./form-builder.html">▤ <span>Form Builder</span></a><a class="nav-link" href="./support-inbox.html">♡ <span>Support Inbox</span></a>')
   .replace(buyerAnchor,'<a class="nav-link" href="./support-tickets.html">▤ <span>Support Tickets</span></a>'+buyerAnchor);
 });
 
