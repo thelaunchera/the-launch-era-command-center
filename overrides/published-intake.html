@@ -34,7 +34,7 @@ const answers={};for(const f of fields){const input=document.getElementById("f-"
 answers[f.id]=f.type==="checkbox"?input.checked:input.value;if(!input.checkValidity()){$("status").textContent="Please complete required fields.";input.reportValidity();return}}
 if(!$("consent").checked){$("consent").reportValidity();return}
 pending=true;$("submit").disabled=true;$("submit").textContent="Sending…";$("status").textContent="";
-try{const result=await call("submit",{answers,website:$("website").value});$("formShell").hidden=true;$("complete").hidden=false;$("reference").textContent=result.reference?"Reference: "+result.reference:""}
+try{const result=await call("submit",{answers,website:$("website").value,consent:$("consent").checked});$("formShell").hidden=true;$("complete").hidden=false;$("reference").textContent=result.reference?"Reference: "+result.reference:""}
 catch(error){$("status").textContent=String(error.message||"Unable to send")+". Please try again."}
 finally{pending=false;$("submit").disabled=false;$("submit").textContent="Send my information ↗"}
 });
