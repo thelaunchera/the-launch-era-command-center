@@ -221,6 +221,17 @@ await rewrite("index.html",s=>{
   .replace("</body>",'<script src="./assets/command-landing-pill.js?v=20261016-v2" defer></script></body>');
 });
 
+// Non-destructive booking calendar polish: style the two existing live calendars.
+// CB Depot stays car detailing only; owner production milestones stay owner-only.
+await copyFile(resolve("overrides/assets/calendar-motion.css"),join(dest,"assets/calendar-motion.css"));
+await copyFile(resolve("overrides/portfolio.html"),join(dest,"portfolio.html"));
+await rewrite("index.html",s=>{
+ const ownerAnchor='<button type="button" class="nav-link hidden" id="ownerCalendarNav"';
+ if(!s.includes(ownerAnchor)||!s.includes('</head>'))throw Error("Private calendar/owner navigation marker missing");
+ return s.replace(ownerAnchor,'<a class="nav-link" id="ownerPortfolioNav" href="./portfolio.html" style="text-decoration:none">✧ <span>Portfolio</span><small class="tle-soon">Coming soon</small></a>\n'+ownerAnchor)
+  .replace("</head>",'<link rel="stylesheet" href="./assets/calendar-motion.css?v=20261016-safe-v1"></head>');
+});
+
 await writeFile(join(dest,"CNAME"),DOMAIN+"\n","utf8");
 await writeFile(join(dest,".nojekyll"),"","utf8");
 await writeFile(join(dest,"robots.txt"),"User-agent: *\nDisallow: /\n","utf8");
