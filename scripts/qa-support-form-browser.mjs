@@ -56,7 +56,7 @@ const base="http://127.0.0.1:"+server.address().port;
 let browser;
 try{
  browser=await chromium.launch({headless:true});
- for(const width of [1440,390]){
+ for(const width of [1440,820,390]){
   const context=await browser.newContext({viewport:{width,height:900},reducedMotion:"reduce"});
   const page=await context.newPage(),errors=[];
   page.on("pageerror",e=>errors.push(String(e)));
@@ -83,7 +83,7 @@ try{
   assert.equal(errors.length,0,"Support browser errors: "+errors.join("; "));
   await context.close();
  }
- for(const width of [1440,390]){
+ for(const width of [1440,820,390]){
   const context=await browser.newContext({viewport:{width,height:900},reducedMotion:"reduce"});
   const page=await context.newPage(),errors=[];
   page.on("pageerror",e=>errors.push(String(e)));
@@ -119,7 +119,7 @@ try{
   assert.equal(errors.length,0,"Form Builder browser errors: "+errors.join("; "));
   await context.close();
  }
- console.log("PASS: synthetic browser QA for Support Tickets + owner-only Form Builder on desktop and phone, including validation, accessible controls, tenant-shaped records and non-publishing drafts.");
+ console.log("PASS: synthetic browser QA for Support Tickets + owner-only Form Builder on desktop, tablet and phone, including validation, accessible controls, tenant-shaped records and non-publishing drafts.");
 }finally{
  await browser?.close();
  await new Promise(done=>server.close(done));
