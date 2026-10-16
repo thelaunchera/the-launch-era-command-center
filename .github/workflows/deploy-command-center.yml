@@ -55,6 +55,7 @@ jobs:
           node scripts/qa-booking-studio-functional-browser.mjs
           node scripts/qa-booking-studio-followup-rules.mjs
           node scripts/qa-booking-studio-email-browser.mjs
+          node scripts/qa-support-form-browser.mjs
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
