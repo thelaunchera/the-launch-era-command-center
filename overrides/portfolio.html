@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="theme-color" content="#FAF8F3">
+<title>Portfolio · Coming soon | The Launch Era</title>
+<link rel="icon" href="./favicon-tle.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box}body{margin:0;font:500 16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;background:#FAF8F3;color:#191919}
+#gate{max-width:32rem;margin:20vh auto;padding:24px;text-align:center}#page[hidden]{display:none}
+.shell{width:min(100% - 32px,1100px);margin:auto}.nav{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:24px 0}
+a{color:#1765AF}a:focus-visible{outline:3px solid #6AA8EF;outline-offset:3px;border-radius:8px}
+.back{display:inline-flex;text-decoration:none;font-weight:700;color:#191919;border:1px solid #DCE6F2;background:white;padding:9px 15px;border-radius:999px}
+.eyebrow{font-size:11px;letter-spacing:.14em;font-weight:800;color:#35668C}.panel{border:1px solid #DCE7F4;background:#fff;border-radius:28px;box-shadow:0 18px 44px #173D6112;padding:clamp(25px,6vw,68px);margin:clamp(28px,5vw,70px) 0}
+h1{font-size:clamp(42px,8vw,80px);line-height:1.05;letter-spacing:-.06em;margin:18px 0}h1 em{font-style:normal;color:#498BBB}
+.lead{font-size:clamp(16px,2vw,20px);max-width:600px;color:#526371}
+.tag{display:inline-block;background:#E9F2FF;border:1px solid #BFD9FF;padding:7px 14px;border-radius:999px;color:#245C92;font-size:12px;font-weight:750}
+.note{margin-top:38px;padding:19px 21px;background:#F7FAFF;border-radius:14px;border:1px solid #E0EBF7;font-size:14px;color:#536B7D}
+@media(max-width:520px){.nav{align-items:flex-start;flex-direction:column}.panel{border-radius:20px}}
+</style>
+<script defer src="./vendor/supabase-js-v2.57.0.umd.js"></script></head>
+<body><div id="gate" role="status" aria-live="polite">Checking private owner access…</div>
+<div id="page" hidden><div class="shell">
+<header class="nav"><a class="back" href="./">← Command Center</a><span class="eyebrow">THE LAUNCH ERA · OWNER ONLY</span></header>
+<main class="panel"><span class="tag">Coming soon · Próximamente</span>
+<h1>Our <em>Portfolio.</em></h1>
+<p class="lead">A dedicated space for approved projects and results is planned. We will build this section later.</p>
+<p class="lead" lang="es">Este espacio se preparará más adelante para mostrar proyectos aprobados. Aún no se ha publicado ningún caso ni resultado.</p>
+<div class="note">Private placeholder only. No customer information, testimonials, approvals, payments or project images are displayed or published here.</div></main>
+</div></div>
+<script>
+document.addEventListener('DOMContentLoaded',async()=>{
+ const gate=document.getElementById('gate');const page=document.getElementById('page');
+ const deny=(message)=>{gate.textContent=message+' ';const link=document.createElement('a');link.href='./';link.textContent='Return to Command Center →';gate.append(link)};
+ try{
+  if(!window.supabase?.createClient)return deny('Sign in to your private Command Center first.');
+  const db=window.supabase.createClient('https://bowacxhmjvrqixtwaikv.supabase.co','sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'tle-crm-auth'}});
+  const {data:{user},error:authError}=await db.auth.getUser();
+  if(authError||!user)return deny('Sign in to your private Command Center first.');
+  const {data,error}=await db.from('tle_crm_workspaces').select('id').eq('created_by',user.id).eq('is_internal',true).limit(1);
+  if(error||!data?.length)return deny('This page is for the private The Launch Era owner workspace only.');
+  gate.hidden=true;page.hidden=false;
+ }catch{return deny('Could not verify access. Please sign in again.');}
+});
+</script></body></html>
