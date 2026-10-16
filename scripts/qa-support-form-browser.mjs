@@ -134,7 +134,7 @@ try{
   const page=await context.newPage(),errors=[];
   page.on("pageerror",e=>errors.push(String(e)));
   await page.goto(base+url,{waitUntil:"load"});
-  await page.waitForFunction(()=>document.getElementById("gate").textContent.includes("owner")||document.getElementById("gate").textContent.includes("client")||document.getElementById("gate").textContent.includes("Only"));
+  await page.waitForFunction(()=>{const v=document.getElementById("gate").textContent;return v.includes("This page needs an active client account.")||v.includes("Only the verified The Launch Era owner")});
   assert.ok(await page.locator("#app").evaluate(el=>el.hidden),label);
   assert.equal(await page.evaluate(()=>window.__mockWrites),0,label+" must not write");
   assert.equal(errors.length,0,label+" browser errors: "+errors.join("; "));
