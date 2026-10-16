@@ -11,9 +11,10 @@ window.__mockTickets=[
  {id:"bb000001-0000-4000-a000-000000000002",request_type:"problem",status:"resolved",message:"Subject: Fixed already\n\nMy issue has been resolved.",page_context:"Technical issue · Normal",created_at:"2026-10-14T14:00:00Z"}
 ];
 window.__mockWrites=0;
+window.__qaRole=new URLSearchParams(location.search).get("qa_role")||"allowed";
 window.supabase={createClient:function(){
  return {
-  auth:{getUser:async function(){return {data:{user:{id:"synthetic-user",email:"qa@example.invalid"}},error:null}}},
+  auth:{getUser:async function(){return window.__qaRole==="anonymous"?{data:{user:null},error:{message:"Not signed in"}}:{data:{user:{id:"synthetic-user",email:"qa@example.invalid"}},error:null}}},
   from:function(table){
    const constraints={};
    return {
@@ -21,7 +22,7 @@ window.supabase={createClient:function(){
     eq:function(key,val){constraints[key]=val;return this},
     order:function(){return this},
     limit:async function(){
-      if(table==="tle_crm_workspaces")return {data:[{id:"synthetic-workspace",name:"Fictional Cleaning Co",is_internal:constraints.is_internal}],error:null};
+      if(table==="tle_crm_workspaces")return {data:(window.__qaRole==="owner"&&constraints.is_internal===false)||(window.__qaRole==="buyer"&&constraints.is_internal===true)?[]:[{id:"synthetic-workspace",name:"Fictional Cleaning Co",is_internal:constraints.is_internal}],error:null};
       if(table==="tle_crm_support_requests")return {data:window.__mockTickets.filter(t=>constraints.workspace_id==="synthetic-workspace"),error:null};
       return {data:[],error:null};
     },
@@ -118,6 +119,25 @@ try{
   assert.match(await page.locator("#message").textContent(),/not connected yet/i);
   assert.equal(await page.evaluate(()=>window.__mockWrites),0,"Owner draft triggered a backend mutation");
   assert.equal(errors.length,0,"Form Builder browser errors: "+errors.join("; "));
+  await context.close();
+ }
+
+ // Gate regressions: cross-role navigation and signed-out sessions must never render protected tools.
+ const denialCases=[
+  ["/support-tickets.html?qa_role=owner","owner blocked from buyer ticket form"],
+  ["/support-tickets.html?qa_role=anonymous","anonymous blocked from tickets"],
+  ["/form-builder.html?qa_role=buyer","buyer blocked from owner form design"],
+  ["/form-builder.html?qa_role=anonymous","anonymous blocked from owner form design"]
+ ];
+ for(const [url,label] of denialCases){
+  const context=await browser.newContext({viewport:{width:390,height:800}});
+  const page=await context.newPage(),errors=[];
+  page.on("pageerror",e=>errors.push(String(e)));
+  await page.goto(base+url,{waitUntil:"load"});
+  await page.waitForFunction(()=>document.getElementById("gate").textContent.includes("owner")||document.getElementById("gate").textContent.includes("client")||document.getElementById("gate").textContent.includes("Only"));
+  assert.ok(await page.locator("#app").evaluate(el=>el.hidden),label);
+  assert.equal(await page.evaluate(()=>window.__mockWrites),0,label+" must not write");
+  assert.equal(errors.length,0,label+" browser errors: "+errors.join("; "));
   await context.close();
  }
  console.log("PASS: synthetic browser QA for Support Tickets + owner-only Form Builder on desktop, tablet and phone, including validation, accessible controls, tenant-shaped records and non-publishing drafts.");
