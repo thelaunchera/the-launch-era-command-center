@@ -86,14 +86,16 @@ function switchTab(next){tab=next;render()}
 $("openTab").onclick=function(){switchTab("open")};$("resolvedTab").onclick=function(){switchTab("resolved")};
 $("tabs").addEventListener("keydown",function(e){if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight")return;e.preventDefault();switchTab(tab==="open"?"resolved":"open");$(tab==="open"?"openTab":"resolvedTab").focus()});
 $("subject").addEventListener("input",function(){$("subject").classList.remove("error");$("subjectError").textContent=""});
-$("form").addEventListener("submit",async function(e){e.preventDefault();var subject=$("subject").value.trim(),details=$("details").value.trim();
+$("form").addEventListener("submit",async function(e){e.preventDefault();if($("send").disabled)return;var subject=$("subject").value.trim(),details=$("details").value.trim();
 if(!subject){var f=$("subject");f.classList.add("error");f.classList.remove("shake");void f.offsetWidth;f.classList.add("shake");$("subjectError").textContent="Please add a subject.";f.focus();return}
 if(details.length<10){$("details").classList.add("error");$("detailsError").textContent="Please add at least 10 characters."; $("details").focus();return}
 $("details").classList.remove("error");$("detailsError").textContent="";var send=$("send");send.disabled=true;send.textContent="Sending…";
 try{var check=await db.auth.getUser();if(check.error||check.data.user.id!==user.id)throw Error("Session expired");
 var p={workspace_id:workspace.id,submitted_by:user.id,request_type:"problem",page_context:(category+" · "+priority).slice(0,120),message:"Subject: "+subject+"\n\n"+details,language:localStorage.getItem("tle_crm_language")==="es"?"es":"en"};
-var r=await db.from("tle_crm_support_requests").insert(p);if(r.error)throw r.error;
-await refresh();latestId=items[0]&&items[0].id||"";tab="open";render();$("form").reset();category="Technical issue";priority="Normal";select($("categories"),"category",category);select($("priorities"),"priority",priority);toast("✓ Ticket received"+(latestId?" · #"+latestId.slice(0,8).toUpperCase():""));$("subject").focus()
+var r=await db.from("tle_crm_support_requests").insert(p).select("id").single();if(r.error||!r.data?.id)throw r.error||Error("Ticket id missing");
+var createdId=r.data.id;latestId=createdId;tab="open";$("form").reset();category="Technical issue";priority="Normal";select($("categories"),"category",category);select($("priorities"),"priority",priority);$("subject").focus();
+try{await refresh()}catch(loadError){items.unshift({id:createdId,request_type:p.request_type,message:p.message,status:"open",created_at:new Date().toISOString(),page_context:p.page_context});render()}
+toast("✓ Ticket received · #"+String(createdId).slice(0,8).toUpperCase())
 }catch(ex){toast("Couldn't send this ticket. Your text is still here. Please retry.");}finally{send.disabled=false;send.textContent="↗ Send ticket"}});
 window.addEventListener("resize",highlight);
 (async function(){try{
@@ -103,7 +105,7 @@ var u=await db.auth.getUser();if(u.error||!u.data.user)throw Error("Sign in requ
 var w=await db.from("tle_crm_workspaces").select("id,name,is_internal").eq("created_by",user.id).eq("is_internal",false).limit(1);
 if(w.error||!w.data||!w.data.length)throw Error("No activated client workspace");
 workspace=w.data[0];$("company").textContent=workspace.name||"THE LAUNCH ERA";$("avatar").textContent=(user.email||"T").charAt(0).toUpperCase();
-$("gate").hidden=true;$("app").hidden=false;await refresh();
+$("gate").hidden=true;$("app").hidden=false;try{await refresh()}catch(loadError){$("list").replaceChildren(elt("div","empty","Could not load ticket history. Reload to try again."));toast("Ticket history is temporarily unavailable.")}
 }catch(ex){err("This page needs an active client account.");}})();
 })();
 </script></body></html>
