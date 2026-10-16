@@ -1,0 +1,43 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="theme-color" content="#FAF8F3"><title>Client Intake · The Launch Era</title>
+<style>:root{--blue:#408bb9;--ink:#191919;--muted:#637b8c;--line:#d5e3ed;--bg:#faf8f3}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Avenir Next",Arial,sans-serif}header{padding:19px 5vw;background:#fff;border-bottom:1px solid var(--line);font-weight:900;letter-spacing:.07em;font-size:12px}header span{color:var(--blue)}
+main{width:min(760px,calc(100% - 24px));margin:clamp(24px,6vw,52px) auto;background:white;border:1px solid var(--line);border-radius:22px;padding:clamp(22px,5vw,45px);box-shadow:0 15px 42px #2549660d}h1{font-size:clamp(28px,4vw,38px);letter-spacing:-.055em;line-height:1.12;margin:0 0 12px}p{margin:0 0 20px;color:var(--muted)}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 15px}.field{min-width:0}.field.full{grid-column:span 2}label{display:block;font-size:13px;font-weight:800;margin:0 0 7px;color:#36536a}label .req{color:#b74444}
+input:not([type=checkbox]),textarea,select{border:1px solid var(--line);border-radius:12px;background:#f7fbfd;width:100%;min-height:46px;font:inherit;padding:12px;color:var(--ink);min-width:0}textarea{min-height:112px;resize:vertical}input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid #9fcfe8;outline-offset:2px;border-color:var(--blue)}input[type=checkbox]{height:18px;width:18px;accent-color:var(--blue)}.check{display:flex;gap:10px;align-items:center;font-size:13px}.hint{font-size:12px;color:#647d8d;margin:6px 0 0}.consent{display:flex;align-items:flex-start;gap:10px;font-size:13px;margin-top:25px}.consent label{font-weight:500;line-height:1.5}button{cursor:pointer;min-height:50px;padding:12px 19px;background:var(--blue);color:white;border:0;border-radius:12px;font:inherit;font-weight:800;width:100%;margin-top:18px}button:disabled{opacity:.6;cursor:wait}.status{font-size:13px;margin-top:16px;color:#35576e}#complete{margin-top:16px;background:#ecf6fc;border:1px solid #cae4f5;border-radius:15px;padding:22px}#complete strong{font-size:20px}#trap{position:absolute;left:-9999px;opacity:0}footer{text-align:center;color:#71899a;font-size:11px;margin:25px} [hidden]{display:none!important}@media(max-width:620px){.fields{grid-template-columns:1fr}.field.full{grid-column:span 1}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}</style></head><body><header>✳ THE LAUNCH ERA <span> / SECURE INTAKE</span></header><main><div id="start" class="status" role="status">Opening this intake form…</div><section id="formShell" hidden><h1 id="heading"></h1><p id="description"></p><form id="intake" novalidate><div id="fields" class="fields"></div><label id="trap" for="website">Company website (leave blank)</label><input id="website" name="website" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px"><div class="consent"><input id="consent" type="checkbox" required><label for="consent">I agree to submit this information to The Launch Era so the team can review my request and contact me about it.</label></div><button id="submit" type="submit">Send my information ↗</button><div id="status" class="status" role="status" aria-live="polite"></div></form></section><section id="complete" hidden role="status"><strong>✓ Information received</strong><p>Your details were submitted to The Launch Era. Thank you!</p><small id="reference"></small></section></main><footer>Private submission · Please do not share passwords, bank details or sensitive documents.</footer>
+<script>
+(function(){"use strict";
+const ENDPOINT="https://bowacxhmjvrqixtwaikv.supabase.co/functions/v1/tle-published-intake";
+const $=id=>document.getElementById(id),param=new URLSearchParams(location.search),slug=param.get("f")||"";
+let fields=[],pending=false;
+function node(tag,text){const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);return n}
+async function call(action,extra={}){const r=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,slug,...extra})});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Could not connect");return d}
+function elementFor(f){
+ const box=node("div");box.className="field"+(f.width==="full"?" full":"");
+ const lab=node("label",f.label||"Question");lab.htmlFor="f-"+f.id;
+ if(f.required)lab.append(Object.assign(node("span"," *"),{className:"req"}));box.append(lab);
+ let control;
+ if(f.type==="long"){control=node("textarea");control.rows=4}
+ else if(f.type==="dropdown"){control=node("select");const empty=node("option",f.placeholder||"Choose an option");empty.value="";control.append(empty);(f.options||[]).forEach(value=>{const o=node("option",value);o.value=value;control.append(o)})}
+ else if(f.type==="rating"){control=node("select");const empty=node("option","Choose a rating");empty.value="";control.append(empty);for(let n=1;n<=5;n++){const o=node("option",n+" stars");o.value=String(n);control.append(o)}}
+ else if(f.type==="checkbox"){control=node("input");control.type="checkbox"}
+ else if(f.type==="file"){control=node("p","This form is not accepting file uploads.");}
+ else {control=node("input");control.type=({email:"email",date:"date",short:"text"})[f.type]||"text";}
+ if(f.type!=="file"){control.id="f-"+f.id;control.name=f.id;control.required=!!f.required;if(f.placeholder&&"placeholder"in control)control.placeholder=f.placeholder;if("maxLength"in control&&["short","email","long"].includes(f.type))control.maxLength=2000;box.append(control)}
+ else box.append(control);
+ if(f.help){const p=node("div",f.help);p.className="hint";box.append(p)}return box
+}
+async function boot(){
+ try{const data=await call("get");fields=data.form.fields||[];$("heading").textContent=data.form.title;$("description").textContent=data.form.description;
+ fields.forEach(f=>$("fields").append(elementFor(f)));$("start").hidden=true;$("formShell").hidden=false
+ }catch(e){$("start").textContent=String(e.message||"Form unavailable")+". If you received this link from The Launch Era, contact the team for a new link."}
+}
+$("intake").addEventListener("submit",async e=>{e.preventDefault();if(pending)return;
+const answers={};for(const f of fields){const input=document.getElementById("f-"+f.id);if(!input){$("status").textContent="This form contains a field that is not yet supported.";return}
+answers[f.id]=f.type==="checkbox"?input.checked:input.value;if(!input.checkValidity()){$("status").textContent="Please complete required fields.";input.reportValidity();return}}
+if(!$("consent").checked){$("consent").reportValidity();return}
+pending=true;$("submit").disabled=true;$("submit").textContent="Sending…";$("status").textContent="";
+try{const result=await call("submit",{answers,website:$("website").value});$("formShell").hidden=true;$("complete").hidden=false;$("reference").textContent=result.reference?"Reference: "+result.reference:""}
+catch(error){$("status").textContent=String(error.message||"Unable to send")+". Please try again."}
+finally{pending=false;$("submit").disabled=false;$("submit").textContent="Send my information ↗"}
+});
+boot();
+})();
+</script></body></html>
