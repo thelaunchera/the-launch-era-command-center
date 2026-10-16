@@ -1,0 +1,14 @@
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+const read=x=>readFileSync(".site/"+x,"utf8");
+const html=read("index.html"), css=read("assets/calendar-motion.css"), portfolio=read("portfolio.html"), app=read("assets/command-center-app.js");
+assert.ok(html.includes('id="ownerPortfolioNav"')&&html.includes('href="./portfolio.html"'),"Portfolio navigation missing");
+assert.ok(html.includes('id="ownerPrivateSection"')&&html.indexOf('id="ownerPortfolioNav"')>html.indexOf('id="ownerPrivateSection"')&&html.indexOf('id="ownerPortfolioNav"')<html.indexOf('id="buyerBusinessSection"'),"Portfolio may appear in buyer sidebar");
+assert.ok(html.includes('assets/calendar-motion.css'),"Calendar design stylesheet missing");
+assert.ok(css.includes('body.cb-depot-buyer #buyerAppointmentsHub'),"CB Depot calendar must be tenant scoped");
+assert.ok(css.includes('#ownerCalendarHub'),"Owner production calendar must be separately scoped");
+assert.ok(!css.includes('fernway.co')&&!css.includes('Rafael Santos'),"Demo bookings cannot be included");
+assert.ok(portfolio.includes('is_internal\',true')&&portfolio.includes('getUser()'),"Owner-only authentication must be enforced for placeholder page");
+assert.ok(portfolio.includes('noindex,nofollow'),"Private placeholder must not be indexed");
+assert.ok(app.includes('tle_booking_owner_calendar_read')&&app.includes('renderBuyerBookingCalendar()'),"Existing live calendar data handlers must remain");
+console.log("PASS: owner portfolio guard, distinct calendar scopes, original live handlers retained");
