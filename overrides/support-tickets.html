@@ -91,7 +91,7 @@ if(!subject){var f=$("subject");f.classList.add("error");f.classList.remove("sha
 if(details.length<10){$("details").classList.add("error");$("detailsError").textContent="Please add at least 10 characters."; $("details").focus();return}
 $("details").classList.remove("error");$("detailsError").textContent="";var send=$("send");send.disabled=true;send.textContent="Sending…";
 try{var check=await db.auth.getUser();if(check.error||check.data.user.id!==user.id)throw Error("Session expired");
-var p={workspace_id:workspace.id,submitted_by:user.id,request_type:category==="Other"?"feedback":"problem",page_context:(category+" · "+priority).slice(0,120),message:"Subject: "+subject+"\n\n"+details,language:localStorage.getItem("tle_crm_language")==="es"?"es":"en"};
+var p={workspace_id:workspace.id,submitted_by:user.id,request_type:"problem",page_context:(category+" · "+priority).slice(0,120),message:"Subject: "+subject+"\n\n"+details,language:localStorage.getItem("tle_crm_language")==="es"?"es":"en"};
 var r=await db.from("tle_crm_support_requests").insert(p);if(r.error)throw r.error;
 await refresh();latestId=items[0]&&items[0].id||"";tab="open";render();$("form").reset();category="Technical issue";priority="Normal";select($("categories"),"category",category);select($("priorities"),"priority",priority);toast("✓ Ticket received"+(latestId?" · #"+latestId.slice(0,8).toUpperCase():""));$("subject").focus()
 }catch(ex){toast("Couldn't send this ticket. Your text is still here. Please retry.");}finally{send.disabled=false;send.textContent="↗ Send ticket"}});
