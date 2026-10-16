@@ -141,8 +141,136 @@ input.id="pv-"+f.id;lab.htmlFor=input.id;if(f.placeholder)input.placeholder=f.pl
 $("previewButton").onclick=preview;$("closePreview").onclick=function(){$("preview").hidden=true};$("preview").addEventListener("click",function(e){if(e.target===$("preview"))$("preview").hidden=true});
 $("testPreview").onclick=function(){var inputs=[...$("previewFields").querySelectorAll("input,select,textarea")];var bad=inputs.find(function(input){return !input.checkValidity()});$("previewStatus").textContent=bad?"Complete the required fields to pass validation.":"✓ Form validation passed. No submission was sent.";if(bad){bad.reportValidity();bad.focus()}};
 function exportDraft(){var json=JSON.stringify({version:1,title:"Consult intake",status:"draft",fields:fields},null,2);var blob=new Blob([json],{type:"application/json"}),url=URL.createObjectURL(blob),a=node("a");a.href=url;a.download="the-launch-era-form-draft.json";a.click();setTimeout(function(){URL.revokeObjectURL(url)},1200);notice("Draft exported. No live form was published.")} $("export").onclick=exportDraft;
-$("publish").onclick=function(){notice("Publishing is not connected yet. This is a private draft only; no client form was changed.")};
+
+/* Owner-only cloud publishing. Draft fields stay independent from the last published snapshot. */
+var liveRecord=null,liveRows=[],liveTitle="Consult intake",liveDescription="A clear way to gather the details you need.";
+const publicPrefix=new URL("./published-intake.html",location.href).href+"?f=";
+const share=$("sharePanel");
+const cloudTools=node("div");cloudTools.style.cssText="margin-top:23px;display:grid;gap:12px;border-top:1px solid #dbe6ee;padding-top:20px";
+const cloudHeading=node("h2",null,"Cloud forms & responses");
+cloudHeading.style.cssText="font-size:17px;margin:0";
+const remoteLabel=node("label",null,"Select a saved form");remoteLabel.style.cssText="font-size:12px;font-weight:800";
+const selectForm=node("select");selectForm.id="savedFormPicker";selectForm.className="prop-input";selectForm.setAttribute("aria-label","Saved form drafts");
+const newForm=node("button","outline","＋ New form");newForm.type="button";
+const saveCloud=node("button","outline","Save cloud draft");saveCloud.type="button";
+const unpublish=node("button","outline","Unpublish");unpublish.type="button";
+const linkLabel=node("label",null,"Published link");linkLabel.style.cssText="font-size:12px;font-weight:800";
+const liveLink=node("input");liveLink.id="publishedFormLink";liveLink.readOnly=true;liveLink.className="prop-input";
+const copyLive=node("button","outline","Copy public link");copyLive.type="button";
+const liveInfo=node("p","sidenote");liveInfo.id="cloudFormState";
+const responseTitle=node("strong",null,"Received responses");
+const refreshResponses=node("button","outline","↻ Refresh responses");refreshResponses.type="button";
+const responseList=node("div");responseList.id="cloudFormResponses";responseList.style.cssText="display:grid;gap:9px";
+const actions=node("div");actions.style.cssText="display:flex;gap:9px;flex-wrap:wrap";
+actions.append(saveCloud,newForm,unpublish);
+cloudTools.append(cloudHeading,remoteLabel,selectForm,actions,liveInfo,linkLabel,liveLink,copyLive,responseTitle,refreshResponses,responseList);
+share.append(cloudTools);
+const headingInput=$("buildPanel").querySelector("h1"),descriptionInput=$("buildPanel").querySelector(".hint");
+headingInput.contentEditable="true";headingInput.spellcheck=true;headingInput.setAttribute("role","textbox");headingInput.setAttribute("aria-label","Form title");
+descriptionInput.contentEditable="true";descriptionInput.spellcheck=true;descriptionInput.setAttribute("role","textbox");descriptionInput.setAttribute("aria-label","Form description");
+headingInput.oninput=function(){liveTitle=this.textContent.trim().slice(0,150)};
+descriptionInput.oninput=function(){liveDescription=this.textContent.trim().slice(0,600)};
+function applyLiveText(){headingInput.textContent=liveTitle;descriptionInput.textContent=liveDescription; $("preview").querySelector("h2").textContent=liveTitle+" · Preview";}
+function sanitizeFields(){
+ if(fields.length===0)throw Error("Add at least one field before publishing.");
+ if(fields.length>60)throw Error("The maximum is 60 fields.");
+ if(fields.some(f=>f.type==="file"))throw Error("File upload needs secured storage setup. Remove file fields before publishing.");
+ if(fields.some(f=>!f.label.trim()))throw Error("Give every field a label.");
+ if(fields.some(f=>f.type==="dropdown"&&!(f.options||[]).length))throw Error("Add dropdown options before publishing.");
+ if(new Set(fields.map(f=>f.id)).size!==fields.length)throw Error("Duplicate field identifiers found.");
+ if(liveTitle.trim().length<2)throw Error("Give the form a title.");
+ return fields.map(f=>({id:f.id,type:f.type,label:f.label,required:!!f.required,placeholder:f.placeholder,help:f.help,width:f.width,options:f.type==="dropdown"?(f.options||[]):[]}));
+}
+async function loadFormOptions(){
+ if(!owner)return;
+ const {data,error}=await db.from("tle_owner_forms").select("id,slug,status,title,description,draft_title,draft_description,draft_fields,published_at,updated_at").eq("created_by",owner.id).order("updated_at",{ascending:false}).limit(50);
+ if(error)throw error;liveRows=data||[];
+ selectForm.replaceChildren(new Option("New unsaved form",""));
+ for(const item of liveRows)selectForm.add(new Option((item.draft_title||item.title||"Untitled")+" · "+item.status,item.id));
+ selectForm.value=liveRecord?.id||"";
+}
+async function liveBootstrap(){
+ try{
+  await loadFormOptions();
+  const row=liveRows[0];if(!row)return;
+  liveRecord=row;
+  liveTitle=row.draft_title||row.title;
+  liveDescription=row.draft_description||row.description||"";
+  if(!localStorage.getItem("tle-form-builder-draft-"+owner.id))
+   localStorage.setItem("tle-form-builder-draft-"+owner.id,JSON.stringify({version:1,fields:row.draft_fields?.length?row.draft_fields:row.fields||[]}));
+ }catch(e){notice("Cloud forms are temporarily unavailable. This device's draft is still available.")}
+}
+function liveRender(){
+ const publicLink=liveRecord?.status==="published"?publicPrefix+liveRecord.slug:"";
+ liveLink.value=publicLink;liveLink.hidden=!publicLink;copyLive.hidden=!publicLink;linkLabel.hidden=!publicLink;
+ unpublish.hidden=liveRecord?.status!=="published";refreshResponses.disabled=!liveRecord;
+ liveInfo.textContent=liveRecord?("Form: "+liveRecord.status+" · "+(liveRecord.id||"").slice(0,8)+" · draft changes stay private until you publish again."):
+ "This draft is only on this device until you save it to your cloud account.";
+ selectForm.value=liveRecord?.id||"";
+}
+async function livePersist(action){
+ const button=action==="publish"?$("publish"):saveCloud;
+ if(button.disabled)return;
+ try{
+  if(!owner)throw Error("Sign in to the owner Command Center first.");
+  const draft=sanitizeFields();
+  button.disabled=true;button.textContent=action==="publish"?"Publishing…":"Saving…";
+  const title=liveTitle.trim(),description=liveDescription.trim();
+  const base={draft_fields:draft,draft_title:title,draft_description:description,updated_at:new Date().toISOString()};
+  let payload={...base};
+  if(action==="publish")payload={...payload,fields:draft,title,description,status:"published",published_at:new Date().toISOString()};
+  if(!liveRecord){
+   payload={...payload,created_by:owner.id,slug:"intake-"+crypto.randomUUID().replaceAll("-","").slice(0,21),...(action!=="publish"?{title,description,fields:[]}:{}),status:action==="publish"?"published":"draft"};
+   const {data,error}=await db.from("tle_owner_forms").insert(payload).select("id,slug,status,title,description,draft_title,draft_description,draft_fields,published_at,updated_at").single();
+   if(error)throw error;liveRecord=data;
+  }else{
+   const {data,error}=await db.from("tle_owner_forms").update(payload).eq("id",liveRecord.id).eq("created_by",owner.id).select("id,slug,status,title,description,draft_title,draft_description,draft_fields,published_at,updated_at").single();
+   if(error)throw error;liveRecord=data;
+  }
+  save();await loadFormOptions();liveRender();
+  if(action==="publish"){goMode("Share");notice("✓ Form is published. Copy its live link to share.");}
+  else notice("✓ Cloud draft saved. Published version is unchanged.");
+  await loadFormResponses();
+ }catch(e){notice("Could not "+(action==="publish"?"publish":"save")+": "+String(e?.message||"Try again").slice(0,140))}
+ finally{button.disabled=false;button.textContent=action==="publish"?"Publish":"Save cloud draft"}
+}
+async function loadFormResponses(){
+ responseList.replaceChildren();
+ if(!liveRecord){responseList.textContent="Save a form to view its submissions.";return}
+ const {data,error}=await db.from("tle_owner_form_responses").select("id,answers,submitted_at").eq("form_id",liveRecord.id).order("submitted_at",{ascending:false}).limit(50);
+ if(error){responseList.textContent="Could not load submissions. Check owner access and retry.";return}
+ if(!data?.length){responseList.textContent="No submissions yet.";return}
+ for(const item of data){
+  const card=node("article");card.style.cssText="border:1px solid #dae6ed;background:#f8fbfe;border-radius:13px;padding:13px";
+  const top=node("strong",null,new Date(item.submitted_at).toLocaleString());card.append(top);
+  const lookup=new Map((liveRecord.fields||fields).map(f=>[f.id,f.label]));
+  for(const [key,value] of Object.entries(item.answers||{})){
+   const p=node("p","sidenote",(lookup.get(key)||key)+": "+String(value));p.style.cssText="margin:6px 0;overflow-wrap:anywhere";card.append(p);
+  }
+  responseList.append(card);
+ }
+}
+$("publish").onclick=function(){void livePersist("publish")};
+saveCloud.onclick=function(){void livePersist("draft")};
+refreshResponses.onclick=function(){void loadFormResponses()};
+copyLive.onclick=async function(){try{await navigator.clipboard.writeText(liveLink.value);notice("✓ Published link copied")}catch{liveLink.select();notice("Select and copy the link above.")}};
+unpublish.onclick=async function(){
+ if(!liveRecord||liveRecord.status!=="published"||!confirm("Unpublish this form? The public link will stop receiving submissions."))return;
+ unpublish.disabled=true;
+ try{const {data,error}=await db.from("tle_owner_forms").update({status:"archived",updated_at:new Date().toISOString()}).eq("id",liveRecord.id).eq("created_by",owner.id).select("id,slug,status,title,description,draft_title,draft_description,draft_fields,published_at,updated_at").single();
+ if(error)throw error;liveRecord=data;await loadFormOptions();liveRender();notice("Form unpublished. Previous responses are preserved.");}
+ catch(e){notice("Could not unpublish. Please retry.")}
+ finally{unpublish.disabled=false}
+};
+selectForm.onchange=function(){
+ const row=liveRows.find(r=>r.id===selectForm.value)||null;
+ if(row){liveRecord=row;fields=JSON.parse(JSON.stringify(row.draft_fields?.length?row.draft_fields:row.fields||[]));liveTitle=row.draft_title||row.title;liveDescription=row.draft_description||row.description;seq=fields.reduce((max,f)=>Math.max(max,Number(String(f.id).replace(/\D/g,""))||0),0)}
+ else{liveRecord=null;fields=[fresh("short"),fresh("email")];liveTitle="Consult intake";liveDescription="Tell us about your business."}
+ selected=fields[0]?.id||"";applyLiveText();render();save();liveRender();void loadFormResponses();goMode("Build")
+};
+newForm.onclick=function(){selectForm.value="";selectForm.onchange()};
+
 window.addEventListener("resize",function(){goMode(mode);syncMobile()});
-(async function(){try{if(!window.supabase?.createClient)throw Error("Auth unavailable");db=window.supabase.createClient(API,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"tle-crm-auth"}});var r=await db.auth.getUser();if(r.error||!r.data.user)throw Error("Sign in needed");var w=await db.from("tle_crm_workspaces").select("id").eq("created_by",r.data.user.id).eq("is_internal",true).limit(1);if(w.error||!w.data?.length)throw Error("Owner only");owner=r.data.user;restore();selected=fields[0]?.id||"";buildPalette();render();goMode("Build");syncMobile();$("gate").hidden=true;$("app").hidden=false}catch(e){$("gate").textContent="Only the verified The Launch Era owner can open this screen. Sign in through the Command Center first."}})();
+(async function(){try{if(!window.supabase?.createClient)throw Error("Auth unavailable");db=window.supabase.createClient(API,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"tle-crm-auth"}});var r=await db.auth.getUser();if(r.error||!r.data.user)throw Error("Sign in needed");var w=await db.from("tle_crm_workspaces").select("id").eq("created_by",r.data.user.id).eq("is_internal",true).limit(1);if(w.error||!w.data?.length)throw Error("Owner only");owner=r.data.user;await liveBootstrap();restore();applyLiveText();selected=fields[0]?.id||"";buildPalette();render();goMode("Build");syncMobile();$("gate").hidden=true;$("app").hidden=false;liveRender();await loadFormResponses()}catch(e){$("gate").textContent="Only the verified The Launch Era owner can open this screen. Sign in through the Command Center first."}})();
 })();
 </script></body></html>
