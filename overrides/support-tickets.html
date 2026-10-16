@@ -40,7 +40,7 @@ textarea.input{min-height:128px;resize:vertical}.choices{display:flex;flex-wrap:
 @media(max-width:900px){.layout{grid-template-columns:minmax(0,1fr) 345px}.tickets{padding:20px}.right{padding:18px}.card{padding:18px}}
 @media(max-width:760px){header{padding:0 15px}.headend .ghost,.avatar,.crumb{display:none}.layout{display:flex;flex-direction:column}.tickets{padding:23px 14px 10px}.right{border:0;background:transparent;padding:18px 14px 35px}.card{padding:19px}.ticket .replycount{display:none}h1{font-size:26px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
-</style></head><body>
+</style><link rel="stylesheet" href="./assets/submit-morph.css?v=20261016-1"><script src="./assets/submit-morph.js?v=20261016-1" defer></script></head><body>
 <header><a class="logo" href="./" aria-label="Back to Command Center">✳</a><strong class="brand" id="company">THE LAUNCH ERA</strong><span class="crumb">/ Support</span><div class="headend"><a class="ghost" href="./">← Command Center</a><button class="ghost" type="button" id="articlesButton" aria-haspopup="dialog" aria-controls="articlesDialog">Help articles</button><span class="avatar" id="avatar" aria-hidden="true">T</span></div></header>
 <div id="gate" role="status">Checking secure access…</div>
 <main class="layout" id="app" hidden>
@@ -146,16 +146,16 @@ if(x.status!=="resolved"&&threadsAvailable){
  replyBox.id="reply-"+x.id;replyLabel.htmlFor=replyBox.id;var sendReply=elt("button","primary","↗ Send reply");sendReply.type="submit";sendReply.style.cssText="margin-top:9px;width:auto;min-width:140px";var result=elt("p","meta");result.setAttribute("role","status");
  replyForm.append(replyLabel,replyBox,sendReply,result);
  replyForm.addEventListener("submit",async function(event){event.preventDefault();if(sendReply.disabled)return;const value=replyBox.value.trim();if(value.length<2){result.textContent="Please add a short message.";return}
- sendReply.disabled=true;result.textContent="Sending reply…";
+ if(window.TLESubmitMotion)window.TLESubmitMotion.start(sendReply);else sendReply.disabled=true;result.textContent="Sending reply…";
  try{const auth=await db.auth.getUser();if(auth.error||auth.data.user?.id!==user.id)throw Error("Session expired");
  const response=await db.from("tle_crm_support_messages").insert({ticket_id:x.id,sender_id:user.id,sender_role:"client",body:value}).select("id").single();
  if(response.error||!response.data?.id)throw response.error||Error("Not confirmed");
- replyBox.value="";result.textContent=es?"✓ Mensaje enviado.":"✓ Reply saved. Support can see it.";toast(es?"✓ Respuesta enviada":"✓ Reply sent");
+ window.TLESubmitMotion?.done(sendReply,{resetAfter:1200});await window.TLESubmitMotion?.pause(780);replyBox.value="";result.textContent=es?"✓ Mensaje enviado.":"✓ Reply saved. Support can see it.";toast(es?"✓ Respuesta enviada":"✓ Reply sent");
  expandedTickets.add(x.id);
  try{await refresh()}catch{result.textContent="✓ Reply saved. Reload to see the conversation."}
  if(!needsHuman){jessySupport("reply",x.id,response.data.id).then(function(){return refresh()}).catch(function(){toast(es?"Jessy no está disponible. Puedes pedir ayuda humana.":"Jessy is unavailable. You can request human support.")})}
- }catch(e){result.textContent="Could not send this reply. Your text is still here."}
- finally{sendReply.disabled=false}});
+ }catch(e){window.TLESubmitMotion?.error(sendReply);result.textContent="Could not send this reply. Your text is still here."}
+ finally{if(window.TLESubmitMotion)window.TLESubmitMotion.reset(sendReply);else sendReply.disabled=false}});
  extra.append(replyForm)
 }
 card.append(top,meta,extra);root.append(card)});
@@ -175,16 +175,16 @@ $("subject").addEventListener("input",function(){$("subject").classList.remove("
 $("form").addEventListener("submit",async function(e){e.preventDefault();if($("send").disabled)return;var subject=$("subject").value.trim(),details=$("details").value.trim();
 if(!subject){var f=$("subject");f.classList.add("error");f.classList.remove("shake");void f.offsetWidth;f.classList.add("shake");$("subjectError").textContent="Please add a subject.";f.focus();return}
 if(details.length<10){$("details").classList.add("error");$("detailsError").textContent="Please add at least 10 characters."; $("details").focus();return}
-$("details").classList.remove("error");$("detailsError").textContent="";var send=$("send");send.disabled=true;send.textContent="Sending…";
+$("details").classList.remove("error");$("detailsError").textContent="";var send=$("send");if(window.TLESubmitMotion)window.TLESubmitMotion.start(send);else{send.disabled=true;send.textContent="Sending…"}
 try{var check=await db.auth.getUser();if(check.error||check.data.user.id!==user.id)throw Error("Session expired");
 var p={workspace_id:workspace.id,submitted_by:user.id,request_type:"problem",page_context:(category+" · "+priority).slice(0,120),message:"Subject: "+subject+"\n\n"+details,language:localStorage.getItem("tle_crm_language")==="es"?"es":"en"};
 var r=await db.from("tle_crm_support_requests").insert(p).select("id").single();if(r.error||!r.data?.id)throw r.error||Error("Ticket id missing");
-var createdId=r.data.id;latestId=createdId;tab="open";$("form").reset();category="Technical issue";priority="Normal";select($("categories"),"category",category);select($("priorities"),"priority",priority);$("subject").focus();
+var createdId=r.data.id;latestId=createdId;window.TLESubmitMotion?.done(send,{resetAfter:1200});await window.TLESubmitMotion?.pause(780);tab="open";$("form").reset();category="Technical issue";priority="Normal";select($("categories"),"category",category);select($("priorities"),"priority",priority);$("subject").focus();
 try{await refresh()}catch(loadError){items.unshift({id:createdId,request_type:p.request_type,message:p.message,status:"open",created_at:new Date().toISOString(),page_context:p.page_context});render()}
 toast("✓ Ticket received · #"+String(createdId).slice(0,8).toUpperCase());
 expandedTickets.add(createdId);
 jessySupport("welcome",createdId).then(function(){return refresh()}).catch(function(){toast("Ticket saved. Jessy is unavailable; you can request a human.")})
-}catch(ex){toast("Couldn't send this ticket. Your text is still here. Please retry.");}finally{send.disabled=false;send.textContent="↗ Send ticket"}});
+}catch(ex){window.TLESubmitMotion?.error(send);toast("Couldn't send this ticket. Your text is still here. Please retry.");}finally{if(window.TLESubmitMotion)window.TLESubmitMotion.reset(send);else{send.disabled=false;send.textContent="↗ Send ticket"}}});
 window.addEventListener("resize",highlight);
 (async function(){try{
 if(!window.supabase||!window.supabase.createClient)throw Error("Authentication unavailable");
