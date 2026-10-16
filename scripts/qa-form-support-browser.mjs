@@ -53,7 +53,7 @@ try{
  await page.locator("#publish").click();
  assert.match(await page.locator("#message").innerText(),/Publishing is not connected yet/i);
  await page.setViewportSize({width:390,height:844});
- assert.equal(await page.locator("#mobileControls").isVisible(),true);
+ await page.locator("#mobileControls").waitFor({state:"visible",timeout:5000});
  await page.locator("#mobileType").selectOption("checkbox");
  await page.locator("#mobileAdd").click();
  assert.equal(await page.locator(".field").count(),6,"Mobile add field works");
