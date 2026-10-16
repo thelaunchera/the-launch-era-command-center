@@ -17,7 +17,7 @@ window.supabase={createClient:function(){return{
  order:function(){return this},
  limit:async function(){return{error:null,data:table==="tle_crm_workspaces"?[{id:"qa-workspace",name:"Synthetic Buyer",is_internal:ROLE}]:window.__tickets}},
  insert:async function(row){window.__tickets.unshift({id:"99999999-9999-9999-9999-999999999999",...row,status:"open",created_at:new Date().toISOString()});return{error:null}}
- }}}
+ }}
 }}};
 </script>
 `.replace("ROLE",role==="owner"?"true":"false");
