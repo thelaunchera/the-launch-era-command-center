@@ -190,8 +190,8 @@ await rewrite("assets/command-center-app.js",s=>s.replaceAll("'/ai-booking-assis
 await copyFile(resolve("overrides/jessie-avatar.webp"),join(dest,"assets/jessie-avatar.webp"));
 for(const relative of ["index.html","ai-team.html","assets/command-center-app.js","assets/jessy-owner-standalone.mjs","assets/owner-dashboard.js"])
  await rewrite(relative,s=>s.replace(/\bJessy\b/g,"Jessie"));
-await rewrite("assets/jessy-owner-standalone.mjs",s=>s.replaceAll("20261014-compact-alert-v1","20261015-jessie-avatar-v1"));
-await rewrite("index.html",s=>s.replaceAll("jessy-owner.js?v=20261014-compact-alert-v1","jessy-owner.js?v=20261015-jessie-avatar-v1"));
+await rewrite("assets/jessy-owner-standalone.mjs",s=>s.replaceAll("20261014-compact-alert-v1","20261016-chat-motion-v1"));
+await rewrite("index.html",s=>s.replaceAll("jessy-owner.js?v=20261014-compact-alert-v1","jessy-owner.js?v=20261016-chat-motion-v1"));
 await rewrite("assets/ai-team.js",s=>{
  const before='card.append(el("div","symbol",a.icon),el("h3","",a.name),el("p","",a[language]));';
  if(!s.includes(before))throw Error("Agent portrait anchor missing");
