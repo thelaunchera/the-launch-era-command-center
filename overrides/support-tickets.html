@@ -35,7 +35,7 @@ textarea.input{min-height:128px;resize:vertical}.choices{display:flex;flex-wrap:
 .error{border-color:#c75353!important;box-shadow:0 0 0 4px #c7535320!important}.shake{animation:shake 380ms ease}@keyframes shake{0%,100%{transform:none}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
 #toast{position:fixed;bottom:22px;right:22px;z-index:10;background:#183d55;color:white;padding:14px 20px;border-radius:12px;box-shadow:0 10px 35px #17395035}
 .empty{border:1px dashed #ccdce8;padding:34px;text-align:center;border-radius:14px;color:#637f91}
-#gate{padding:25px;text-align:center;color:#4c6578}.thread{display:grid;gap:9px;margin:12px 0}.thread-message{background:#f2f7fb;padding:11px 13px;border:1px solid #d9e7f0;border-radius:12px}.thread-message.owner{background:#e8f4fc;border-color:#b8dced}.thread-message small{color:#6a8396}.reply-form{display:grid;gap:4px;border-top:1px solid #e2ebf1;padding-top:14px;margin-top:12px}.reply-form .input{min-height:82px}.reply-form label{font-size:12px;color:#37536b;font-weight:800}
+#gate{padding:25px;text-align:center;color:#4c6578}.thread{display:grid;gap:9px;margin:12px 0}.thread-message{background:#f2f7fb;padding:11px 13px;border:1px solid #d9e7f0;border-radius:12px}.thread-message.owner{background:#e8f4fc;border-color:#b8dced}.thread-message.bot{background:#f2f7ff;border-color:#d2e6f8}.handoff{background:#fff8e7;border:1px solid #f0d6a1;border-radius:12px;padding:12px;font-size:12px;color:#775925;margin:12px 0}.assistant-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:13px}.assistant-actions button{min-height:42px;width:auto;padding:9px 14px}.assistant-actions .human-button{background:white;border:1px solid #92bcd8;color:#286b97;border-radius:11px;font-weight:800}.assistant-actions .bot-button{background:#e8f4fc;border:1px solid #c2deef;color:#286b97;border-radius:11px;font-weight:800}.thread-message small{color:#6a8396}.reply-form{display:grid;gap:4px;border-top:1px solid #e2ebf1;padding-top:14px;margin-top:12px}.reply-form .input{min-height:82px}.reply-form label{font-size:12px;color:#37536b;font-weight:800}
 #articlesDialog{border:1px solid var(--line);border-radius:18px;padding:25px;width:min(540px,calc(100% - 32px));max-height:min(85dvh,700px);box-shadow:0 24px 60px #183e5740;color:var(--ink)}#articlesDialog::backdrop{background:#162b3b75}#articlesDialog h2{margin-bottom:18px}#articlesDialog details{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:8px 0;background:#f7fafc}#articlesDialog summary{font-weight:800;color:#335a75;cursor:pointer}#articlesDialog p{font-size:13px;padding:9px 0 2px}#articlesDialog .dialog-actions{display:flex;justify-content:flex-end;margin-top:18px}
 @media(max-width:900px){.layout{grid-template-columns:minmax(0,1fr) 345px}.tickets{padding:20px}.right{padding:18px}.card{padding:18px}}
 @media(max-width:760px){header{padding:0 15px}.headend .ghost,.avatar,.crumb{display:none}.layout{display:flex;flex-direction:column}.tickets{padding:23px 14px 10px}.right{border:0;background:transparent;padding:18px 14px 35px}.card{padding:19px}.ticket .replycount{display:none}h1{font-size:26px}}
@@ -71,11 +71,22 @@ textarea.input{min-height:128px;resize:vertical}.choices{display:flex;flex-wrap:
 (function(){
 "use strict";
 var API="https://bowacxhmjvrqixtwaikv.supabase.co",KEY="sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
-var $=function(id){return document.getElementById(id)},db,workspace,user,items=[],tab="open",category="Technical issue",priority="Normal",latestId="",threads={},threadsAvailable=true;
+var $=function(id){return document.getElementById(id)},db,workspace,user,items=[],tab="open",category="Technical issue",priority="Normal",latestId="",threads={},threadsAvailable=true,expandedTickets=new Set();
 function err(msg){$("gate").textContent=msg+" Please return to the Command Center and sign in."; }
 $("articlesButton").onclick=function(){$("articlesDialog").showModal()};$("closeArticles").onclick=function(){$("articlesDialog").close()};
 function escapeText(value){return String(value==null?"":value)}
 function displayTime(iso){return new Date(iso).toLocaleString(undefined,{month:"short",day:"numeric",year:"numeric"})}
+async function jessySupport(action,ticketId,messageId){
+ var session=await db.auth.getSession(),token=session?.data?.session?.access_token;
+ if(!token)throw Error("Session expired");
+ var r=await fetch(API+"/functions/v1/tle-jessy-ticket-support",{
+  method:"POST",headers:{"content-type":"application/json","apikey":KEY,"authorization":"Bearer "+token},
+  body:JSON.stringify({action:action,ticket_id:ticketId,message_id:messageId||null})
+ });
+ var data=await r.json().catch(function(){return {}});
+ if(!r.ok||!data.ok)throw Error(data.error||"Assistant unavailable");
+ return data;
+}
 function label(status){return ({open:"Open",in_progress:"In progress",resolved:"Resolved",waiting_on_you:"Waiting on you"})[status]||"Open"}
 function subjectOf(message){var m=String(message||"").match(/^Subject: ([^\n]+)/);return m?m[1]:"Support request"}
 function messageOf(message){return String(message||"").replace(/^Subject: [^\n]*\n\n/,"")}
@@ -87,14 +98,50 @@ if(!rows.length){root.append(elt("div","empty",tab==="open"?"No open tickets. Yo
 rows.forEach(function(x){var card=elt("article","ticket"+(x.id===latestId?" new":""));var top=elt("div","ticket-top"),title=elt("strong","subject",subjectOf(x.message)),status=elt("span","pill "+escapeText(x.status).replace(/[^a-z_]/g,""),label(x.status));top.append(title,status);
 var meta=elt("div","meta","#"+String(x.id||"").slice(0,8).toUpperCase()+" · "+(x.page_context|| (x.request_type==="feedback"?"Feedback":"Support"))+" · "+displayTime(x.created_at));
 var extra=document.createElement("details"),summary=elt("summary",null,"View conversation"),body=elt("p","message",messageOf(x.message));extra.append(summary,body);
+extra.open=expandedTickets.has(x.id);
+extra.addEventListener("toggle",function(){if(!extra.isConnected)return;if(extra.open)expandedTickets.add(x.id);else expandedTickets.delete(x.id)});
 var existing=threads[x.id]||[];var count=elt("span","replycount",existing.length+" "+(existing.length===1?"reply":"replies"));count.style.cssText="font-size:11px;color:#6e8a9a;margin-left:auto";
 meta.append(" · ",count);
 var thread=elt("div","thread");
+var es=x.language==="es",needsHuman=x.support_mode==="human";
+var handoff=elt("div","handoff");
+if(needsHuman){
+ handoff.textContent=x.human_acknowledged_at?(es?"Una persona del equipo ya está atendiendo este ticket. Puedes seguir respondiendo aquí.":"A team member is handling this ticket. You can keep replying here."):
+ (es?"Atención humana solicitada. Tu ticket está en espera; el equipo responderá aquí cuando pueda.":"Human support requested. Your ticket is waiting for a team member to respond here.");
+ thread.append(handoff);
+}else if(x.status!=="resolved"){
+ var intro=elt("p","message",es?"Jessy es un asistente virtual, no una persona. Puede darte orientación general.":"Jessy is an automated support assistant, not a human. She can offer general troubleshooting.");
+ thread.append(intro);
+}
 if(!threadsAvailable)thread.append(elt("p","message","Conversation unavailable. Reload and try again."));
 else if(!existing.length)thread.append(elt("p","message","No replies yet. You can add more details below."));
-for(const m of existing){var bubble=elt("div","thread-message "+m.sender_role),author=elt("strong",null,m.sender_role==="owner"?"The Launch Era":"You"),when=elt("small",null," · "+displayTime(m.created_at)),text=elt("p","message",m.body);bubble.append(author,when,text);thread.append(bubble)}
+for(const m of existing){var bubble=elt("div","thread-message "+m.sender_role),author=elt("strong",null,m.sender_role==="owner"?"The Launch Era":m.sender_role==="bot"?"Jessy · AI assistant":"You"),when=elt("small",null," · "+displayTime(m.created_at)),text=elt("p","message",m.body);bubble.append(author,when,text);thread.append(bubble)}
 extra.append(thread);
 if(x.status!=="resolved"&&threadsAvailable){
+ var actions=elt("div","assistant-actions"),actionStatus=elt("span","meta");
+ actionStatus.setAttribute("role","status");
+ if(!needsHuman){
+  var humanButton=elt("button","human-button",es?"Hablar con una persona":"Talk to a human");
+  humanButton.type="button";
+  humanButton.onclick=async function(){
+   if(humanButton.disabled)return;
+   humanButton.disabled=true;actionStatus.textContent=es?"Registrando solicitud…":"Requesting human support…";
+   try{var result=await jessySupport("human",x.id);
+    if(result.mode==="human"){expandedTickets.add(x.id);toast(es?"✓ Atención humana solicitada":"✓ Human support requested");await refresh()}
+   }catch(error){actionStatus.textContent=es?"No se pudo enviar la solicitud. Intenta otra vez.":"Could not request human support. Please retry.";humanButton.disabled=false}
+  };
+  actions.append(humanButton);
+  if(!existing.some(function(m){return m.sender_role==="bot"})){
+   var ask=elt("button","bot-button",es?"Preguntar a Jessy":"Ask Jessy");
+   ask.type="button";
+   ask.onclick=async function(){ask.disabled=true;actionStatus.textContent=es?"Jessy está revisando…":"Jessy is responding…";
+    try{await jessySupport("welcome",x.id);expandedTickets.add(x.id);await refresh()}catch{actionStatus.textContent=es?"Jessy no está disponible. Puedes pedir ayuda humana.":"Jessy is unavailable right now. You can request human support.";ask.disabled=false}};
+   actions.append(ask)
+  }
+ }else{var waiting=elt("span","meta",es?"Jessy ya no responderá automáticamente.":"Jessy won't send further automatic replies.");actions.append(waiting)}
+ actions.append(actionStatus);
+ extra.append(actions);
+}
  var replyForm=elt("form","reply-form"),replyLabel=elt("label",null,"Add a reply"),replyBox=elt("textarea","input");
  replyBox.rows=3;replyBox.maxLength=3000;replyBox.minLength=2;replyBox.required=true;replyBox.placeholder="Add a detail or answer a support question…";
  replyBox.id="reply-"+x.id;replyLabel.htmlFor=replyBox.id;var sendReply=elt("button","primary","↗ Send reply");sendReply.type="submit";sendReply.style.cssText="margin-top:9px;width:auto;min-width:140px";var result=elt("p","meta");result.setAttribute("role","status");
@@ -104,7 +151,10 @@ if(x.status!=="resolved"&&threadsAvailable){
  try{const auth=await db.auth.getUser();if(auth.error||auth.data.user?.id!==user.id)throw Error("Session expired");
  const response=await db.from("tle_crm_support_messages").insert({ticket_id:x.id,sender_id:user.id,sender_role:"client",body:value}).select("id").single();
  if(response.error||!response.data?.id)throw response.error||Error("Not confirmed");
- replyBox.value="";result.textContent="✓ Reply saved. Support can see it.";toast("✓ Reply sent");try{await refresh()}catch{result.textContent="✓ Reply saved. Reload to see the conversation."}
+ replyBox.value="";result.textContent=es?"✓ Mensaje enviado.":"✓ Reply saved. Support can see it.";toast(es?"✓ Respuesta enviada":"✓ Reply sent");
+ expandedTickets.add(x.id);
+ try{await refresh()}catch{result.textContent="✓ Reply saved. Reload to see the conversation."}
+ if(!needsHuman){jessySupport("reply",x.id,response.data.id).then(function(){return refresh()}).catch(function(){toast(es?"Jessy no está disponible. Puedes pedir ayuda humana.":"Jessy is unavailable. You can request human support.")})}
  }catch(e){result.textContent="Could not send this reply. Your text is still here."}
  finally{sendReply.disabled=false}});
  extra.append(replyForm)
@@ -112,7 +162,7 @@ if(x.status!=="resolved"&&threadsAvailable){
 card.append(top,meta,extra);root.append(card)});
 latestId=""}
 function toast(message){$("toast").textContent=message;$("toast").hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){$("toast").hidden=true},4300)}
-async function refresh(){var r=await db.from("tle_crm_support_requests").select("id,request_type,message,status,created_at,page_context").eq("workspace_id",workspace.id).order("created_at",{ascending:false}).limit(100);if(r.error)throw r.error;items=r.data||[];threads={};threadsAvailable=true;
+async function refresh(){var r=await db.from("tle_crm_support_requests").select("id,request_type,message,status,created_at,page_context,language,support_mode,human_requested_at,human_acknowledged_at").eq("workspace_id",workspace.id).order("created_at",{ascending:false}).limit(100);if(r.error)throw r.error;items=r.data||[];threads={};threadsAvailable=true;
 if(items.length){var messages=await db.from("tle_crm_support_messages").select("id,ticket_id,body,sender_role,created_at").in("ticket_id",items.map(x=>x.id)).order("created_at",{ascending:true}).limit(500);
 if(messages.error){threadsAvailable=false}else for(const m of messages.data||[])(threads[m.ticket_id]||(threads[m.ticket_id]=[])).push(m)}
 render()}
@@ -132,7 +182,9 @@ var p={workspace_id:workspace.id,submitted_by:user.id,request_type:"problem",pag
 var r=await db.from("tle_crm_support_requests").insert(p).select("id").single();if(r.error||!r.data?.id)throw r.error||Error("Ticket id missing");
 var createdId=r.data.id;latestId=createdId;tab="open";$("form").reset();category="Technical issue";priority="Normal";select($("categories"),"category",category);select($("priorities"),"priority",priority);$("subject").focus();
 try{await refresh()}catch(loadError){items.unshift({id:createdId,request_type:p.request_type,message:p.message,status:"open",created_at:new Date().toISOString(),page_context:p.page_context});render()}
-toast("✓ Ticket received · #"+String(createdId).slice(0,8).toUpperCase())
+toast("✓ Ticket received · #"+String(createdId).slice(0,8).toUpperCase());
+expandedTickets.add(createdId);
+jessySupport("welcome",createdId).then(function(){return refresh()}).catch(function(){toast("Ticket saved. Jessy is unavailable; you can request a human.")})
 }catch(ex){toast("Couldn't send this ticket. Your text is still here. Please retry.");}finally{send.disabled=false;send.textContent="↗ Send ticket"}});
 window.addEventListener("resize",highlight);
 (async function(){try{
