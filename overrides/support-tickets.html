@@ -36,11 +36,12 @@ textarea.input{min-height:128px;resize:vertical}.choices{display:flex;flex-wrap:
 #toast{position:fixed;bottom:22px;right:22px;z-index:10;background:#183d55;color:white;padding:14px 20px;border-radius:12px;box-shadow:0 10px 35px #17395035}
 .empty{border:1px dashed #ccdce8;padding:34px;text-align:center;border-radius:14px;color:#637f91}
 #gate{padding:25px;text-align:center;color:#4c6578}
+#articlesDialog{border:1px solid var(--line);border-radius:18px;padding:25px;width:min(540px,calc(100% - 32px));max-height:min(85dvh,700px);box-shadow:0 24px 60px #183e5740;color:var(--ink)}#articlesDialog::backdrop{background:#162b3b75}#articlesDialog h2{margin-bottom:18px}#articlesDialog details{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:8px 0;background:#f7fafc}#articlesDialog summary{font-weight:800;color:#335a75;cursor:pointer}#articlesDialog p{font-size:13px;padding:9px 0 2px}#articlesDialog .dialog-actions{display:flex;justify-content:flex-end;margin-top:18px}
 @media(max-width:900px){.layout{grid-template-columns:minmax(0,1fr) 345px}.tickets{padding:20px}.right{padding:18px}.card{padding:18px}}
 @media(max-width:760px){header{padding:0 15px}.headend .ghost,.avatar,.crumb{display:none}.layout{display:flex;flex-direction:column}.tickets{padding:23px 14px 10px}.right{border:0;background:transparent;padding:18px 14px 35px}.card{padding:19px}.ticket .replycount{display:none}h1{font-size:26px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style></head><body>
-<header><a class="logo" href="./" aria-label="Back to Command Center">✳</a><strong class="brand" id="company">THE LAUNCH ERA</strong><span class="crumb">/ Support</span><div class="headend"><a class="ghost" href="./">← Command Center & Help articles</a><span class="avatar" id="avatar" aria-hidden="true">T</span></div></header>
+<header><a class="logo" href="./" aria-label="Back to Command Center">✳</a><strong class="brand" id="company">THE LAUNCH ERA</strong><span class="crumb">/ Support</span><div class="headend"><a class="ghost" href="./">← Command Center</a><button class="ghost" type="button" id="articlesButton" aria-haspopup="dialog" aria-controls="articlesDialog">Help articles</button><span class="avatar" id="avatar" aria-hidden="true">T</span></div></header>
 <div id="gate" role="status">Checking secure access…</div>
 <main class="layout" id="app" hidden>
 <section class="tickets"><h1>Your tickets</h1><p>We review every request and update its status here. Replies may also arrive by email.</p>
@@ -56,13 +57,23 @@ textarea.input{min-height:128px;resize:vertical}.choices{display:flex;flex-wrap:
 <button type="button" aria-pressed="true" data-priority="Normal">Normal</button><button type="button" aria-pressed="false" data-priority="High">High</button><button type="button" aria-pressed="false" data-priority="Urgent">Urgent</button></div></div>
 <div><label for="details">Details <span aria-hidden="true">*</span></label><textarea class="input" id="details" rows="5" maxlength="2600" minlength="10" required placeholder="Describe what happened and what you expected…" aria-describedby="detailsError"></textarea><span id="detailsError" style="font-size:12px;color:#bc4848" role="status"></span></div>
 <button class="primary" id="send" type="submit">↗ Send ticket</button></form></div></aside>
-</main><div id="toast" hidden role="status" aria-live="polite"></div>
+</main>
+<dialog id="articlesDialog" aria-labelledby="articlesTitle">
+<h2 id="articlesTitle">Quick help articles</h2>
+<details><summary>How do I report a problem?</summary><p>Enter a clear subject, select a category and priority, and describe what happened. Send one ticket and keep its ID for reference.</p></details>
+<details><summary>Where can I track my request?</summary><p>Open Support Tickets and switch between Open and Resolved. The Launch Era updates the status while reviewing your request.</p></details>
+<details><summary>What details should I include?</summary><p>Describe the feature, what you were trying to do, what appeared instead, and your device. Never include passwords or a customer's private details.</p></details>
+<details><summary>Where can I find my bookings?</summary><p>Return to your Command Center and choose Booking Calendar. If bookings are missing or not updating, select Bookings when creating a ticket.</p></details>
+<div class="dialog-actions"><button type="button" class="ghost" id="closeArticles">Close articles</button></div>
+</dialog>
+<div id="toast" hidden role="status" aria-live="polite"></div>
 <script src="./vendor/supabase-js-v2.57.0.umd.js"></script><script>
 (function(){
 "use strict";
 var API="https://bowacxhmjvrqixtwaikv.supabase.co",KEY="sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
 var $=function(id){return document.getElementById(id)},db,workspace,user,items=[],tab="open",category="Technical issue",priority="Normal",latestId="";
 function err(msg){$("gate").textContent=msg+" Please return to the Command Center and sign in."; }
+$("articlesButton").onclick=function(){$("articlesDialog").showModal()};$("closeArticles").onclick=function(){$("articlesDialog").close()};
 function escapeText(value){return String(value==null?"":value)}
 function displayTime(iso){return new Date(iso).toLocaleString(undefined,{month:"short",day:"numeric",year:"numeric"})}
 function label(status){return ({open:"Open",in_progress:"In progress",resolved:"Resolved",waiting_on_you:"Waiting on you"})[status]||"Open"}
