@@ -1,6 +1,7 @@
 import { existsSync,readFileSync,statSync } from "node:fs";
 import { join } from "node:path";
 import assert from "node:assert/strict";
+import { Script } from "node:vm";
 const root=".site";
 const required=[
 "index.html","idea-vault.html","assets/idea-vault.css","assets/idea-vault.js","access.html","access/index.html","ai-team.html","booking-studio.html","booking-studio-practice.html","assets/booking-studio-practice.js","booking-studio-qa.html","booking-studio-qa-recovery.html","booking-studio-qa-reset.html","assets/booking-studio.js","assets/booking-studio-preview.mjs","assets/booking-studio-functional-preview.mjs","assets/booking-studio-followup-rules.mjs",
@@ -16,6 +17,21 @@ for(const file of required){
  const p=join(root,file);
  assert.ok(existsSync(p)&&statSync(p).isFile(),"Missing deployed file: "+file);
 }
+
+for(const f of ["support-tickets.html","form-builder.html"])assert.ok(existsSync(join(root,f)),"Missing new owner/client tools: "+f);
+const supportPage=readFileSync(join(root,"support-tickets.html"),"utf8");
+const builderPage=readFileSync(join(root,"form-builder.html"),"utf8");
+for(const [name,html] of [["Support Tickets",supportPage],["Form Builder",builderPage]]){
+ assert.ok(html.includes('noindex,nofollow'),name+" must not be indexed");
+ const match=html.match(/<script>([\s\S]*?)<\/script>/);
+ assert.ok(match,name+" missing executable script");
+ new Script(match[1],{filename:name});
+}
+assert.ok(supportPage.includes('tle_crm_support_requests')&&supportPage.includes('eq("is_internal",false)'),"Buyer support must use real, tenant-scoped requests");
+assert.ok(supportPage.includes('workspace_id:workspace.id')&&supportPage.includes('submitted_by:user.id'),"Support requests must use authenticated tenant and user");
+assert.ok(builderPage.includes('eq("is_internal",true)')&&builderPage.includes("tle-form-builder-draft-"),"Form Builder must verify owner and keep isolated drafts");
+assert.ok(builderPage.includes('Publishing is not connected yet.')&&!builderPage.includes('tle_crm_support_requests'),"Form Builder must not imply publishing or write support records");
+
 const read=f=>readFileSync(join(root,f),"utf8");
 const index=read("index.html"),recover=read("auth-recovery.html"),ai=read("ai-team.html");
 const vault=read("idea-vault.html"),vaultJs=read("assets/idea-vault.js"),vaultCss=read("assets/idea-vault.css");
@@ -34,6 +50,13 @@ assert.ok(vaultJs.includes("tle_owner_ideas")&&vaultJs.includes("status:'inbox'"
 assert.ok(!vaultJs.includes("tle_ai_team_tasks")&&!vaultJs.includes("tle_crm_leads"),"Saving an idea must never create work tasks or mutate leads");
 assert.ok(vaultCss.includes('@media(max-width:540px)'),"Idea Vault phone layout missing");
 new Function(vaultJs);
+
+const ownerNavMarkup=index.slice(index.indexOf('id="ownerPrivateSection"'),index.indexOf('id="buyerBusinessSection"'));
+const buyerNavMarkup=index.slice(index.indexOf('id="buyerBusinessSection"'),index.indexOf('id="sidebarUtilityMenu"'));
+assert.ok(ownerNavMarkup.includes('href="./form-builder.html"'),"Private owner Form Builder navigation missing");
+assert.ok(!buyerNavMarkup.includes('href="./form-builder.html"'),"Buyer must not see private Form Builder navigation");
+assert.ok(buyerNavMarkup.includes('href="./support-tickets.html"'),"Buyer Support Tickets navigation missing");
+assert.ok(!ownerNavMarkup.includes('href="./support-tickets.html"'),"Buyer ticket entry must not leak into owner navigation");
 assert.ok(index.includes('id="authForm"'),"Private login form missing");
 assert.ok(index.includes("./assets/command-center-app.js"),"Private application missing");
 assert.ok(index.includes("./assets/cb-depot-mobile-edge.css?v=20261014-mobile-edge-v1"),"CB Depot phone-side fix not linked");
