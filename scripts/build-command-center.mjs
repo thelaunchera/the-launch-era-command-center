@@ -276,5 +276,61 @@ await rewrite("index.html",s=>{
   .replace(buyerAnchor,'<a class="nav-link" href="./support-tickets.html">▤ <span>Support Tickets</span></a>'+buyerAnchor);
 });
 
+// Reusable no-spinner submit motion: animate only confirmed writes, not clicks or previews.
+await copyFile(resolve("overrides/assets/submit-morph.css"),join(dest,"assets/submit-morph.css"));
+await copyFile(resolve("overrides/assets/submit-morph.js"),join(dest,"assets/submit-morph.js"));
+await rewrite("index.html",s=>{
+ if(!s.includes("</head>"))throw Error("Submit-motion injection requires document head");
+ return s.replace("</head>",'<link rel="stylesheet" href="./assets/submit-morph.css?v=20261016-1"><script src="./assets/submit-morph.js?v=20261016-1" defer></script></head>');
+});
+// Add the state change beside the EXISTING authenticated database/Edge writes.
+await rewrite("assets/command-center-app.js",s=>{
+ const patches=[
+  ["const button=$('pricingSave');button.disabled=true;$('pricingStatus').textContent=\"Saving…\";",
+   "const button=$('pricingSave');if(window.TLESubmitMotion)window.TLESubmitMotion.start(button);else button.disabled=true;$('pricingStatus').textContent=\"Saving…\";"],
+  ["$('pricingStatus').textContent=\"Published · \"+new Date(v.updated_at).toLocaleString();await loadPricing();",
+   "$('pricingStatus').textContent=\"Published · \"+new Date(v.updated_at).toLocaleString();window.TLESubmitMotion?.done(button);await window.TLESubmitMotion?.pause(780);await loadPricing();"],
+  ["$('pricingStatus').textContent=\"Not saved: \"+e.message;showSaveToast('error'",
+   "window.TLESubmitMotion?.error(button);$('pricingStatus').textContent=\"Not saved: \"+e.message;showSaveToast('error'"],
+  ["'No se pudieron guardar los precios')}finally{button.disabled=false}",
+   "'No se pudieron guardar los precios')}finally{if(window.TLESubmitMotion)window.TLESubmitMotion.reset(button);else button.disabled=false}"],
+  ["const button=$('avSave');button.disabled=true;$('avStatus').textContent=\"Saving availability…\";",
+   "const button=$('avSave');if(window.TLESubmitMotion)window.TLESubmitMotion.start(button);else button.disabled=true;$('avStatus').textContent=\"Saving availability…\";"],
+  ["$('avStatus').textContent=\"Published! Available booking slots updated · \"+new Date(result.updated_at).toLocaleString();",
+   "window.TLESubmitMotion?.done(button);await window.TLESubmitMotion?.pause(780);$('avStatus').textContent=\"Published! Available booking slots updated · \"+new Date(result.updated_at).toLocaleString();"],
+  ["$('avStatus').textContent=\"Not saved: \"+e.message;showSaveToast('error'",
+   "window.TLESubmitMotion?.error(button);$('avStatus').textContent=\"Not saved: \"+e.message;showSaveToast('error'"],
+  ["finally{button.disabled=false}\n};\n\nfunction clearAdminClientState()",
+   "finally{if(window.TLESubmitMotion)window.TLESubmitMotion.reset(button);else button.disabled=false}\n};\n\nfunction clearAdminClientState()"],
+  ["e.preventDefault();const button=$('buildSave');button.disabled=true;$('buildStatus').textContent=",
+   "e.preventDefault();const button=$('buildSave');if(window.TLESubmitMotion)window.TLESubmitMotion.start(button);else button.disabled=true;$('buildStatus').textContent="],
+  ["await ownerStudioCall('save',{branding:{...formData,reviews,service_photo_paths}});\n  await loadOwnerBuilder();",
+   "await ownerStudioCall('save',{branding:{...formData,reviews,service_photo_paths}});\n  window.TLESubmitMotion?.done(button);await window.TLESubmitMotion?.pause(780);\n  await loadOwnerBuilder();"],
+  ["}catch(error){$('buildStatus').textContent=crmLocaleText(\"Not saved: \",\"No se guardó: \")+error.message}\n finally{button.disabled=false}",
+   "}catch(error){window.TLESubmitMotion?.error(button);$('buildStatus').textContent=crmLocaleText(\"Not saved: \",\"No se guardó: \")+error.message}\n finally{if(window.TLESubmitMotion)window.TLESubmitMotion.reset(button);else button.disabled=false}"],
+  ["save.disabled=true;msg.textContent=buyerPageLabel()?'Guardando fechas…':'Saving work dates…';",
+   "if(window.TLESubmitMotion)window.TLESubmitMotion.start(save);else save.disabled=true;msg.textContent=buyerPageLabel()?'Guardando fechas…':'Saving work dates…';"],
+  ["if(error||!data?.ok)throw error||new Error('Save not confirmed');\n  ownerCalendarBuyerPref=id;",
+   "if(error||!data?.ok)throw error||new Error('Save not confirmed');\n  window.TLESubmitMotion?.done(save);await window.TLESubmitMotion?.pause(780);\n  ownerCalendarBuyerPref=id;"],
+  ["}catch(error){\n  msg.textContent=(buyerPageLabel()?'No se guardaron las fechas: '",
+   "}catch(error){\n  window.TLESubmitMotion?.error(save);msg.textContent=(buyerPageLabel()?'No se guardaron las fechas: '"],
+  ["}finally{save.disabled=false}\n};\n$('ownerCalPrev')",
+   "}finally{if(window.TLESubmitMotion)window.TLESubmitMotion.reset(save);else save.disabled=false}\n};\n$('ownerCalPrev')"],
+  ["submit.disabled=true;state.textContent=buyerErrorLang('Sending…','Enviando…');",
+   "if(window.TLESubmitMotion)window.TLESubmitMotion.start(submit);else submit.disabled=true;state.textContent=buyerErrorLang('Sending…','Enviando…');"],
+  ["if(error)throw error;\n  state.textContent=buyerErrorLang('✓ Report received.",
+   "if(error)throw error;\n  window.TLESubmitMotion?.done(submit);state.textContent=buyerErrorLang('✓ Report received."],
+  ["}catch(_){\n  state.textContent=buyerErrorLang('We could not send the report.",
+   "}catch(_){\n  window.TLESubmitMotion?.error(submit);state.textContent=buyerErrorLang('We could not send the report."],
+  ["}finally{submit.disabled=false}\n};\n\nconst pricingEndpoint=",
+   "}finally{if(window.TLESubmitMotion){setTimeout(()=>window.TLESubmitMotion.reset(submit),950)}else submit.disabled=false}\n};\n\nconst pricingEndpoint="]
+ ];
+ for(const [before,after] of patches){
+  if(!s.includes(before))throw Error("Submit motion requires exact live handler anchor: "+before.slice(0,90));
+  s=s.replace(before,after);
+ }
+ return s;
+});
+
 await writeFile(join(dest,"deployment-source.json"),JSON.stringify({sourceRepository:"thelaunchera/the-launch-era-new-website-",sourceCommit:sourceId,host:DOMAIN,agentFeatures:"entitlement-gated; no automatic buyer agents",marketingHost:"thelaunchera.com"},null,2)+"\n","utf8");
 console.log("Prepared isolated private Command Center from pinned SHA "+sourceId);
