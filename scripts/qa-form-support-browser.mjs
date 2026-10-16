@@ -16,7 +16,7 @@ window.supabase={createClient:function(){return{
  eq:function(){return this},
  order:function(){return this},
  limit:async function(){return{error:null,data:table==="tle_crm_workspaces"?[{id:"qa-workspace",name:"Synthetic Buyer",is_internal:ROLE}]:window.__tickets}},
- insert:async function(row){window.__tickets.unshift({id:"99999999-9999-9999-9999-999999999999",...row,status:"open",created_at:new Date().toISOString()});return{error:null}}
+ insert:function(row){const id="99999999-9999-9999-9999-999999999999";window.__tickets.unshift({id,...row,status:"open",created_at:new Date().toISOString()});return{select:function(){return this},single:async function(){return{error:null,data:{id}}}}}
  }}
 }}};
 </script>
