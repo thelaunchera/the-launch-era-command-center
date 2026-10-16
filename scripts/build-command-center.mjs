@@ -253,5 +253,17 @@ await writeFile(join(dest,"CNAME"),DOMAIN+"\n","utf8");
 await writeFile(join(dest,".nojekyll"),"","utf8");
 await writeFile(join(dest,"robots.txt"),"User-agent: *\nDisallow: /\n","utf8");
 await writeFile(join(dest,"404.html"),'<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Private Command Center</title><body style="font:16px system-ui;background:#FAF8F3;color:#191919;max-width:32rem;margin:15vh auto;padding:2rem"><h1>Page unavailable</h1><p>This private Command Center page was not found. Your workspace has not been changed.</p><p><a href="/">Return to secure sign-in</a></p></body></html>\n',"utf8");
+// Client Support Tickets reuse the existing tenant-scoped support requests table.
+// Owner Form Builder is draft-only: never mutate production intake or buyer records.
+await copyFile(resolve("overrides/support-tickets.html"),join(dest,"support-tickets.html"));
+await copyFile(resolve("overrides/form-builder.html"),join(dest,"form-builder.html"));
+await rewrite("index.html",s=>{
+ const ownerAnchor='<a class="nav-link" href="./booking-studio.html">◈ <span>Booking Studio</span></a>';
+ const buyerAnchor='<button type="button" class="nav-link" id="buyerSupportNav">';
+ if(!s.includes(ownerAnchor)||!s.includes(buyerAnchor))throw Error("Support/Form Builder navigation anchor changed: abort");
+ return s.replace(ownerAnchor,ownerAnchor+'<a class="nav-link" href="./form-builder.html">▤ <span>Form Builder</span></a>')
+  .replace(buyerAnchor,'<a class="nav-link" href="./support-tickets.html">▤ <span>Support Tickets</span></a>'+buyerAnchor);
+});
+
 await writeFile(join(dest,"deployment-source.json"),JSON.stringify({sourceRepository:"thelaunchera/the-launch-era-new-website-",sourceCommit:sourceId,host:DOMAIN,agentFeatures:"entitlement-gated; no automatic buyer agents",marketingHost:"thelaunchera.com"},null,2)+"\n","utf8");
 console.log("Prepared isolated private Command Center from pinned SHA "+sourceId);
