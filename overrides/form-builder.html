@@ -1,0 +1,147 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="theme-color" content="#FAF8F3">
+<title>Form Builder · The Launch Era</title><link rel="icon" href="./favicon-tle.svg">
+<style>
+:root{--ink:#191919;--muted:#667c8d;--blue:#468ebd;--tint:#e9f4fc;--line:#dbe6ee;--bg:#f4f8fb;--white:#fff}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--bg);font:14px/1.5 "Avenir Next",Futura,Arial,sans-serif}
+button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.53;cursor:not-allowed}
+a{color:inherit;text-decoration:none}[hidden]{display:none!important}:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+header{display:flex;align-items:center;gap:14px;min-height:54px;padding:5px 18px;background:white;border-bottom:1px solid var(--line);position:relative;z-index:5}
+.logo{width:33px;height:33px;background:var(--tint);border-radius:10px;display:grid;place-items:center;font-size:19px;color:#296b92;font-weight:900}
+.crumb{font-size:13px;font-weight:800;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.crumb span{color:#8b9aa8;font-weight:500}
+.draft{border:1px solid #ccddeb;color:#5e7c91;background:#f2f7fa;border-radius:100px;padding:4px 10px;font-size:11px;font-weight:800}
+.actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.tabset{position:relative;display:flex;align-items:center;background:#e8eef4;border-radius:12px;padding:3px;gap:2px;margin:0 auto}
+.tabthumb{position:absolute;top:3px;bottom:3px;left:3px;background:white;box-shadow:0 2px 7px #29486018;border-radius:9px;pointer-events:none;transition:transform 590ms linear(0,.455 16.7%,.812 33.3%,.944 50%,1),width 590ms}
+.tabset button{position:relative;z-index:1;background:transparent;border:0;border-radius:9px;padding:8px 14px;color:#748693;font-weight:800}.tabset button[aria-selected=true]{color:#191919}
+.outline,.primary{min-height:35px;padding:8px 13px;border-radius:10px;font-weight:800;white-space:nowrap}
+.outline{border:1px solid var(--line);background:#fff;color:#416b85}.primary{background:var(--blue);border:1px solid var(--blue);color:white}
+.shell{display:grid;grid-template-columns:232px minmax(0,1fr) 296px;height:calc(100dvh - 54px);overflow:hidden;min-height:0}
+.palette,.props{background:white;min-width:0;overflow-y:auto;padding:22px 14px}
+.palette{border-right:1px solid var(--line)}.props{border-left:1px solid var(--line);display:flex;flex-direction:column}
+.overline{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#70899b;font-weight:900;margin:0 0 14px}
+.palette-button{width:100%;height:42px;display:flex;gap:10px;align-items:center;text-align:left;background:white;border:1px solid transparent;border-radius:11px;padding:4px 6px;color:#243f52;font-weight:700;touch-action:none;user-select:none;margin:5px 0}
+.palette-button:hover,.palette-button:focus-visible{background:#f3f9fd;border-color:var(--line)}
+.type-icon{width:28px;height:28px;border-radius:8px;background:var(--tint);color:#397da7;display:grid;place-items:center;flex:none;font-weight:800}
+.grip{margin-left:auto;color:#a3b6c4;font-size:15px}.palette-help{font-size:11px;color:var(--muted);padding:15px 5px}
+.canvas{background-color:#f5f9fc;background-image:radial-gradient(#cadde9 .85px,transparent .85px);background-size:19px 19px;overflow-y:auto;min-width:0;padding:28px 32px 45px;scrollbar-gutter:stable}
+.sheet{max-width:660px;background:white;min-height:100%;border:1px solid var(--line);border-radius:20px;margin:auto;padding:34px;box-shadow:0 16px 52px #314f6514;position:relative}
+.sheet h1{font-size:29px;letter-spacing:-.055em;margin:0 0 6px}.sheet .hint{color:var(--muted);margin:0 0 27px;font-size:13px}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 16px;position:relative}
+.field{position:relative;min-width:0;border-radius:10px;padding:9px;border:1.5px solid transparent;cursor:pointer;background:white}
+.field[data-width=full]{grid-column:span 2}.field.active{border:1.5px solid var(--blue);box-shadow:0 0 0 4px #468ebd25}
+.field:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.field label{font-weight:800;font-size:12px;display:block;margin-bottom:8px;overflow-wrap:anywhere}
+.required{color:#bf4d46}.control{border:1px solid #dce8f0;background:#f7fafc;border-radius:10px;min-height:41px;padding:10px 12px;color:#a0b0bd;font-size:12px;overflow-wrap:anywhere}
+.control.long{min-height:100px}.control.upload{border:1px dashed #a7c5d8;text-align:center;min-height:76px;padding-top:24px}
+.control.rating{font-size:25px;letter-spacing:4px;color:#8cb7d1}.control.checkbox{display:flex;gap:9px;align-items:center}
+.control.checkbox:before{content:"";height:16px;width:16px;border:1px solid #97b6ca;border-radius:4px}
+.help{font-size:11px;color:var(--muted);margin:5px 0 0}.type-tag{position:absolute;right:9px;top:-12px;background:#e7f3fa;border:1px solid #8cb8d4;color:#357ca6;border-radius:100px;padding:2px 9px;font-size:10px;font-weight:800}
+.insert{height:3px;background:var(--blue);border-radius:9px;box-shadow:0 0 0 3px #468ebd20;position:absolute;left:9px;right:9px;top:0;transform:translateY(0);transition:transform 350ms cubic-bezier(.32,.72,0,1);pointer-events:none;z-index:4}
+.ghost{position:fixed;z-index:100;pointer-events:none;background:white;border:1.5px solid var(--blue);padding:9px 14px;border-radius:10px;box-shadow:0 10px 26px #264b6730;color:#245d7c;font-weight:800}
+.pop{animation:pop 480ms linear(0,.45 17%,.91 35%,1.04 60%,1)}@keyframes pop{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.props h2{font-size:17px;margin:0 0 7px;letter-spacing:-.04em}.props .props-header{display:flex;align-items:center;gap:10px;margin-bottom:24px}
+.props-body{display:grid;gap:15px}.prop-label{font-size:12px;font-weight:800;color:#3a566a;display:block;margin-bottom:7px}
+.prop-input{width:100%;min-width:0;border:1px solid #dbe6ee;border-radius:10px;background:#f6fafc;padding:11px 12px;min-height:42px;color:#191919}
+.prop-input:focus{outline:0;border:1.5px solid var(--blue);box-shadow:0 0 0 4px #468ebd24}
+.switchline{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.switch{height:25px;width:46px;background:#d9e5ed;border:none;border-radius:100px;position:relative;transition:background .2s}.switch:before{content:"";height:19px;width:19px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;box-shadow:0 2px 5px #17394b22;transition:transform .22s}
+.switch[aria-checked=true]{background:var(--blue)}.switch[aria-checked=true]:before{transform:translateX(21px)}
+.widthseg{display:grid;grid-template-columns:1fr 1fr;border-radius:11px;background:#eef4f8;padding:3px;gap:3px}.widthseg button{border:0;border-radius:8px;background:transparent;padding:9px;color:#657c8d;font-weight:800}.widthseg button[aria-pressed=true]{background:white;color:#2c709a;box-shadow:0 1px 5px #2c5d7c17}
+.delete{margin-top:auto;background:#fff;border:1px solid #eacbcc;color:#a1444d;border-radius:11px;padding:12px;text-align:left;font-weight:800}
+.sidenote{font-size:12px;color:#71899c;line-height:1.55}
+#message{position:fixed;bottom:20px;right:20px;background:#1a4058;color:white;border-radius:12px;padding:13px 18px;box-shadow:0 12px 35px #24496133;z-index:30;max-width:360px}
+#preview{position:fixed;inset:0;z-index:35;background:#192c3b80;display:grid;place-items:center;padding:15px}
+.previewbox{background:white;border-radius:18px;padding:25px;width:min(600px,100%);max-height:90dvh;overflow:auto}.previewbox h2{margin:0 0 16px}
+.previewbox label{display:block;font-weight:700;margin:13px 0 6px}.previewbox input,.previewbox select,.previewbox textarea{border:1px solid var(--line);border-radius:10px;padding:11px;width:100%;background:#f8fbfd}
+.previewbox .previewactions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}.mobile-controls{display:none}
+@media(max-width:1100px){.shell{grid-template-columns:205px minmax(0,1fr) 260px}.sheet{padding:24px}.canvas{padding:18px}}
+@media(max-width:760px){header{flex-wrap:wrap;padding:8px 12px;gap:7px;min-height:54px}.crumb{max-width:calc(100vw - 170px)}.draft{display:none}.actions{margin-left:auto}.tabset{order:4;margin:3px auto 0}.tabset button{padding:7px 12px}.shell{height:calc(100dvh - 98px);grid-template-columns:1fr}.palette,.props{display:none}.canvas{padding:14px 11px 95px}.sheet{padding:20px 14px;min-height:100%;border-radius:16px}.fields{grid-template-columns:1fr}.field[data-width=half],.field[data-width=full]{grid-column:span 1}.mobile-controls{position:fixed;bottom:0;left:0;right:0;z-index:15;display:flex;align-items:center;justify-content:space-around;gap:8px;padding:12px max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom));background:white;border-top:1px solid var(--line)}.mobile-controls select{min-height:42px;max-width:45vw;border:1px solid var(--line);border-radius:10px}.mobile-controls button{min-height:42px}.props.mobile-show{display:flex;position:fixed;inset:54px 0 0;z-index:20;background:white;padding:26px;box-shadow:0 0 0 100vmax #162f4352}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+</style></head><body>
+<header><a class="logo" href="./" aria-label="Back to Command Center">✳</a><div class="crumb"><a href="./">Forms</a> <span>/</span> <span id="titleCrumb">Consult intake</span></div><span class="draft" id="draftBadge">Draft · this device</span>
+<div class="tabset" role="tablist" aria-label="Builder modes" id="modes"><span class="tabthumb" id="tabthumb"></span><button role="tab" type="button" aria-selected="true" data-mode="Build">Build</button><button role="tab" type="button" aria-selected="false" data-mode="Logic">Logic</button><button role="tab" type="button" aria-selected="false" data-mode="Share">Share</button></div>
+<div class="actions"><button class="outline" type="button" id="previewButton">Preview</button><button class="primary" type="button" id="publish">Publish</button></div></header>
+<div id="gate" style="padding:28px;text-align:center" role="status">Checking private owner access…</div>
+<main id="app" class="shell" hidden>
+<aside class="palette"><p class="overline">Fields</p><div id="paletteItems"></div><p class="palette-help">Click to add, or drag into the form. Changes stay in a private draft on this device.</p></aside>
+<section class="canvas" id="canvas" aria-label="Live form canvas"><div class="sheet" id="sheet">
+<div id="buildPanel"><h1>Consult intake</h1><p class="hint">A clear way to gather the details you need.</p><div class="fields" id="fields"></div></div>
+<div id="logicPanel" hidden><h1>Logic</h1><p class="hint">Required fields are validated in the live preview. Conditional branching is not active.</p><div id="logicDetails" class="sidenote"></div></div>
+<div id="sharePanel" hidden><h1>Share</h1><p class="hint">This is a private draft, not a live customer form. Export the form definition for a controlled integration.</p><button type="button" class="outline" id="export">↓ Export JSON</button><p class="sidenote" style="margin-top:16px">Publishing and customer submissions must be connected to a verified, tenant-isolated backend first. No customer form is changed here.</p></div>
+</div></section>
+<aside class="props" id="properties"><p class="overline">Properties</p><div class="props-header"><span class="type-icon" id="propIcon">T</span><div><h2 id="propName">Short text</h2><small id="propCount">Select a field</small></div></div>
+<div class="props-body" id="propBody">
+<div><label class="prop-label" for="propLabel">Label</label><input id="propLabel" class="prop-input" maxlength="100"></div>
+<div><label class="prop-label" for="propPlaceholder">Placeholder</label><input id="propPlaceholder" class="prop-input" maxlength="160"></div>
+<div><label class="prop-label" for="propHelp">Help text</label><textarea id="propHelp" class="prop-input" rows="3" maxlength="280"></textarea></div>
+<div class="switchline"><label class="prop-label" id="requiredLabel">Required</label><button type="button" class="switch" id="requiredSwitch" role="switch" aria-labelledby="requiredLabel" aria-checked="false"></button></div>
+<div><span class="prop-label" id="widthLabel">Width</span><div class="widthseg" role="group" aria-labelledby="widthLabel"><button type="button" id="half" aria-pressed="true">Half</button><button type="button" id="full" aria-pressed="false">Full</button></div></div></div>
+<p class="sidenote" id="noSelection" hidden>Select a field on the canvas to edit it.</p><button type="button" class="delete" id="remove">⌫ Delete field</button><button type="button" class="outline" id="closeProps" style="display:none;margin-top:8px">Done</button>
+</aside>
+</main><div class="mobile-controls" id="mobileControls" hidden><label for="mobileType">Add field</label><select id="mobileType" aria-label="Field type"></select><button type="button" class="primary" id="mobileAdd">+ Add</button><button type="button" class="outline" id="mobileEdit">Edit</button></div>
+<div id="message" role="status" aria-live="polite" hidden></div><div id="preview" hidden role="dialog" aria-modal="true" aria-label="Form preview"><div class="previewbox"><h2>Consult intake · Preview</h2><div id="previewFields"></div><div class="previewactions"><button type="button" class="outline" id="closePreview">Close</button><button type="button" class="primary" id="testPreview">Test validation</button></div><p id="previewStatus" role="status"></p></div></div>
+<script src="./vendor/supabase-js-v2.57.0.umd.js"></script><script>
+(function(){
+"use strict";
+var API="https://bowacxhmjvrqixtwaikv.supabase.co",KEY="sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
+var $=function(id){return document.getElementById(id)},db,owner,fields=[],selected="",mode="Build",seq=0,drag=null,suppressClick=0;
+var TYPES=[["short","Short text","T"],["email","Email","@"],["dropdown","Dropdown","⌄"],["date","Date","▦"],["rating","Rating","★"],["file","File upload","↑"],["checkbox","Checkbox","☑"],["long","Long text","≡"]];
+function typeInfo(type){return TYPES.find(function(x){return x[0]===type})||TYPES[0]}
+function node(tag,cls,text){var n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=String(text);return n}
+function notice(text){$("message").textContent=text;$("message").hidden=false;clearTimeout(notice.t);notice.t=setTimeout(function(){$("message").hidden=true},4600)}
+function fresh(type){var t=typeInfo(type);return {id:"f"+(++seq),type:t[0],label:t[1],placeholder:"",help:"",required:false,width:type==="long"||type==="file"?"full":"half"}}
+function save(){if(!owner)return;try{localStorage.setItem("tle-form-builder-draft-"+owner.id,JSON.stringify({version:1,fields:fields,updated_at:new Date().toISOString()}));$("draftBadge").textContent="Draft · saved on device"}catch{notice("Could not save to this device. Export a backup.")}}
+function restore(){try{var raw=JSON.parse(localStorage.getItem("tle-form-builder-draft-"+owner.id)||"null");if(raw&&Array.isArray(raw.fields)){fields=raw.fields.filter(function(f){return TYPES.some(function(t){return t[0]===f.type})}).slice(0,120).map(function(f){return {id:String(f.id).slice(0,50),type:f.type,label:String(f.label||"").slice(0,100),placeholder:String(f.placeholder||"").slice(0,160),help:String(f.help||"").slice(0,280),required:!!f.required,width:f.width==="full"?"full":"half"}});seq=fields.reduce(function(n,f){return Math.max(n,Number(String(f.id).replace(/[^0-9]/g,""))||0)},0);return}}catch{}fields=[fresh("short"),fresh("email"),fresh("dropdown"),fresh("date"),fresh("long")]}
+function current(){return fields.find(function(f){return f.id===selected})}
+function mock(field){var c=node("div","control");c.dataset.part="control";
+if(field.type==="rating"){c.classList.add("rating");c.textContent="☆☆☆☆☆"}
+else if(field.type==="file"){c.classList.add("upload");c.textContent="↑  Choose a file"}
+else if(field.type==="checkbox"){c.classList.add("checkbox");c.textContent=field.placeholder||"Select to agree"}
+else if(field.type==="long"){c.classList.add("long");c.textContent=field.placeholder||"Long answer…"}
+else if(field.type==="dropdown"){c.textContent=(field.placeholder||"Select an option")+"  ⌄"}
+else if(field.type==="date"){c.textContent=field.placeholder||"MM / DD / YYYY"}
+else{c.textContent=field.placeholder||(field.type==="email"?"name@example.com":"Short answer…")}return c}
+function createRow(field){var row=node("div","field");row.dataset.id=field.id;row.dataset.width=field.width;row.tabIndex=0;row.setAttribute("role","button");row.setAttribute("aria-label","Edit "+field.label);
+if(field.id===selected){row.classList.add("active");row.append(node("span","type-tag",typeInfo(field.type)[1]))}
+var label=node("label",null,field.label||"Untitled field");label.dataset.part="label";if(field.required)label.append(node("span","required"," *"));
+row.append(label,mock(field));var help=node("p","help",field.help||"");help.dataset.part="help";help.hidden=!field.help;row.append(help);
+row.addEventListener("click",function(){choose(field.id)});row.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();choose(field.id)}});return row}
+function beforeRects(){var r=new Map();$("fields").querySelectorAll(".field").forEach(function(n){r.set(n.dataset.id,n.getBoundingClientRect())});return r}
+function flip(before){if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;$("fields").querySelectorAll(".field").forEach(function(n){var old=before.get(n.dataset.id);if(!old){n.classList.add("pop");return}var next=n.getBoundingClientRect(),dx=old.left-next.left,dy=old.top-next.top;if(Math.abs(dx)+Math.abs(dy)>1)n.animate([{transform:"translate("+dx+"px,"+dy+"px)"},{transform:"none"}],{duration:480,easing:"cubic-bezier(.32,.72,0,1)"})})}
+function render(before){var root=$("fields");root.replaceChildren();fields.forEach(function(f){root.append(createRow(f))});if(before)flip(before);renderProperties();updateLogic()}
+function choose(id){selected=id;var root=$("fields");root.querySelectorAll(".field").forEach(function(n){var yes=n.dataset.id===id;n.classList.toggle("active",yes);n.querySelector(".type-tag")?.remove();if(yes)n.prepend(node("span","type-tag",typeInfo(current().type)[1]))});renderProperties()}
+function renderProperties(){var f=current(),disabled=!f;$("propBody").hidden=disabled;$("noSelection").hidden=!disabled;$("remove").disabled=disabled;$("propCount").textContent=disabled?"No field selected":"Field "+(fields.findIndex(function(x){return x.id===selected})+1)+" of "+fields.length;if(!f)return;$("propIcon").textContent=typeInfo(f.type)[2];$("propName").textContent=typeInfo(f.type)[1];$("propLabel").value=f.label;$("propPlaceholder").value=f.placeholder;$("propHelp").value=f.help;$("requiredSwitch").setAttribute("aria-checked",String(f.required));$("half").setAttribute("aria-pressed",String(f.width==="half"));$("full").setAttribute("aria-pressed",String(f.width==="full"))}
+function insert(type,index){var before=beforeRects(),f=fresh(type);fields.splice(index==null?fields.length:index,0,f);selected=f.id;render(before);save();return f}
+function updatePart(key,value){var f=current();if(!f)return;f[key]=value;var row=$("fields").querySelector('[data-id="'+f.id+'"]');if(row){if(key==="label"){var lb=row.querySelector('[data-part=label]');lb.textContent=value||"Untitled field";if(f.required)lb.append(node("span","required"," *"));row.setAttribute("aria-label","Edit "+value)}if(key==="placeholder")row.replaceChild(mock(f),row.querySelector('[data-part=control]'));if(key==="help"){var h=row.querySelector('[data-part=help]');h.textContent=value;h.hidden=!value}}save()}
+$("propLabel").oninput=function(){updatePart("label",this.value)};$("propPlaceholder").oninput=function(){updatePart("placeholder",this.value)};$("propHelp").oninput=function(){updatePart("help",this.value)};
+$("requiredSwitch").onclick=function(){var f=current();if(!f)return;f.required=!f.required;this.setAttribute("aria-checked",String(f.required));updatePart("label",f.label)};
+function width(next){var f=current();if(!f)return;var before=beforeRects();f.width=next;render(before);save()}$("half").onclick=function(){width("half")};$("full").onclick=function(){width("full")};
+$("remove").onclick=function(){if(!current())return;var before=beforeRects(),i=fields.findIndex(function(f){return f.id===selected});fields.splice(i,1);selected=fields[Math.min(i,fields.length-1)]?.id||"";render(before);save()};
+function updateLogic(){$("logicDetails").textContent=fields.length+" fields · "+fields.filter(function(f){return f.required}).length+" required. Required fields are checked in Preview. No conditional rules are published."}
+function goMode(next){mode=next;["Build","Logic","Share"].forEach(function(m){$(m.toLowerCase()+"Panel").hidden=m!==next});$("modes").querySelectorAll("button").forEach(function(b){b.setAttribute("aria-selected",String(b.dataset.mode===next));b.tabIndex=b.dataset.mode===next?0:-1});var b=$("modes").querySelector('button[data-mode="'+next+'"]');$("tabthumb").style.width=b.offsetWidth+"px";$("tabthumb").style.transform="translateX("+(b.offsetLeft-3)+"px)";}
+$("modes").querySelectorAll("button").forEach(function(b){b.onclick=function(){goMode(b.dataset.mode)}});$("modes").addEventListener("keydown",function(e){if(e.key!=="ArrowRight"&&e.key!=="ArrowLeft")return;e.preventDefault();var all=["Build","Logic","Share"],i=all.indexOf(mode);goMode(all[(i+(e.key==="ArrowRight"?1:2))%3]);$("modes").querySelector('[data-mode="'+mode+'"]').focus()});
+function dragLine(y){var sheet=$("fields"),rows=[...sheet.querySelectorAll(".field")];var idx=rows.findIndex(function(el){var b=el.getBoundingClientRect();return y<(b.top+b.bottom)/2});if(idx<0)idx=rows.length;var top;if(idx<rows.length)top=rows[idx].offsetTop-5;else top=rows.length?rows[rows.length-1].offsetTop+rows[rows.length-1].offsetHeight+7:6;var line=$("insertion");if(!line){line=node("div","insert");line.id="insertion";sheet.append(line)}line.style.transform="translateY("+Math.max(0,top)+"px)";return idx}
+function clearDrag(){if(drag?.ghost)drag.ghost.remove();$("insertion")?.remove();drag=null}
+function buildPalette(){TYPES.forEach(function(t){var b=node("button","palette-button");b.type="button";b.dataset.type=t[0];b.append(node("span","type-icon",t[2]),node("span",null,t[1]),node("span","grip","⠿"));$("paletteItems").append(b);
+var opt=node("option",null,t[1]);opt.value=t[0];$("mobileType").append(opt);
+b.onpointerdown=function(e){if(e.button!==0)return;drag={id:e.pointerId,type:t[0],startX:e.clientX,startY:e.clientY,active:false,index:fields.length};b.setPointerCapture(e.pointerId)};
+b.onpointermove=function(e){if(!drag||drag.id!==e.pointerId)return;var d=Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY);if(!drag.active&&d<5)return;if(!drag.active){drag.active=true;drag.ghost=node("div","ghost",t[1]);document.body.append(drag.ghost)}drag.ghost.style.left=(e.clientX+13)+"px";drag.ghost.style.top=(e.clientY+13)+"px";var rect=$("fields").getBoundingClientRect();if(e.clientX>=rect.left-25&&e.clientX<=rect.right+25&&e.clientY>=rect.top-35&&e.clientY<=rect.bottom+70)drag.index=dragLine(e.clientY);else{$("insertion")?.remove();drag.index=null}};
+b.onpointerup=function(e){if(!drag||drag.id!==e.pointerId)return;var was=drag.active,index=drag.index;clearDrag();if(was){suppressClick=Date.now()+250;if(index!==null){goMode("Build");insert(t[0],index)}}};
+b.onpointercancel=clearDrag;
+b.onclick=function(){if(Date.now()<suppressClick)return;goMode("Build");insert(t[0])};
+})}
+$("mobileAdd").onclick=function(){goMode("Build");insert($("mobileType").value)};$("mobileEdit").onclick=function(){$("properties").classList.add("mobile-show")};$("closeProps").onclick=function(){$("properties").classList.remove("mobile-show")};
+function syncMobile(){var yes=matchMedia("(max-width:760px)").matches;$("mobileControls").hidden=!yes;$("closeProps").style.display=yes?"block":"none"}
+function preview(){var root=$("previewFields");root.replaceChildren();fields.forEach(function(f){var wrap=node("div"),lab=node("label",null,f.label+(f.required?" *":"")),input;
+if(f.type==="long")input=node("textarea");else if(f.type==="dropdown"){input=node("select");input.append(node("option",null,"Choose an option"))}else if(f.type==="checkbox"){input=node("input");input.type="checkbox";input.style.width="auto"}else if(f.type==="file"){input=node("input");input.type="file"}else if(f.type==="rating"){input=node("select");["","1","2","3","4","5"].forEach(function(o){var opt=node("option",null,o||"Choose rating");opt.value=o;input.append(opt)})}else{input=node("input");input.type=f.type==="date"?"date":f.type==="email"?"email":"text"}
+input.id="pv-"+f.id;lab.htmlFor=input.id;if(f.placeholder)input.placeholder=f.placeholder;if(f.required)input.required=true;wrap.append(lab,input);if(f.help)wrap.append(node("p","sidenote",f.help));root.append(wrap)});$("previewStatus").textContent="Preview only. Submitting here does not send or store client data.";$("preview").hidden=false}
+$("previewButton").onclick=preview;$("closePreview").onclick=function(){$("preview").hidden=true};$("preview").addEventListener("click",function(e){if(e.target===$("preview"))$("preview").hidden=true});
+$("testPreview").onclick=function(){var inputs=[...$("previewFields").querySelectorAll("input,select,textarea")];var bad=inputs.find(function(input){return !input.checkValidity()});$("previewStatus").textContent=bad?"Complete the required fields to pass validation.":"✓ Form validation passed. No submission was sent.";if(bad){bad.reportValidity();bad.focus()}};
+function exportDraft(){var json=JSON.stringify({version:1,title:"Consult intake",status:"draft",fields:fields},null,2);var blob=new Blob([json],{type:"application/json"}),url=URL.createObjectURL(blob),a=node("a");a.href=url;a.download="the-launch-era-form-draft.json";a.click();setTimeout(function(){URL.revokeObjectURL(url)},1200);notice("Draft exported. No live form was published.")} $("export").onclick=exportDraft;
+$("publish").onclick=function(){notice("Publishing is not connected yet. This is a private draft only; no client form was changed.")};
+window.addEventListener("resize",function(){goMode(mode);syncMobile()});
+(async function(){try{if(!window.supabase?.createClient)throw Error("Auth unavailable");db=window.supabase.createClient(API,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"tle-crm-auth"}});var r=await db.auth.getUser();if(r.error||!r.data.user)throw Error("Sign in needed");var w=await db.from("tle_crm_workspaces").select("id").eq("created_by",r.data.user.id).eq("is_internal",true).limit(1);if(w.error||!w.data?.length)throw Error("Owner only");owner=r.data.user;restore();selected=fields[0]?.id||"";buildPalette();render();goMode("Build");syncMobile();$("gate").hidden=true;$("app").hidden=false}catch(e){$("gate").textContent="Only the verified The Launch Era owner can open this screen. Sign in through the Command Center first."}})();
+})();
+</script></body></html>
