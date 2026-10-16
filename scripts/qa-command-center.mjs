@@ -18,10 +18,10 @@ for(const file of required){
  assert.ok(existsSync(p)&&statSync(p).isFile(),"Missing deployed file: "+file);
 }
 
-for(const f of ["support-tickets.html","form-builder.html"])assert.ok(existsSync(join(root,f)),"Missing new owner/client tools: "+f);
+for(const f of ["support-tickets.html","support-inbox.html","form-builder.html","published-intake.html"])assert.ok(existsSync(join(root,f)),"Missing new owner/client tools: "+f);
 const supportPage=readFileSync(join(root,"support-tickets.html"),"utf8");
 const builderPage=readFileSync(join(root,"form-builder.html"),"utf8");
-for(const [name,html] of [["Support Tickets",supportPage],["Form Builder",builderPage]]){
+for(const [name,html] of [["Support Tickets",supportPage],["Form Builder",builderPage],["Owner Support Inbox",readFileSync(join(root,"support-inbox.html"),"utf8")],["Public Intake",readFileSync(join(root,"published-intake.html"),"utf8")]]){
  assert.ok(html.includes('noindex,nofollow'),name+" must not be indexed");
  const match=html.match(/<script>([\s\S]*?)<\/script>/);
  assert.ok(match,name+" missing executable script");
@@ -30,7 +30,15 @@ for(const [name,html] of [["Support Tickets",supportPage],["Form Builder",builde
 assert.ok(supportPage.includes('tle_crm_support_requests')&&supportPage.includes('eq("is_internal",false)'),"Buyer support must use real, tenant-scoped requests");
 assert.ok(supportPage.includes('workspace_id:workspace.id')&&supportPage.includes('submitted_by:user.id'),"Support requests must use authenticated tenant and user");
 assert.ok(builderPage.includes('eq("is_internal",true)')&&builderPage.includes("tle-form-builder-draft-"),"Form Builder must verify owner and keep isolated drafts");
-assert.ok(builderPage.includes('Publishing is not connected yet.')&&!builderPage.includes('tle_crm_support_requests'),"Form Builder must not imply publishing or write support records");
+assert.ok(builderPage.includes("tle_owner_forms")&&builderPage.includes("tle_owner_form_responses"),"Owner forms must save published snapshots and read actual submissions");
+assert.ok(builderPage.includes("draft_fields")&&builderPage.includes("published_at"),"Published form must keep edits independent of published version");
+assert.ok(builderPage.includes("File upload needs secured storage"),"Do not publish unsupported file attachments");
+assert.ok(supportPage.includes("tle_crm_support_messages"),"Buyer support thread must persist real replies");
+const ownerInbox=readFileSync(join(root,"support-inbox.html"),"utf8");
+assert.ok(ownerInbox.includes('eq("is_internal",true)')&&ownerInbox.includes("tle_crm_support_messages"),"Support Inbox must be owner-only and use real conversation records");
+const publishedIntake=readFileSync(join(root,"published-intake.html"),"utf8");
+assert.ok(publishedIntake.includes("tle-published-intake")&&publishedIntake.includes("consent"),"Public intake must use validated isolated endpoint");
+
 
 const read=f=>readFileSync(join(root,f),"utf8");
 const index=read("index.html"),recover=read("auth-recovery.html"),ai=read("ai-team.html");
