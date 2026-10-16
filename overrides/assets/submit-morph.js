@@ -7,6 +7,7 @@
  function prepare(button){
   if(!(button instanceof HTMLButtonElement))return null;
   if(prepared.has(button))return prepared.get(button);
+  button.classList.add('tle-motion-button');
   const wrapper=document.createElement('span');wrapper.className='tle-motion-wrap';
   button.parentNode.insertBefore(wrapper,button);wrapper.append(button);
   const label=document.createElement('span');label.className='tle-motion-label';
