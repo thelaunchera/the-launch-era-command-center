@@ -62,6 +62,7 @@ try{
   page.on("pageerror",e=>errors.push(String(e)));
   await page.goto(base+"/support-tickets.html",{waitUntil:"load"});
   await page.locator("#app:not([hidden])").waitFor();
+  await page.waitForFunction(()=>document.getElementById("openCount").textContent.trim()==="1");
   assert.equal((await page.locator("#openCount").textContent()).trim(),"1");
   assert.equal((await page.locator("#resolvedCount").textContent()).trim(),"1");
   await page.locator("#send").click();
@@ -108,7 +109,7 @@ try{
   assert.equal(await page.locator('#previewFields select option').filter({hasText:"Biweekly"}).count(),1,"Dropdown options must be previewable");
   await page.locator("#testPreview").click();
   assert.match(await page.locator("#previewStatus").textContent(),/Complete the required fields/);
-  await page.locator("#previewFields select").selectOption({label:"Weekly"});
+  await page.locator("#previewFields select").last().selectOption({label:"Weekly"});
   await page.locator("#testPreview").click();
   assert.match(await page.locator("#previewStatus").textContent(),/passed/i);
   await page.locator("#closePreview").click();
