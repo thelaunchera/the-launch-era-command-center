@@ -109,14 +109,14 @@ try{
   assert.equal(await page.evaluate(()=>window.__mockWrites),1,"Support sent twice");
   assert.match(await page.locator("#toast").textContent(),/CC000003/,"Ticket confirmation must show returned ID");
   assert.match(await page.locator("#list").textContent(),/Booking test problem/);
-  await page.locator("#list .ticket").first().locator("summary").click();
+  if(!await page.locator("#list .ticket").first().locator("details").evaluate(el=>el.open))await page.locator("#list .ticket").first().locator("summary").click();
   await page.locator("#list .ticket").first().locator(".reply-form textarea").fill("I also tried a different browser.");
   await page.locator("#list .ticket").first().locator(".reply-form button").click();
   await page.waitForFunction(()=>window.__mockWrites===2);
   await page.locator("#list .ticket").first().locator("summary").click().catch(()=>{});
   assert.match(await page.locator("#list").textContent(),/1 reply/);
   // Client can ask for a human; ticket is marked as waiting and bot is paused.
-  await page.locator("#list .ticket").first().locator("summary").click().catch(()=>{});
+  if(!await page.locator("#list .ticket").first().locator("details").evaluate(el=>el.open))await page.locator("#list .ticket").first().locator("summary").click();
   await page.locator("#list .ticket").first().locator(".human-button").click();
   await page.waitForFunction(()=>window.__mockTickets.some(t=>t.support_mode==="human"));
   assert.match(await page.locator("#list").textContent(),/Human support requested/);
