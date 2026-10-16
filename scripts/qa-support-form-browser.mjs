@@ -7,36 +7,52 @@ import {chromium} from "playwright";
 const root=resolve(".site");
 const mockSource=String.raw`
 window.__mockTickets=[
- {id:"aa000001-0000-4000-a000-000000000001",request_type:"problem",status:"open",message:"Subject: Calendar help\n\nMy calendar is not updating.",page_context:"Booking & calendar · Normal",created_at:"2026-10-15T14:00:00Z"},
- {id:"bb000001-0000-4000-a000-000000000002",request_type:"problem",status:"resolved",message:"Subject: Fixed already\n\nMy issue has been resolved.",page_context:"Technical issue · Normal",created_at:"2026-10-14T14:00:00Z"}
+ {id:"aa000001-0000-4000-a000-000000000001",workspace_id:"synthetic-workspace",business_name:"Fictional Cleaning Co",request_type:"problem",status:"open",message:"Subject: Calendar help\n\nMy calendar is not updating.",page_context:"Booking & calendar · Normal",created_at:"2026-10-15T14:00:00Z"},
+ {id:"bb000001-0000-4000-a000-000000000002",workspace_id:"synthetic-workspace",business_name:"Fictional Cleaning Co",request_type:"problem",status:"resolved",message:"Subject: Fixed already\n\nMy issue has been resolved.",page_context:"Technical issue · Normal",created_at:"2026-10-14T14:00:00Z"}
 ];
+window.__mockMessages=[];
+window.__mockForms=[];
+window.__mockResponses=[];
 window.__mockWrites=0;
 window.__qaRole=new URLSearchParams(location.search).get("qa_role")||"allowed";
-window.supabase={createClient:function(){
- return {
-  auth:{getUser:async function(){return window.__qaRole==="anonymous"?{data:{user:null},error:{message:"Not signed in"}}:{data:{user:{id:"synthetic-user",email:"qa@example.invalid"}},error:null}}},
-  from:function(table){
-   const constraints={};
-   return {
-    select:function(){return this},
-    eq:function(key,val){constraints[key]=val;return this},
-    order:function(){return this},
-    limit:async function(){
-      if(table==="tle_crm_workspaces")return {data:(window.__qaRole==="owner"&&constraints.is_internal===false)||(window.__qaRole==="buyer"&&constraints.is_internal===true)?[]:[{id:"synthetic-workspace",name:"Fictional Cleaning Co",is_internal:constraints.is_internal}],error:null};
-      if(table==="tle_crm_support_requests")return {data:window.__mockTickets.filter(t=>constraints.workspace_id==="synthetic-workspace"),error:null};
-      return {data:[],error:null};
-    },
-    insert:function(record){
-      if(table!=="tle_crm_support_requests")throw Error("Unexpected database write: "+table);
-      window.__mockWrites++;
-      const ticket={...record,id:"cc000003-0000-4000-a000-000000000003",created_at:new Date().toISOString(),status:"open"};
-      window.__mockTickets.unshift(ticket);
-      return {select:function(){return {single:async function(){return {data:{id:ticket.id},error:null}}}}};
+window.supabase={createClient:function(){return {
+ auth:{getUser:async function(){return window.__qaRole==="anonymous"?{data:{user:null},error:{message:"Not signed in"}}:{data:{user:{id:"synthetic-user",email:"qa@example.invalid"}},error:null}}},
+ from:function(table){
+  var clauses={},operation="read",payload;
+  var query={
+   select:function(){return query},eq:function(k,v){clauses[k]=v;return query},
+   in:function(k,v){clauses[k]=v;return query},order:function(){return query},
+   insert:function(value){operation="insert";payload=value;return query},
+   update:function(value){operation="update";payload=value;return query},
+   limit:async function(){
+    if(table==="tle_crm_workspaces")return {data:(window.__qaRole==="owner"&&clauses.is_internal===false)||(window.__qaRole==="buyer"&&clauses.is_internal===true)?[]:[{id:"synthetic-workspace",name:"Fictional Cleaning Co",is_internal:clauses.is_internal}],error:null};
+    var array=(table==="tle_crm_support_requests"?window.__mockTickets:table==="tle_crm_support_messages"?window.__mockMessages:table==="tle_owner_forms"?window.__mockForms:table==="tle_owner_form_responses"?window.__mockResponses:[]);
+    return {data:array.filter(function(x){return Object.entries(clauses).every(function(kv){return Array.isArray(kv[1])?kv[1].includes(x[kv[0]]):x[kv[0]]===kv[1]})}),error:null};
+   },
+   single:async function(){
+    if(operation==="insert"){
+     window.__mockWrites++;
+     var source=table==="tle_crm_support_requests"?window.__mockTickets:table==="tle_crm_support_messages"?window.__mockMessages:table==="tle_owner_forms"?window.__mockForms:table==="tle_owner_form_responses"?window.__mockResponses:null;
+     if(!source)return {data:null,error:{message:"Unexpected table write "+table}};
+     var number=window.__mockWrites;
+     var id=table==="tle_crm_support_requests"?"cc000003-0000-4000-a000-000000000003":"synthetic-"+number;
+     var record={...payload,id:id,created_at:new Date().toISOString(),submitted_at:new Date().toISOString(),status:payload.status||"open"};
+     source.unshift(record);return {data:record,error:null};
     }
-   };
-  }
- };
-}};
+    if(operation==="update"){
+     window.__mockWrites++;
+     var source=table==="tle_crm_support_requests"?window.__mockTickets:table==="tle_owner_forms"?window.__mockForms:null;
+     if(!source)return {data:null,error:{message:"Unexpected update"}};
+     var found=source.find(function(x){return Object.entries(clauses).every(function(kv){return x[kv[0]]===kv[1]})});
+     if(!found)return {data:null,error:{message:"Not found"}};
+     Object.assign(found,payload);return {data:found,error:null};
+    }
+    return {data:null,error:{message:"No mutation"}};
+   }
+  };
+  return query;
+ }
+}}};
 `;
 const server=createServer(async(req,res)=>{
  try{
@@ -117,8 +133,10 @@ try{
   assert.match(await page.locator("#previewStatus").textContent(),/passed/i);
   await page.locator("#closePreview").click();
   await page.locator("#publish").click();
-  assert.match(await page.locator("#message").textContent(),/not connected yet/i);
-  assert.equal(await page.evaluate(()=>window.__mockWrites),0,"Owner draft triggered a backend mutation");
+  await page.waitForFunction(()=>!!document.querySelector("#publishedFormLink")?.value);
+  assert.match(await page.locator("#publishedFormLink").inputValue(),/published-intake\.html\?f=intake-/,"Published owner form must have a real shareable URL");
+  assert.equal(await page.evaluate(()=>window.__mockWrites),1,"Form publishing should save exactly one record");
+
   assert.equal(errors.length,0,"Form Builder browser errors: "+errors.join("; "));
   await context.close();
  }
@@ -128,14 +146,16 @@ try{
   ["/support-tickets.html?qa_role=owner","owner blocked from buyer ticket form"],
   ["/support-tickets.html?qa_role=anonymous","anonymous blocked from tickets"],
   ["/form-builder.html?qa_role=buyer","buyer blocked from owner form design"],
-  ["/form-builder.html?qa_role=anonymous","anonymous blocked from owner form design"]
+  ["/form-builder.html?qa_role=anonymous","anonymous blocked from owner form design"],
+  ["/support-inbox.html?qa_role=buyer","buyer blocked from owner support inbox"],
+  ["/support-inbox.html?qa_role=anonymous","anonymous blocked from owner support inbox"]
  ];
  for(const [url,label] of denialCases){
   const context=await browser.newContext({viewport:{width:390,height:800}});
   const page=await context.newPage(),errors=[];
   page.on("pageerror",e=>errors.push(String(e)));
   await page.goto(base+url,{waitUntil:"load"});
-  await page.waitForFunction(()=>{const v=document.getElementById("gate").textContent;return v.includes("This page needs an active client account.")||v.includes("Only the verified The Launch Era owner")});
+  await page.waitForFunction(()=>{const v=document.getElementById("gate").textContent;return v.includes("This page needs an active client account.")||v.includes("Only the verified The Launch Era owner")||v.includes("Private owner access required.")});
   assert.ok(await page.locator("#app").evaluate(el=>el.hidden),label);
   assert.equal(await page.evaluate(()=>window.__mockWrites),0,label+" must not write");
   assert.equal(errors.length,0,label+" browser errors: "+errors.join("; "));
