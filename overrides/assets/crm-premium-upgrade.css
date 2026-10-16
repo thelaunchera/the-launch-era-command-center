@@ -32,3 +32,29 @@ body.crm-owner-view.crm-owner-upgraded .crm-upgrade-total strong{font-variant-nu
 @media(max-width:1000px){body.crm-owner-view.crm-owner-upgraded .premium-sidebar{width:195px;flex-basis:195px}}
 @media(max-width:760px){body.crm-owner-view.crm-owner-upgraded .premium-sidebar{width:255px;flex-basis:auto}body.crm-owner-view.crm-owner-upgraded .crm-upgrade-filters{gap:10px;padding:10px 0}body.crm-owner-view.crm-owner-upgraded #board{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;gap:11px;padding:4px 2px 14px}body.crm-owner-view.crm-owner-upgraded #board>.premium-lane{flex:0 0 min(78vw,330px);scroll-snap-align:start}body.crm-owner-view.crm-owner-upgraded .crm-upgrade-chip{font-size:11px!important;padding:8px 10px!important}}
 @media(prefers-reduced-motion:reduce){body.crm-owner-view.crm-owner-upgraded *,body.crm-owner-view.crm-owner-upgraded *::before,body.crm-owner-view.crm-owner-upgraded *::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.crm-upgrade-toast{transition:none!important}}
+
+/* Contact profile, inbox, follow-up calendar and email workspace use one visual rhythm. */
+body.crm-owner-view.crm-owner-upgraded .premium-drawer{background:#fff;border-radius:21px 0 0 21px;max-width:100vw;box-shadow:-20px 0 65px #1633482b}
+body.crm-owner-view.crm-owner-upgraded .premium-drawer .lead-editor-heading h2{font:800 clamp(23px,3vw,29px)/1.2 Prompt,Arial,sans-serif;letter-spacing:-.035em;color:#191919}
+body.crm-owner-view.crm-owner-upgraded .premium-drawer input,body.crm-owner-view.crm-owner-upgraded .premium-drawer select,body.crm-owner-view.crm-owner-upgraded .premium-drawer textarea{border:1px solid #ccdeeb;border-radius:11px;background:#fff;min-height:41px}
+body.crm-owner-view.crm-owner-upgraded .premium-drawer .lead-detail-tabs{display:flex;gap:5px;border-bottom:1px solid #dce9f0}
+body.crm-owner-view.crm-owner-upgraded .premium-drawer .lead-detail-tabs button{transition:background .18s,border-color .18s,color .18s}
+body.crm-owner-view.crm-owner-upgraded .premium-drawer .lead-detail-tabs button.active{color:#285d80;border-bottom-color:#78b3d8;background:#eef7fd}
+body.crm-owner-view.crm-owner-upgraded .premium-emailhub,body.crm-owner-view.crm-owner-upgraded .quickhome{background:#fff;border:1px solid #dce8f0;border-radius:19px;box-shadow:0 5px 19px #25475f0c}
+body.crm-owner-view.crm-owner-upgraded .emailhub-item{background:#fff;border-bottom:1px solid #e7edf3;border-radius:12px;transition:background .18s}
+body.crm-owner-view.crm-owner-upgraded .emailhub-item:hover{background:#eef7fd}
+body.crm-owner-view.crm-owner-upgraded .month-grid{border:1px solid #d8e7f0;border-radius:18px;background:#fff;box-shadow:0 5px 19px #25475f0b}
+body.crm-owner-view.crm-owner-upgraded .month-weekday{background:#eaf5fc;color:#47728b;font-weight:700}
+body.crm-owner-view.crm-owner-upgraded .month-cell.today{background:#f0f8ff}
+body.crm-owner-view.crm-owner-upgraded .month-event{background:#e5f3ff;border:1px solid #d1e7f4;color:#235a7d;border-radius:9px}
+body.crm-owner-view.crm-owner-upgraded .month-event.overdue{background:#fff1f1;border-color:#f0ccce;color:#9d4149}
+body.crm-owner-view.crm-owner-upgraded .month-event:focus-visible{outline:3px solid #70add2;outline-offset:1px}
+body.crm-owner-view.crm-owner-upgraded .premium-metrics .metric{border:1px solid #dce8f0;border-radius:17px;background:#fff;box-shadow:0 5px 19px #25475f0c!important}
+body.crm-owner-view.crm-owner-upgraded .premium-metrics .metric strong{font-variant-numeric:tabular-nums;color:#191919}
+body.crm-owner-view.crm-owner-upgraded .premium-client-card{background:#fff;border:1px solid #dce8f0;border-radius:16px;transition:transform .18s,box-shadow .18s}
+body.crm-owner-view.crm-owner-upgraded .premium-client-card:hover{box-shadow:0 11px 25px #274c7015;transform:translateY(-2px)}
+@media(max-width:760px){
+ body.crm-owner-view.crm-owner-upgraded .premium-drawer{border-radius:0;width:100vw!important;height:100dvh;max-height:100dvh}
+ body.crm-owner-view.crm-owner-upgraded .premium-drawer input,body.crm-owner-view.crm-owner-upgraded .premium-drawer select,body.crm-owner-view.crm-owner-upgraded .premium-drawer textarea{font-size:16px}
+ body.crm-owner-view.crm-owner-upgraded .premium-emailhub{padding:16px}
+}
