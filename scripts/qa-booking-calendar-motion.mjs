@@ -1,0 +1,22 @@
+import {readFileSync,existsSync} from 'node:fs';
+import assert from 'node:assert/strict';
+import {Script} from 'node:vm';
+const f=x=>readFileSync('.site/'+x,'utf8');
+for(const p of ['portfolio.html','assets/booking-calendar-motion.js','assets/booking-calendar-motion.css','assets/command-center-app.js'])
+ assert(existsSync('.site/'+p),'Missing generated calendar file '+p);
+const html=f('index.html'),app=f('assets/command-center-app.js'),script=f('assets/booking-calendar-motion.js'),css=f('assets/booking-calendar-motion.css');
+assert(html.includes('id="ownerPortfolioNav" href="./portfolio.html"'),'Owner Portfolio link missing');
+const privateArea=html.slice(html.indexOf('id="ownerPrivateSection"'),html.indexOf('id="buyerBusinessSection"'));
+assert(privateArea.includes('id="ownerPortfolioNav"'),'Portfolio shortcut must remain in owner-only navigation');
+assert(!html.slice(html.indexOf('id="buyerBusinessSection"'),html.indexOf('id="sidebarUtilityMenu"')).includes('ownerPortfolioNav'),'Never show owner portfolio in buyer navigation');
+assert(html.includes('./assets/booking-calendar-motion.css?v=')&&html.includes('./assets/booking-calendar-motion.js?v='),'Calendar CSS/JS not loaded');
+assert(app.includes('b.dataset.dayKey=key')&&app.includes('cell.dataset.dayKey=key'),'Native calendar date keys missing');
+assert(app.includes('grid.dataset.monthKey=monthKey')&&app.includes("grid.dataset.monthKey=y+'-'"),'Native month adapter missing');
+assert(app.includes('pill.dataset.calendarKind=event.kind'),'Owner work type adapter missing');
+assert(app.includes('tle_booking_owner_calendar_read')&&app.includes("buyerCalendarOpenRequest(x)"),'Real calendar handlers must remain intact');
+assert(script.includes("create('owner');create('buyer')"),'Both owner and buyer views required');
+assert(!/fetch\s*\(|\.rpc\s*\(|\.insert\s*\(|\.update\s*\(|\.delete\s*\(|localStorage\.setItem\s*\(/.test(script),'Read-only UI must not mutate database');
+assert(css.includes('prefers-reduced-motion:reduce'),'Reduced motion rule missing');
+assert(f('portfolio.html').includes('noindex,nofollow'),'Portfolio placeholder must not be indexed');
+new Script(script,{filename:'booking-calendar-motion.js'});
+console.log('PASS: calendar integration, private owner portfolio, tenant safety, syntax');
