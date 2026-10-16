@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="theme-color" content="#FAF8F3">
+<title>Subscriptions · The Launch Era Command Center</title><link rel="icon" href="./favicon-tle.svg">
+<style>
+:root{--ivory:#FAF8F3;--paper:#fff;--sky:#edf6ff;--blue:#438fbd;--blue-ink:#246b98;--ink:#191919;--muted:#607385;--line:#dce6ef;--bg:#f5f8fc;--amber:#9b6711;--good:#287451}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:var(--bg);font:14px/1.5 "Avenir Next",Futura,Arial,sans-serif}
+button,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}a{color:inherit;text-decoration:none}[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.header{height:64px;display:flex;align-items:center;padding:0 25px;gap:11px;border-bottom:1px solid var(--line);background:white}
+.logo{width:38px;height:38px;background:var(--sky);border-radius:12px;display:grid;place-items:center;color:var(--blue-ink);font-size:22px;font-weight:900}
+.brand{font-size:12px;letter-spacing:.045em;font-weight:900}.crumb{color:var(--muted)}.head-right{margin-left:auto;display:flex;align-items:center;gap:12px}.back{border:1px solid var(--line);border-radius:999px;padding:8px 14px;background:#fff;color:#356b8c;font-weight:750}.avatar{background:#e5f2fc;color:var(--blue-ink);height:34px;width:34px;border-radius:50%;display:grid;place-items:center;font-weight:900}
+.shell{min-height:calc(100dvh - 64px);display:grid;grid-template-columns:216px minmax(0,1fr)}
+.sidebar{background:#fff;border-right:1px solid var(--line);padding:28px 13px}.sidebar-title{color:#8b9caa;font-size:10px;font-weight:900;letter-spacing:.14em;margin:4px 13px 14px}
+.side-link{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:11px;color:#64788a;font-weight:700;margin-bottom:4px}.side-link.active{background:var(--sky);color:var(--blue-ink)}.side-link:hover{background:#f3f8fc}
+.main{padding:30px clamp(16px,3vw,46px) 45px;min-width:0;overflow:auto;max-height:calc(100dvh - 64px)}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
+.kicker{font-size:10px;letter-spacing:.14em;font-weight:900;color:#6888a0;margin-bottom:5px}
+h1{font-size:clamp(27px,3vw,36px);letter-spacing:-.065em;line-height:1.15;margin:0}h2{font-size:20px;letter-spacing:-.045em;margin:0 0 7px}p{margin:0;color:var(--muted)}
+.top-status{display:flex;align-items:center;flex-wrap:wrap;gap:9px}.state{border-radius:100px;padding:6px 11px;font-size:11px;font-weight:800;white-space:nowrap;background:#eaf3fa;color:#2c719b}.state.active{background:#e6f7ec;color:var(--good)}.state.paused,.state.past_due{background:#fff2db;color:var(--amber)}.state.canceled{background:#f0eef2;color:#625d66}
+.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,1fr);gap:18px;align-items:start}.stack{display:grid;gap:18px;min-width:0}
+.card{border:1px solid var(--line);border-radius:17px;background:var(--paper);box-shadow:0 8px 32px #31517109;padding:23px;min-width:0}
+.card-head{display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:19px}.small{color:var(--muted);font-size:12px}
+.hero-inner{display:grid;grid-template-columns:175px minmax(0,1fr);gap:22px;align-items:center}
+.product-tile{background:linear-gradient(140deg,#e3f4ff,#bedef5);height:186px;border-radius:17px;display:grid;place-items:center;overflow:hidden;border:1px solid #c6e3f5;position:relative}
+.product-tile:before{content:"";position:absolute;width:170px;height:70px;background:#ffffff86;filter:blur(26px);bottom:-35px;border-radius:50%}.product-art{display:grid;place-items:center;background:linear-gradient(155deg,#fbfdff,#d8ecfa);border:1px solid white;width:99px;height:115px;border-radius:19px;box-shadow:14px 18px 24px #558eb946,-8px -6px 20px #ffffff91;transform:rotate(-7deg);animation:float 6s ease-in-out infinite}
+.product-art svg{width:55px;height:55px;stroke:#438fbd;fill:none;stroke-width:1.8}
+.hero-date{font-size:clamp(26px,3vw,33px);font-weight:800;letter-spacing:-.065em;margin:6px 0 9px;line-height:1.1}
+.info-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.price{font-weight:900;font-size:21px;color:#1f384c}.old-price{color:#9aa6af;text-decoration:line-through;font-size:13px}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}.secondary{border:1px solid #d6e4ed;border-radius:10px;background:#fff;color:#39647d;font-weight:800;padding:10px 13px;min-height:43px}.secondary:hover{background:#eff7fd}
+.notice{background:#fff4df;color:#82570e;border:1px solid #efdda9;border-radius:11px;padding:12px 14px;margin-bottom:17px;font-size:13px}
+.notice.expand{animation:expand .48s cubic-bezier(.32,.72,0,1)}.paused-hero{opacity:.62}
+.upcoming{display:grid;gap:9px}.upcoming-row{display:flex;align-items:center;gap:13px;min-width:0;padding:13px 0;border-bottom:1px solid #eaf0f5;transition:opacity .45s,grid-template-rows .45s,transform .45s}
+.upcoming-row:last-child{border-bottom:0}.day-chip{min-width:57px;padding:8px 6px;border:1px solid #dbeaf5;border-radius:11px;text-align:center;background:#f5fbff;color:#2b759f}.day-chip strong{display:block;font-size:20px;line-height:1.1}.day-chip small{display:block;font-size:10px;font-weight:800;text-transform:uppercase}.upcoming-meta{min-width:0;flex:1}.upcoming-meta strong{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.upcoming-meta small{color:var(--muted);font-size:12px}.row-price{font-weight:800;white-space:nowrap}
+.plan-grid{display:grid;gap:0}.plan-line,.summary-line{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;border-bottom:1px solid #edf1f5;padding:12px 0}.plan-line:last-child,.summary-line:last-child{border:0}.plan-line span,.summary-line span{color:var(--muted)}.plan-line strong,.summary-line strong{text-align:right;max-width:62%;overflow-wrap:anywhere;font-size:13px}.summary-line.total{border-top:1px solid var(--line);padding-top:15px;margin-top:6px;font-size:16px;font-weight:900}.summary-line.total strong{font-size:20px;color:var(--blue-ink)}
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 17px}.picker{background:white;border:1px solid var(--line);border-radius:10px;min-height:41px;padding:8px 12px;color:#345d75;min-width:230px;max-width:100%}.refresh{background:#fff;border:1px solid var(--line);border-radius:11px;padding:9px 13px;color:#356b8c;font-weight:750;min-height:41px}
+.mode{display:flex;align-items:center;gap:9px;background:#edf6ff;border:1px solid #c9e2f2;border-radius:11px;padding:11px 14px;margin-bottom:18px;color:#2d6a92}
+.empty{padding:36px 20px;background:white;border:1px dashed #cfdde9;border-radius:16px;text-align:center}.empty h2{font-size:22px}.empty button{margin-top:16px}
+.gate{max-width:440px;padding:38px 23px;margin:14vh auto;text-align:center}.error{color:#b54545}
+.toast{position:fixed;right:24px;bottom:22px;background:#203e54;color:white;padding:13px 20px;border-radius:12px;box-shadow:0 12px 34px #19364b4a;z-index:50}
+.scrim{position:fixed;inset:0;background:#0b233f7a;z-index:100;display:grid;place-items:center;padding:18px}
+.dialog{background:#fff;border:1px solid #d6e4ed;border-radius:19px;max-width:420px;width:100%;padding:25px;box-shadow:0 22px 75px #112e5044;animation:dialogIn 590ms linear(0,.4 16.7%,.8 33.3%,1.01 55%,1) both}
+.dialog h2{font-size:23px;margin:0 0 10px}.dialog p{font-size:13px;line-height:1.6}.dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+.primary{background:#418cba;border:1px solid #418cba;color:#fff;font-weight:800;border-radius:11px;min-height:45px;padding:11px 15px}.primary:disabled{opacity:.45}
+.radio-list{display:grid;gap:9px;margin-top:14px}.radio-choice{display:flex;align-items:center;gap:13px;padding:12px;border-radius:12px;border:1px solid #dae7ef;cursor:pointer}.radio-choice:has(input:checked){background:#eff8ff;border-color:#418cba}.radio-choice .mini-art{height:39px;width:39px;display:grid;place-items:center;border-radius:10px;background:#dfeefa;color:#347cab;font-size:20px}.radio-choice strong{display:block}.radio-choice small{color:#6d7f8a}.radio-choice input{margin-left:auto;accent-color:#418cba}
+.preview-note{font-size:12px;color:#587e98;margin-top:14px}.date-pop{animation:pop 500ms ease-out}.swap-pop{animation:swapIn .58s cubic-bezier(.16,1.25,.35,1)}.collapse{animation:collapse 450ms ease forwards}.new-row{animation:slideIn 450ms ease}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-7deg)}50%{transform:translateY(-6px) rotate(-7deg)}}
+@keyframes dialogIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes pop{0%{transform:scale(.6)}55%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes swapIn{0%{transform:translateY(23px) scale(.85);opacity:0}75%{transform:translateY(-5px) scale(1.03);opacity:1}100%{transform:none}}
+@keyframes collapse{to{opacity:0;transform:scaleY(0);max-height:0;margin:0;padding:0;border:0}}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes expand{from{opacity:0;transform:scaleY(.1)}to{opacity:1;transform:scaleY(1)}}
+@media(max-width:1100px){.grid{grid-template-columns:minmax(0,1fr)}.hero-inner{grid-template-columns:145px minmax(0,1fr)}.product-tile{height:155px}}
+@media(max-width:767px){.header{padding:0 14px}.crumb,.avatar{display:none}.back{font-size:12px}.sidebar{display:none}.shell{display:block}.main{max-height:none;padding:23px 14px 35px;min-height:calc(100dvh - 64px)}.card{padding:19px}.hero-inner{grid-template-columns:1fr}.product-tile{height:160px}.product-art{height:105px}.actions>*{flex:1}.top{align-items:flex-start}.row-price{font-size:12px}.controls>*{flex:1}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style></head>
+<body><header class="header"><a class="logo" href="./" aria-label="Command Center home">✳</a><strong class="brand">THE LAUNCH ERA</strong><span class="crumb">/ Command Center / Subscriptions</span><div class="head-right"><a href="./" class="back">← Command Center</a><span class="avatar" aria-hidden="true">T</span></div></header>
+<div id="gate" class="gate" role="status">Checking private owner access…</div>
+<div class="shell" id="shell" hidden><nav class="sidebar" aria-label="Account navigation"><div class="sidebar-title">OWNER WORKSPACE</div>
+<a class="side-link" href="./">⌂ &nbsp; Overview</a><a class="side-link" href="./">▣ &nbsp; Client orders</a><a class="side-link active" href="./subscriptions.html" aria-current="page">◈ &nbsp; Subscriptions</a><a class="side-link" href="https://dashboard.stripe.com/subscriptions" target="_blank" rel="noopener noreferrer">↗ &nbsp; Stripe billing</a><a class="side-link" href="./ai-team.html">✦ &nbsp; AI Team</a></nav>
+<main class="main"><div class="top"><div><div class="kicker">PRIVATE · RECURRING REVENUE</div><h1>Client subscriptions <span class="state" id="status">Loading</span></h1><p class="small" id="topDesc">Live records from Stripe. No changes are applied without review.</p></div><button class="refresh" id="refresh" type="button">↻ Refresh</button></div>
+<div class="controls"><label for="choose" class="small">Client plan</label><select class="picker" id="choose" aria-label="Select client subscription"></select><button class="refresh" id="preview" type="button" aria-pressed="false">Preview interactions</button></div>
+<div class="mode" id="previewBanner" hidden><strong>DEMO ONLY</strong> — Sample client and simulated actions. No billing or real subscriptions will change.</div>
+<div class="empty" id="empty" hidden><h2>No live subscriptions to display</h2><p>Recurring plans will appear here when Stripe records are available. The preview lets you test this layout without creating purchases.</p><button class="secondary" id="emptyPreview" type="button">Open interactive preview</button></div>
+<div class="grid" id="grid" hidden>
+<div class="stack"><section class="card" aria-labelledby="nextTitle"><div class="card-head"><div><div class="kicker">NEXT CYCLE</div><h2 id="nextTitle">Next renewal</h2></div><span class="state" id="countdown">Date pending</span></div>
+<div class="notice expand" id="pausedBanner" hidden>Subscription on hold. Review the Stripe billing state before making changes.</div>
+<div class="hero-inner" id="hero"><div class="product-tile"><div class="product-art" id="productArt" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="11" y="8" width="42" height="48" rx="10"/><path d="M21 20h22M21 30h22M21 40h14"/><path d="M40 43l5 5 8-9"/></svg></div></div>
+<div><div class="kicker" id="client">CLIENT ACCOUNT</div><div class="hero-date" id="nextDate">—</div><div class="info-line"><span class="state" id="cyclePill">Next billing</span></div><p style="font-weight:800;margin:13px 0 4px;color:#263e51" id="serviceName">AI Assistant</p><div class="info-line"><span class="price" id="servicePrice">—</span><span class="old-price" id="listPrice" hidden></span></div></div></div>
+<div class="actions"><button class="secondary" id="skip" type="button">Skip next</button><button class="secondary" id="pause" type="button">Pause</button><button class="secondary" id="swap" type="button">Change plan</button></div>
+<p class="preview-note" id="actionNote">Real subscription changes are completed and verified in Stripe.</p>
+</section>
+<section class="card" aria-labelledby="upcomingTitle"><div class="card-head"><div><h2 id="upcomingTitle">Upcoming renewals</h2><p class="small">Future dates are projections, not new charges.</p></div></div><div id="upcoming" class="upcoming" aria-live="polite"></div></section></div>
+<div class="stack"><section class="card"><h2>Plan details</h2><div class="plan-grid">
+<div class="plan-line"><span>Service</span><strong id="detailName">—</strong></div><div class="plan-line"><span>Frequency</span><strong id="frequency">—</strong></div><div class="plan-line"><span>Client</span><strong id="detailClient">—</strong></div><div class="plan-line"><span>Next billing</span><strong id="detailBill">—</strong></div><div class="plan-line"><span>Payment</span><strong>Handled securely by Stripe</strong></div><div class="plan-line"><span>Status</span><strong id="detailStatus">—</strong></div></div></section>
+<section class="card"><h2>Price summary</h2><div class="summary-line"><span>Recurring subtotal</span><strong id="subtotal">—</strong></div><div class="summary-line"><span>Subscriber discount</span><strong id="discount">Not specified</strong></div><div class="summary-line"><span>Shipping</span><strong>Not applicable</strong></div><div class="summary-line total"><span>Per billing cycle</span><strong id="total">—</strong></div><p class="preview-note">Taxes, credits, adjustments and invoice totals are authoritative in Stripe.</p></section></div></div></main></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<div class="scrim" id="scrim" hidden><div class="dialog" id="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle" aria-describedby="dialogBody">
+<h2 id="dialogTitle">Confirm change</h2><p id="dialogBody"></p><div id="swapChoices" class="radio-list" hidden></div>
+<div class="dialog-actions"><button class="secondary" type="button" id="cancel">Cancel</button><button class="primary" type="button" id="confirm">Continue</button></div></div></div>
+<script src="./vendor/supabase-js-v2.57.0.umd.js"></script><script>
+(function(){"use strict";
+const URL="https://bowacxhmjvrqixtwaikv.supabase.co",KEY="sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
+const $=id=>document.getElementById(id),fmt=new Intl.DateTimeFormat("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"});
+let db,auth,items=[],current=null,demo=false,demoPaused=false,skipped=0,demoPlan=0,modal=null,priorFocus=null,toastTimer;
+const sample=["AI Booking Assistant","AI Follow-Up Assistant","AI Front Desk Assistant"];
+const sampleFees=[4900,3900,5900];
+function dateOf(x){const d=typeof x==="number"?new Date(x*1000):new Date(x);return Number.isFinite(d.getTime())?d:null}
+function addCycle(start,interval,count,steps){const d=new Date(start.getTime()),n=count*steps;if(interval==="day")d.setUTCDate(d.getUTCDate()+n);else if(interval==="week")d.setUTCDate(d.getUTCDate()+n*7);else{const orig=d.getUTCDate();d.setUTCDate(1);if(interval==="year")d.setUTCFullYear(d.getUTCFullYear()+n);else d.setUTCMonth(d.getUTCMonth()+n);const end=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0)).getUTCDate();d.setUTCDate(Math.min(orig,end))}return d}
+function money(c,currency="usd"){return Number.isSafeInteger(c)?new Intl.NumberFormat("en-US",{style:"currency",currency:currency.toUpperCase()}).format(c/100):"See Stripe"}
+function clear(el){el.replaceChildren()}
+function daysUntil(date){return Math.max(0,Math.ceil((date.getTime()-Date.now())/86400000))}
+function labelStatus(s){return ({active:"Active",trialing:"Trialing",past_due:"Past due",paused:"Paused",unpaid:"Unpaid",canceled:"Canceled",incomplete:"Incomplete"})[s]||s}
+function toast(msg){$("toast").textContent=msg;$("toast").hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").hidden=true,3600)}
+function entry(){if(!demo)return current;let base=new Date();base.setHours(12,0,0,0);base.setDate(base.getDate()+7+skipped*28);return {id:"DEMO",status:demoPaused?"paused":"active",customer_name:"Sample cleaning business",customer_email:"demo@example.invalid",lines:[{name:sample[demoPlan],quantity:1,unit_amount:sampleFees[demoPlan],currency:"usd",interval:"month",interval_count:1}],period_end:Math.floor(base.getTime()/1000),currency:"usd",has_discount:true,preview:true}}
+function dateFor(item){return dateOf(item?.period_end)||dateOf(item?.trial_end)}
+function amount(item){const ls=item?.lines||[];if(!ls.length||ls.some(l=>!Number.isSafeInteger(l.unit_amount)))return null;return ls.reduce((sum,l)=>sum+l.unit_amount*(l.quantity||1),0)}
+function renderRow(d,i,item,base){const row=document.createElement("div");row.className="upcoming-row"+(i===2&&demo&&skipped?" new-row":"");const chip=document.createElement("span");chip.className="day-chip";const day=document.createElement("strong"),mon=document.createElement("small");day.textContent=String(d.getDate());mon.textContent=d.toLocaleDateString("en-US",{month:"short"});chip.append(day,mon);const meta=document.createElement("div");meta.className="upcoming-meta";const name=document.createElement("strong"),sub=document.createElement("small");name.textContent=item.lines?.[0]?.name||"Subscription";sub.textContent=fmt.format(d);meta.append(name,sub);const price=document.createElement("span");price.className="row-price";price.textContent=money(amount(item),item.currency);const badge=document.createElement("span");badge.className="state"+(demoPaused||item.status==="paused"?" paused":"");badge.textContent=demoPaused||item.status==="paused"?"On hold":i===0?"Next":"Projected";row.append(chip,meta,price,badge);return row}
+function display(){const s=entry(),valid=!!s;$("grid").hidden=!valid;$("empty").hidden=valid;$("choose").hidden=demo||!items.length;$("previewBanner").hidden=!demo;$("preview").setAttribute("aria-pressed",String(demo));$("preview").textContent=demo?"Exit preview":"Preview interactions";
+if(!valid){$("status").textContent=items.length?"Choose a subscription":"No active plans";$("status").className="state";return}
+const st=(demoPaused?"paused":s.status)||"active",paused=["paused","canceled","unpaid"].includes(st)||!!s.pause_collection;const d=dateFor(s),line=s.lines?.[0]||{},period=line.interval||"month",freq=(line.interval_count||1)===1?"Every "+period:"Every "+line.interval_count+" "+period+"s",amt=amount(s);
+$("status").textContent=labelStatus(st);$("status").className="state "+(st==="active"?"active":st==="paused"?"paused":st==="past_due"?"past_due":"");
+$("client").textContent=s.customer_name||s.customer_email||"Client account";$("nextDate").textContent=d?fmt.format(d):"Date unavailable";
+$("countdown").textContent=d?(daysUntil(d)===0?"Due today":"In "+daysUntil(d)+" day"+(daysUntil(d)===1?"":"s")):"Date pending";
+$("cyclePill").textContent=d?"Next billing · "+d.toLocaleDateString("en-US",{weekday:"long"}):"Check Stripe";
+$("serviceName").textContent=line.name||"Subscription";$("servicePrice").textContent=money(amt,s.currency)+(period?"/"+period:"");
+$("listPrice").hidden=!demo;$("listPrice").textContent=demo?"Standard "+money(sampleFees[demoPlan]+1000):"";
+$("detailName").textContent=(s.lines||[]).map(x=>x.name).join(", ")||"—";$("frequency").textContent=freq;
+$("detailClient").textContent=s.customer_name||s.customer_email||"—";$("detailBill").textContent=d?fmt.format(d):"See Stripe";$("detailStatus").textContent=labelStatus(st);
+$("subtotal").textContent=demo?money(amt+1000,s.currency):money(amt,s.currency);$("discount").textContent=demo?"−"+money(1000):s.has_discount?"Applied in Stripe":"No discount recorded";
+$("total").textContent=demo?money(amt,s.currency):s.has_discount?"See Stripe invoice":money(amt,s.currency);
+$("pausedBanner").hidden=!paused;$("hero").classList.toggle("paused-hero",paused);$("skip").disabled=paused;$("swap").disabled=paused;
+$("pause").textContent=paused?"Resume":"Pause";$("pause").disabled=!demo&&["canceled","unpaid"].includes(st);
+$("actionNote").textContent=demo?"These changes affect sample data only.": "A confirmation opens Stripe to apply and verify changes. No change is made in this page.";
+clear($("upcoming"));if(!d){$("upcoming").textContent="Stripe has not reported an upcoming billing date.";return}
+for(let i=0;i<3;i++)$("upcoming").append(renderRow(addCycle(d,period,line.interval_count||1,i),i,s,d))
+}
+function openDialog(kind){const s=entry();if(!s)return;modal=kind;priorFocus=document.activeElement;const d=dateFor(s),interval=s.lines?.[0]?.interval||"month",count=s.lines?.[0]?.interval_count||1,after=d?addCycle(d,interval,count,1):null;let title="",body="";
+if(kind==="skip"){title="Skip next renewal?";body="You are reviewing "+(d?fmt.format(d):"the next billing date")+". The following projected renewal is "+(after?fmt.format(after):"not available")+". Skipping a Stripe invoice requires checking the subscription billing rules."}
+if(kind==="pause"){title="Pause this subscription?";body="For this preview, billing resumes after four weeks. The resume date would be "+fmt.format(new Date(Date.now()+28*86400000))+". Live pauses must be configured in Stripe; this page will not change billing."}
+if(kind==="resume"){title="Resume this subscription?";body="Resume the subscription and verify its next billing date in Stripe. The demo restores the sample schedule only."}
+if(kind==="swap"){title="Change subscription plan?";body="Choose a new assistant plan. Live plan names and prices must be confirmed in Stripe before a change takes effect."}
+$("dialogTitle").textContent=title;$("dialogBody").textContent=body;$("swapChoices").hidden=kind!=="swap";clear($("swapChoices"));
+if(kind==="swap"){sample.forEach((p,i)=>{const label=document.createElement("label");label.className="radio-choice";const art=document.createElement("span");art.className="mini-art";art.textContent="✦";const info=document.createElement("span");const n=document.createElement("strong"),note=document.createElement("small");n.textContent=p;note.textContent=money(sampleFees[i])+" / month · Sample option";info.append(n,note);const radio=document.createElement("input");radio.type="radio";radio.name="plan";radio.value=String(i);radio.checked=i===demoPlan;label.append(art,info,radio);$("swapChoices").append(label)})}
+$("confirm").textContent=demo?"Confirm demo change":"Open in Stripe ↗";$("scrim").hidden=false;$("confirm").focus();
+}
+function closeDialog(){$("scrim").hidden=true;modal=null;if(priorFocus&&priorFocus.isConnected)priorFocus.focus()}
+function doConfirm(){if(!modal)return;const kind=modal;if(!demo){const link=entry()?.dashboard_url;if(link&&link.startsWith("https://dashboard.stripe.com/subscriptions/")){window.open(link,"_blank","noopener,noreferrer");closeDialog();toast("Continue in Stripe. Refresh here afterward.")}else closeDialog();return}
+if(kind==="skip"){const first=$("upcoming").firstElementChild;if(first)first.classList.add("collapse");skipped+=1}
+if(kind==="pause")demoPaused=true;if(kind==="resume")demoPaused=false;
+if(kind==="swap"){const r=$("swapChoices").querySelector('input[name="plan"]:checked');demoPlan=Number(r?.value||0)}
+closeDialog();setTimeout(()=>{display();const animated=kind==="swap"?$("productArt"):$("nextDate");animated.classList.remove("date-pop","swap-pop");void animated.offsetWidth;animated.classList.add(kind==="swap"?"swap-pop":"date-pop");toast("✓ Demo updated · Real billing unchanged")},kind==="skip"&& !matchMedia("(prefers-reduced-motion: reduce)").matches?450:0)}
+function choice(){clear($("choose"));items.forEach((s,i)=>{const op=document.createElement("option");op.value=String(i);op.textContent=(s.customer_name||s.customer_email||"Client")+" · "+(s.lines?.[0]?.name||"Plan");$("choose").append(op)});if(items.length){current=items[0];$("choose").value="0"}else current=null;display()}
+async function load(){if(demo)return;const button=$("refresh");button.disabled=true;button.textContent="Loading…";try{
+const u=await db.auth.getUser();if(u.error||!u.data.user)throw Error("Sign in again");const session=await db.auth.getSession(),token=session.data.session?.access_token;if(!token)throw Error("Session expired");
+const response=await fetch(URL+"/functions/v1/tle-owner-subscription-overview",{method:"GET",headers:{apikey:KEY,Authorization:"Bearer "+token},cache:"no-store"});const payload=await response.json();if(!response.ok||!payload.ok)throw Error(payload.error||"Unable to load subscriptions");
+items=payload.items||[];choice();$("topDesc").textContent="Live Stripe subscriptions · Last updated "+new Date(payload.as_of).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})+(payload.has_more?" · Showing first 100":"")+".";
+}catch(e){items=[];current=null;choice();$("topDesc").textContent="Couldn't load live subscriptions. Try Refresh.";toast("Live subscription data unavailable.")}finally{button.disabled=false;button.textContent="↻ Refresh"}}
+$("refresh").onclick=load;$("choose").onchange=e=>{current=items[Number(e.target.value)]||null;display()};
+function toggleDemo(force){demo=typeof force==="boolean"?force:!demo;if(demo){demoPaused=false;skipped=0;demoPlan=0;display()}else{display();load()}}
+$("preview").onclick=()=>toggleDemo();$("emptyPreview").onclick=()=>toggleDemo(true);
+$("skip").onclick=()=>openDialog("skip");$("pause").onclick=()=>openDialog(demoPaused||entry()?.status==="paused"?"resume":"pause");$("swap").onclick=()=>openDialog("swap");
+$("cancel").onclick=closeDialog;$("confirm").onclick=doConfirm;$("scrim").onclick=e=>{if(e.target===$("scrim"))closeDialog()};
+document.addEventListener("keydown",e=>{if($("scrim").hidden)return;if(e.key==="Escape"){e.preventDefault();closeDialog()}if(e.key==="Tab"){const focusable=Array.from($("dialog").querySelectorAll('button:not([disabled]),input:not([disabled])'));const first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
+(async()=>{try{
+if(!window.supabase?.createClient)throw Error("Authentication unavailable");
+db=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"tle-crm-auth"}});
+const u=await db.auth.getUser();if(u.error||!u.data.user)throw Error("Sign-in required");
+// This client-side gate is only for UX. The backend independently verifies platform admin AND the internal workspace.
+const w=await db.from("tle_crm_workspaces").select("id").eq("created_by",u.data.user.id).eq("is_internal",true).limit(1);
+if(w.error||!w.data?.length)throw Error("Owner access required");
+$("gate").hidden=true;$("shell").hidden=false;await load();
+}catch(e){$("gate").textContent="Owner access required. Sign in through your private Command Center.";var a=document.createElement("a");a.href="./";a.textContent=" ← Return to sign in";a.className="back";a.style.display="inline-block";a.style.marginTop="15px";$("gate").append(a)}})();
+})();
+</script></body></html>
