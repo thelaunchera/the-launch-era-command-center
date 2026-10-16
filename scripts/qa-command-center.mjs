@@ -34,7 +34,13 @@ assert.ok(builderPage.includes("tle_owner_forms")&&builderPage.includes("tle_own
 assert.ok(builderPage.includes("draft_fields")&&builderPage.includes("published_at"),"Published form must keep edits independent of published version");
 assert.ok(builderPage.includes("File upload needs secured storage"),"Do not publish unsupported file attachments");
 assert.ok(supportPage.includes("tle_crm_support_messages"),"Buyer support thread must persist real replies");
+assert.ok(supportPage.includes('jessySupport("human"')&&supportPage.includes('jessySupport("welcome"')&&supportPage.includes('jessySupport("reply"'),"Buyer needs real Jessy welcome, follow-up and human handoff");
+assert.ok(supportPage.includes("Jessy is an automated support assistant, not a human"),"Bot identity disclosure must be visible");
+assert.ok(supportPage.includes('support_mode,human_requested_at,human_acknowledged_at'),"Client must see human-waiting state");
+
+
 const ownerInbox=readFileSync(join(root,"support-inbox.html"),"utf8");
+assert.ok(ownerInbox.includes("human_acknowledged_at")&&ownerInbox.includes("Waiting for human"),"Owner must see human escalation queue");
 assert.ok(ownerInbox.includes('eq("is_internal",true)')&&ownerInbox.includes("tle_crm_support_messages"),"Support Inbox must be owner-only and use real conversation records");
 const publishedIntake=readFileSync(join(root,"published-intake.html"),"utf8");
 assert.ok(publishedIntake.includes("tle-published-intake")&&publishedIntake.includes("consent"),"Public intake must use validated isolated endpoint");
