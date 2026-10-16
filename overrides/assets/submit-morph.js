@@ -54,6 +54,6 @@
   done(button,opts){return set(button,'done',opts)},
   error(button,opts){return set(button,'error',opts)},
   reset(button){return set(button,'idle')},
-  pause(ms=780){return new Promise(resolve=>window.setTimeout(resolve,ms))}
+  pause(ms=780){return window.matchMedia('(prefers-reduced-motion: reduce)').matches?Promise.resolve():new Promise(resolve=>window.setTimeout(resolve,ms))}
  };
 })();
