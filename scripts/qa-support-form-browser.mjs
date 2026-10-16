@@ -121,6 +121,7 @@ try{
   await page.locator("#list .ticket").first().locator("details").evaluate(el=>{el.open=true});
   await page.locator("#list .ticket").first().locator(".human-button").click();
   await page.waitForFunction(()=>window.__mockTickets.some(t=>t.support_mode==="human"));
+  await page.waitForFunction(()=>document.getElementById("list")?.textContent.includes("Human support requested"));
   assert.match(await page.locator("#list").textContent(),/Human support requested/);
   await page.locator("#resolvedTab").click();
   assert.match(await page.locator("#list").textContent(),/Fixed already/);
