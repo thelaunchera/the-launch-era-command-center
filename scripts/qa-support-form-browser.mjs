@@ -66,6 +66,7 @@ try{
   await page.waitForFunction(()=>document.getElementById("openCount").textContent.trim()==="1");
   assert.equal((await page.locator("#openCount").textContent()).trim(),"1");
   assert.equal((await page.locator("#resolvedCount").textContent()).trim(),"1");
+  if(width>=760){await page.locator("#articlesButton").click();await page.locator("#articlesDialog[open]").waitFor();assert.match(await page.locator("#articlesDialog").textContent(),/Where can I track/);await page.locator("#closeArticles").click()}
   await page.locator("#send").click();
   assert.ok(await page.locator("#subject").evaluate(el=>el.classList.contains("error")),"Empty subject must be rejected");
   assert.equal(await page.evaluate(()=>window.__mockWrites),0,"Invalid support submission wrote data");
