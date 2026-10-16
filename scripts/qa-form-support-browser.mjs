@@ -140,7 +140,7 @@ try{
  await ticket.close();await page.close();
 
  const deny=await browser.newPage();
- const denied=read("form-builder.html").replace(/<script src="\\.\\/vendor\\/supabase-js-v2\\.57\\.0\\.umd\\.js"><\\/script>/,mock("buyer"));
+ const denied=read("form-builder.html").replace('<script src="./vendor/supabase-js-v2.57.0.umd.js"></script>',mock("buyer"));
  assert.notEqual(denied,read("form-builder.html"),"Buyer auth mock must be installed");
  await deny.route("https://tle-denied.test/*",route=>route.fulfill({status:200,contentType:"text/html",body:denied}));
  await deny.goto("https://tle-denied.test/form-builder.html",{waitUntil:"load"});
