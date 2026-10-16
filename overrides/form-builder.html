@@ -93,7 +93,7 @@ function typeInfo(type){return TYPES.find(function(x){return x[0]===type})||TYPE
 function node(tag,cls,text){var n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=String(text);return n}
 function notice(text){$("message").textContent=text;$("message").hidden=false;clearTimeout(notice.t);notice.t=setTimeout(function(){$("message").hidden=true},4600)}
 function fresh(type){var t=typeInfo(type);return {id:"f"+(++seq),type:t[0],label:t[1],placeholder:"",help:"",required:false,width:type==="long"||type==="file"?"full":"half",options:type==="dropdown"?["Option 1","Option 2","Option 3"]:[]}}
-function save(){if(!owner)return;try{localStorage.setItem("tle-form-builder-draft-"+owner.id,JSON.stringify({version:1,fields:fields,draft_title:liveTitle,draft_description:liveDescription,updated_at:new Date().toISOString()}));$("draftBadge").textContent="Draft · saved on device"}catch{notice("Could not save to this device. Export a backup.")}}
+function save(){if(!owner)return;try{localStorage.setItem("tle-form-builder-draft-"+owner.id,JSON.stringify({version:1,cloud_form_id:liveRecord?.id||null,fields:fields,draft_title:liveTitle,draft_description:liveDescription,updated_at:new Date().toISOString()}));$("draftBadge").textContent="Draft · saved on device"}catch{notice("Could not save to this device. Export a backup.")}}
 function restore(){try{var raw=JSON.parse(localStorage.getItem("tle-form-builder-draft-"+owner.id)||"null");if(raw&&Array.isArray(raw.fields)){if(raw.draft_title)liveTitle=String(raw.draft_title).slice(0,150);if(typeof raw.draft_description==="string")liveDescription=raw.draft_description.slice(0,600);fields=raw.fields.filter(function(f){return TYPES.some(function(t){return t[0]===f.type})}).slice(0,120).map(function(f){return {id:String(f.id).slice(0,50),type:f.type,label:String(f.label||"").slice(0,100),placeholder:String(f.placeholder||"").slice(0,160),help:String(f.help||"").slice(0,280),required:!!f.required,width:f.width==="full"?"full":"half",options:f.type==="dropdown"?(Array.isArray(f.options)?f.options.map(function(o){return String(o).slice(0,100)}).filter(Boolean).slice(0,20):["Option 1","Option 2","Option 3"]):[]}});seq=fields.reduce(function(n,f){return Math.max(n,Number(String(f.id).replace(/[^0-9]/g,""))||0)},0);return}}catch{}fields=[fresh("short"),fresh("email"),fresh("dropdown"),fresh("date"),fresh("long")]}
 function current(){return fields.find(function(f){return f.id===selected})}
 function mock(field){var c=node("div","control");c.dataset.part="control";
@@ -192,7 +192,8 @@ async function loadFormOptions(){
 async function liveBootstrap(){
  try{
   await loadFormOptions();
-  const row=liveRows[0];if(!row)return;
+  const cached=JSON.parse(localStorage.getItem("tle-form-builder-draft-"+owner.id)||"null");
+  const row=cached?liveRows.find(x=>x.id===cached.cloud_form_id)||null:liveRows[0];if(!row)return;
   liveRecord=row;
   liveTitle=row.draft_title||row.title;
   liveDescription=row.draft_description||row.description||"";
