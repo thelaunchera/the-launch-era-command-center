@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="theme-color" content="#FAF8F3"><title>Support Inbox · The Launch Era</title>
+<style>:root{--blue:#428cba;--ink:#191919;--muted:#668092;--line:#d9e6ef;--ivory:#faf8f3}*{box-sizing:border-box}body{margin:0;background:var(--ivory);color:var(--ink);font:14px/1.55 "Avenir Next",Arial,sans-serif}header{min-height:64px;background:#fff;border-bottom:1px solid var(--line);padding:12px 3vw;display:flex;align-items:center;gap:13px;flex-wrap:wrap}a{color:#306b92;text-decoration:none}header strong{font-size:12px;letter-spacing:.08em}header a{margin-left:auto}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.6;cursor:wait}main{width:min(1220px,calc(100% - 28px));margin:30px auto 70px}h1{font-size:clamp(29px,5vw,42px);letter-spacing:-.06em;margin:0 0 7px}h2{font-size:18px;letter-spacing:-.04em;margin:0}.muted{color:var(--muted);margin:0 0 22px} .toolbar{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0}.control{border:1px solid var(--line);border-radius:10px;background:#fff;padding:11px 12px;min-height:44px;min-width:0}.toolbar .search{flex:1;min-width:160px}.btn{border:0;border-radius:10px;background:var(--blue);color:white;font-weight:800;padding:11px 17px;min-height:44px}.secondary{border:1px solid var(--line);background:#fff;color:#3e7899}.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,450px),1fr));align-items:start;gap:15px}.card{min-width:0;background:white;border:1px solid var(--line);border-radius:17px;padding:20px;box-shadow:0 6px 28px #234e690a}.top{display:flex;justify-content:space-between;gap:10px;align-items:start}.meta{font-size:12px;color:var(--muted);margin:9px 0 14px;overflow-wrap:anywhere}.message{padding:12px;background:#f4f9fc;border:1px solid #e1ebf2;border-radius:12px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;margin-bottom:14px}.thread{display:grid;gap:9px;margin:15px 0}.bubble{padding:11px 12px;border-radius:12px;background:#f5f8fc;border:1px solid var(--line)}.bubble.owner{background:#e9f4fb;border-color:#b9d8e9}.bubble strong{display:block;font-size:12px}.bubble p{margin:5px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}.footer{display:grid;gap:9px;margin-top:18px}.footer label{font-size:12px;font-weight:800}.footer textarea{width:100%;resize:vertical;min-height:80px}.footer select{width:100%}.footer .buttons{display:flex;gap:8px;flex-wrap:wrap}.status{font-size:12px;color:#47768c;min-height:16px}.pill{font-size:11px;border-radius:100px;background:#e6f2fb;color:#286b91;padding:5px 10px;font-weight:800;white-space:nowrap}.pill.resolved{background:#e5f5ec;color:#357d50}.empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:30px;text-align:center;color:var(--muted)}#gate{padding:30px;text-align:center}[hidden]{display:none!important}:focus-visible{outline:3px solid #99c7e1;outline-offset:2px}@media(max-width:670px){main{margin-top:19px}.card{padding:15px}.toolbar select{max-width:180px}.list{grid-template-columns:1fr}}</style></head>
+<body><header><strong>✳ THE LAUNCH ERA · PRIVATE SUPPORT</strong><a href="./">← Command Center</a></header>
+<div id="gate" role="status">Checking owner access…</div><main id="app" hidden><h1>Support Inbox</h1><p class="muted">Real client tickets and replies. Private notes remain separate from customer conversations.</p>
+<div class="toolbar"><input class="control search" type="search" id="search" placeholder="Search tickets or business" aria-label="Search support tickets"><select class="control" id="filter" aria-label="Ticket status"><option value="open">Open & in progress</option><option value="all">All tickets</option><option value="resolved">Resolved</option></select><button class="btn secondary" id="refresh" type="button">↻ Refresh</button></div>
+<p id="summary" class="muted" role="status"></p><section id="list" class="list" aria-live="polite"></section></main>
+<script src="./vendor/supabase-js-v2.57.0.umd.js"></script><script>
+(()=>{"use strict";
+const API="https://bowacxhmjvrqixtwaikv.supabase.co",KEY="sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB",$=id=>document.getElementById(id);
+let db,user,tickets=[],messages={},loading=false;
+function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=String(text);return n}
+function subject(text){return String(text||"").match(/^Subject: ([^\n]+)/)?.[1]||"Support request"}
+function body(text){return String(text||"").replace(/^Subject: [^\n]*\n\n/,"")}
+function date(iso){return new Date(iso).toLocaleString()}
+function statusLabel(status){return ({open:"Open",in_progress:"In progress",resolved:"Resolved"})[status]||status}
+function card(ticket){
+ const root=el("article","card"),top=el("div","top"),title=el("h2",null,subject(ticket.message)),pill=el("span","pill "+ticket.status,statusLabel(ticket.status));top.append(title,pill);
+ const meta=el("p","meta",(ticket.business_name||"Client")+" · #"+ticket.id.slice(0,8).toUpperCase()+" · "+(ticket.page_context||ticket.request_type)+" · "+date(ticket.created_at));
+ const description=el("div","message",body(ticket.message));
+ const thread=el("div","thread"),existing=messages[ticket.id]||[];
+ if(!existing.length)thread.append(el("p","muted","No replies yet."));
+ existing.forEach(m=>{const bubble=el("div","bubble "+m.sender_role);bubble.append(el("strong",null,(m.sender_role==="owner"?"The Launch Era":"Client")+" · "+date(m.created_at)),el("p",null,m.body));thread.append(bubble)});
+ const actions=el("div","footer"),label=el("label",null,"Write a reply to the client"),input=el("textarea","control");input.rows=3;input.maxLength=3000;input.placeholder="Your answer will appear in the client's Support Tickets screen.";
+ const selectLabel=el("label",null,"Status"),select=el("select","control"),send=el("button","btn","↗ Send reply"),saveStatus=el("button","btn secondary","Save status"),result=el("p","status");
+ for(const k of ["open","in_progress","resolved"]){const o=new Option(statusLabel(k),k);select.add(o)}select.value=ticket.status;
+ const buttons=el("div","buttons");send.type="button";saveStatus.type="button";buttons.append(send,saveStatus);actions.append(label,input,selectLabel,select,buttons,result);
+ send.onclick=async()=>{const value=input.value.trim();if(value.length<2){result.textContent="Write at least two characters.";return}
+ send.disabled=true;result.textContent="Sending…";
+ try{const u=await db.auth.getUser();if(u.error||u.data.user?.id!==user.id)throw Error("Session expired");
+ const r=await db.from("tle_crm_support_messages").insert({ticket_id:ticket.id,sender_id:user.id,sender_role:"owner",body:value}).select("id").single();
+ if(r.error||!r.data?.id)throw r.error||Error("No confirmation");
+ input.value="";result.textContent="✓ Reply sent and saved.";try{await refresh()}catch{result.textContent="✓ Reply saved; refresh the inbox to see it"}}
+ catch(e){result.textContent="Could not save reply. Your text is still here."}
+ finally{send.disabled=false}};
+ saveStatus.onclick=async()=>{saveStatus.disabled=true;result.textContent="Saving status…";
+ try{const u=await db.auth.getUser();if(u.error||u.data.user?.id!==user.id)throw Error("Session expired");
+ const r=await db.from("tle_crm_support_requests").update({status:select.value}).eq("id",ticket.id).select("id,status").single();
+ if(r.error||!r.data)throw r.error||Error("Status not saved");
+ ticket.status=r.data.status;pill.className="pill "+ticket.status;pill.textContent=statusLabel(ticket.status);result.textContent="✓ Status updated for the client.";}
+ catch(e){result.textContent="Could not update this ticket."}finally{saveStatus.disabled=false}};
+ root.append(top,meta,description,thread,actions);return root
+}
+function render(){
+ const q=$("search").value.toLowerCase().trim(),filter=$("filter").value;
+ const chosen=tickets.filter(t=>(filter==="all"|| (filter==="resolved"?t.status==="resolved":t.status!=="resolved"))&&(!q||[t.business_name,t.message,t.page_context,t.id].some(v=>String(v||"").toLowerCase().includes(q))));
+ $("summary").textContent=tickets.filter(t=>t.status!=="resolved").length+" pending · "+chosen.length+" shown";
+ const root=$("list");root.replaceChildren();
+ if(!chosen.length){root.append(el("div","empty","No tickets match this view."));return}
+ for(const item of chosen)root.append(card(item))
+}
+async function refresh(){if(loading)return;loading=true;$("refresh").disabled=true;$("summary").textContent="Loading real support reports…";
+ try{
+ const r=await db.from("tle_crm_support_requests").select("id,workspace_id,business_name,message,request_type,page_context,status,created_at").order("created_at",{ascending:false}).limit(100);
+ if(r.error)throw r.error;tickets=r.data||[];messages={};
+ if(tickets.length){const m=await db.from("tle_crm_support_messages").select("id,ticket_id,body,sender_role,created_at").in("ticket_id",tickets.map(t=>t.id)).order("created_at",{ascending:true}).limit(500);
+ if(m.error)throw m.error;for(const row of m.data||[])(messages[row.ticket_id]||(messages[row.ticket_id]=[])).push(row)}
+ render();
+ }catch(e){$("summary").textContent="Could not load tickets. Please refresh.";$("list").replaceChildren();}
+ finally{loading=false;$("refresh").disabled=false}
+}
+$("refresh").onclick=refresh;$("search").oninput=render;$("filter").onchange=render;
+(async()=>{
+ try{
+ if(!window.supabase?.createClient)throw Error("Sign-in client unavailable");
+ db=window.supabase.createClient(API,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"tle-crm-auth"}});
+ const r=await db.auth.getUser();if(r.error||!r.data.user)throw Error("Sign in required");user=r.data.user;
+ const w=await db.from("tle_crm_workspaces").select("id").eq("created_by",user.id).eq("is_internal",true).limit(1);
+ if(w.error||!w.data?.length)throw Error("Owner access required");
+ $("gate").hidden=true;$("app").hidden=false;await refresh();
+ }catch(e){$("gate").textContent="Private owner access required. Sign in to your The Launch Era Command Center first."}
+})();
+})();
+</script></body></html>
