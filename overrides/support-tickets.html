@@ -141,7 +141,6 @@ if(x.status!=="resolved"&&threadsAvailable){
  }else{var waiting=elt("span","meta",es?"Jessy ya no responderá automáticamente.":"Jessy won't send further automatic replies.");actions.append(waiting)}
  actions.append(actionStatus);
  extra.append(actions);
-}
  var replyForm=elt("form","reply-form"),replyLabel=elt("label",null,"Add a reply"),replyBox=elt("textarea","input");
  replyBox.rows=3;replyBox.maxLength=3000;replyBox.minLength=2;replyBox.required=true;replyBox.placeholder="Add a detail or answer a support question…";
  replyBox.id="reply-"+x.id;replyLabel.htmlFor=replyBox.id;var sendReply=elt("button","primary","↗ Send reply");sendReply.type="submit";sendReply.style.cssText="margin-top:9px;width:auto;min-width:140px";var result=elt("p","meta");result.setAttribute("role","status");
