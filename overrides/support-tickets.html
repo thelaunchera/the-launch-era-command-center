@@ -49,7 +49,7 @@ textarea.input{min-height:128px;resize:vertical}.choices{display:flex;flex-wrap:
 <button id="openTab" type="button" role="tab" aria-selected="true" aria-controls="list">Open <span id="openCount">0</span></button>
 <button id="resolvedTab" type="button" role="tab" aria-selected="false" aria-controls="list">Resolved <span id="resolvedCount">0</span></button></div>
 <div id="list" role="tabpanel" aria-labelledby="openTab" aria-live="polite"></div></section>
-<aside class="right"><div class="card"><h2>New ticket</h2><p class="smallintro">Tell us what you need help with. Your message goes to The Launch Era support.</p>
+<aside class="right"><div class="card"><h2>New ticket</h2><p class="smallintro">Tell us what happened. Jessy is an automated AI support assistant, not a person, and may read your ticket to suggest an answer. You can request a human at any time.</p>
 <form id="form" novalidate><div><label for="subject">Subject <span aria-hidden="true">*</span></label><input class="input" id="subject" maxlength="120" required placeholder="What do you need help with?" aria-describedby="subjectError"><span id="subjectError" style="font-size:12px;color:#bc4848" role="status"></span></div>
 <div><span class="groupname" id="categoryLabel">Category</span><div class="choices" id="categories" role="group" aria-labelledby="categoryLabel">
 <button type="button" aria-pressed="true" data-category="Technical issue">Technical</button><button type="button" aria-pressed="false" data-category="Booking & calendar">Bookings</button><button type="button" aria-pressed="false" data-category="Billing">Billing</button><button type="button" aria-pressed="false" data-category="Other">Other</button></div></div>
@@ -95,7 +95,7 @@ function highlight(){var el=$(tab==="open"?"openTab":"resolvedTab"),bar=$("tabs"
 function render(){var active=items.filter(function(x){return x.status!=="resolved"}),resolved=items.filter(function(x){return x.status==="resolved"});$("openCount").textContent=active.length;$("resolvedCount").textContent=resolved.length;highlight();
 var root=$("list");root.replaceChildren();var rows=tab==="open"?active:resolved;
 if(!rows.length){root.append(elt("div","empty",tab==="open"?"No open tickets. You're all caught up.":"No resolved tickets yet."));return}
-rows.forEach(function(x){var card=elt("article","ticket"+(x.id===latestId?" new":""));var top=elt("div","ticket-top"),title=elt("strong","subject",subjectOf(x.message)),status=elt("span","pill "+escapeText(x.status).replace(/[^a-z_]/g,""),label(x.status));top.append(title,status);
+rows.forEach(function(x){var card=elt("article","ticket"+(x.id===latestId?" new":""));var top=elt("div","ticket-top"),title=elt("strong","subject",subjectOf(x.message)),waitingHuman=x.support_mode==="human"&&!x.human_acknowledged_at&&x.status!=="resolved",status=elt("span","pill "+(waitingHuman?"waiting_on_you":escapeText(x.status).replace(/[^a-z_]/g,"")),waitingHuman?(x.language==="es"?"Esperando a una persona":"Waiting for human"):label(x.status));top.append(title,status);
 var meta=elt("div","meta","#"+String(x.id||"").slice(0,8).toUpperCase()+" · "+(x.page_context|| (x.request_type==="feedback"?"Feedback":"Support"))+" · "+displayTime(x.created_at));
 var extra=document.createElement("details"),summary=elt("summary",null,"View conversation"),body=elt("p","message",messageOf(x.message));extra.append(summary,body);
 extra.open=expandedTickets.has(x.id);
