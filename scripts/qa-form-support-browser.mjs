@@ -61,7 +61,7 @@ window.supabase={createClient:function(){return{
  }
 }}};
 </script>
-`.replace("ROLE",role==="owner"?"true":"false");
+`.replaceAll("ROLE",role==="owner"?"true":"false");
 
 async function open(page,path,role){
  const source=read(path);
