@@ -26,7 +26,8 @@ async function open(page,path,role){
  const source=read(path);
  const html=source.replace(/<script src="\.\/vendor\/supabase-js-v2\.57\.0\.umd\.js"><\/script>/,mock(role));
  assert.notEqual(source,html,"Synthetic authentication must replace vendor runtime");
- await page.setContent(html,{waitUntil:"load",timeout:30000});
+ await page.route("https://tle-qa.test/*",route=>route.fulfill({status:200,contentType:"text/html",body:html}));
+ await page.goto("https://tle-qa.test/"+path,{waitUntil:"load",timeout:30000});
  await page.locator("#gate").waitFor({state:"hidden",timeout:12000});
 }
 
@@ -68,13 +69,13 @@ try{
  assert.match(await ticket.locator("#list").innerText(),/Fixed account issue/);
  await ticket.locator("#openTab").click();
  await ticket.locator("#send").click();
- assert.equal(await ticket.locator("#subject").getAttribute("class")?.then(x=>x.includes("error")),true);
+ assert.match(await ticket.locator("#subject").getAttribute("class"),/error/);
  await ticket.locator("#subject").fill("Booking calendar issue");
  await ticket.locator("#details").fill("Customers cannot select an available appointment on mobile.");
  await ticket.locator("[data-category='Booking & calendar']").click();
  await ticket.locator("[data-priority='High']").click();
  await ticket.locator("#send").click();
- await ticket.locator("#openCount").getByText("2").waitFor();
+ await ticket.waitForFunction(()=>document.getElementById("openCount").textContent==="2");
  assert.match(await ticket.locator("#toast").innerText(),/Ticket received/);
  assert.match(await ticket.locator("#list").innerText(),/Booking calendar issue/);
  assert.equal(await ticket.evaluate(()=>window.__tickets[0].page_context),"Booking & calendar · High");
@@ -87,7 +88,8 @@ try{
  // Builder owner query is authenticated; a buyer workspace must not satisfy internal access.
  // Mock below simulates RLS returning no internal workspace.
  const denied=content.replace('[{id:"qa-workspace",name:"Synthetic Buyer",is_internal:false}]','[]');
- await deny.setContent(denied,{waitUntil:"load"});
+ await deny.route("https://tle-denied.test/*",route=>route.fulfill({status:200,contentType:"text/html",body:denied}));
+ await deny.goto("https://tle-denied.test/form-builder.html",{waitUntil:"load"});
  await deny.waitForTimeout(300);
  assert.equal(await deny.locator("#app").isHidden(),true);
  assert.match(await deny.locator("#gate").innerText(),/owner/i);
