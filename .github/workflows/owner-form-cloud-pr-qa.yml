@@ -1,0 +1,45 @@
+name: Review owner Form Builder cloud QA
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/qa-form-support-browser.mjs'
+      - '.github/workflows/owner-form-cloud-pr-qa.yml'
+      - 'overrides/form-builder.html'
+      - 'overrides/support-tickets.html'
+      - 'scripts/build-command-center.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  owner-form-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout isolated Command Center
+        uses: actions/checkout@v4
+      - name: Checkout pinned approved portal source
+        uses: actions/checkout@v4
+        with:
+          repository: thelaunchera/the-launch-era-new-website-
+          ref: 44b5edc6e32ee850be1f5e6fca441dd17e0a4d4c
+          path: upstream
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build private portal without deploying
+        run: node scripts/build-command-center.mjs
+      - name: Verify private routes and tenant isolation
+        run: node scripts/qa-command-center.mjs
+      - name: Check browser script syntax
+        run: node --check scripts/qa-form-support-browser.mjs
+      - name: Install isolated browser
+        run: |
+          npm install --no-save --package-lock=false playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Verify owner publish snapshots and buyer ticket isolation
+        run: node scripts/qa-form-support-browser.mjs
