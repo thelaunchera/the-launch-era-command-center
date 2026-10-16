@@ -106,17 +106,19 @@ try{
   await page.locator("#details").fill("The client booking view remains empty after refresh.");
   await page.locator("#send").click();
   await page.waitForFunction(()=>document.getElementById("openCount").textContent.trim()==="2");
+  await page.waitForFunction(()=>document.querySelector("#list .ticket")?.textContent.includes("Jessy · AI assistant"));
   assert.equal(await page.evaluate(()=>window.__mockWrites),1,"Support sent twice");
   assert.match(await page.locator("#toast").textContent(),/CC000003/,"Ticket confirmation must show returned ID");
   assert.match(await page.locator("#list").textContent(),/Booking test problem/);
-  if(!await page.locator("#list .ticket").first().locator("details").evaluate(el=>el.open))await page.locator("#list .ticket").first().locator("summary").click();
+  await page.locator("#list .ticket").first().locator("details").evaluate(el=>{el.open=true});
+  await page.locator("#list .ticket").first().locator(".reply-form textarea").waitFor({state:"visible"});
   await page.locator("#list .ticket").first().locator(".reply-form textarea").fill("I also tried a different browser.");
   await page.locator("#list .ticket").first().locator(".reply-form button").click();
   await page.waitForFunction(()=>window.__mockWrites===2);
   await page.locator("#list .ticket").first().locator("summary").click().catch(()=>{});
-  assert.match(await page.locator("#list").textContent(),/1 reply/);
+  assert.match(await page.locator("#list").textContent(),/I also tried a different browser/);
   // Client can ask for a human; ticket is marked as waiting and bot is paused.
-  if(!await page.locator("#list .ticket").first().locator("details").evaluate(el=>el.open))await page.locator("#list .ticket").first().locator("summary").click();
+  await page.locator("#list .ticket").first().locator("details").evaluate(el=>{el.open=true});
   await page.locator("#list .ticket").first().locator(".human-button").click();
   await page.waitForFunction(()=>window.__mockTickets.some(t=>t.support_mode==="human"));
   assert.match(await page.locator("#list").textContent(),/Human support requested/);
@@ -178,7 +180,7 @@ try{
   assert.equal(await page.locator("#list .card").count(),1);
   await page.locator("#list .card").first().locator("textarea").fill("Thanks, please check the updated calendar.");
   await page.locator("#list .card").first().getByRole("button",{name:"Send reply"}).click();
-  await page.waitForFunction(()=>window.__mockWrites===1);
+  await page.waitForFunction(()=>window.__mockWrites===2);
   assert.match(await page.locator("#list").textContent(),/updated calendar/);
   assert.equal(errors.length,0,"Owner Inbox errors: "+errors.join("; "));
   await context.close();
