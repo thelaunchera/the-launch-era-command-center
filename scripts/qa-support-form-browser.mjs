@@ -95,6 +95,12 @@ try{
   assert.equal(await page.evaluate(()=>window.__mockWrites),1,"Support sent twice");
   assert.match(await page.locator("#toast").textContent(),/CC000003/,"Ticket confirmation must show returned ID");
   assert.match(await page.locator("#list").textContent(),/Booking test problem/);
+  await page.locator("#list .ticket").first().locator("summary").click();
+  await page.locator("#list .ticket").first().locator(".reply-form textarea").fill("I also tried a different browser.");
+  await page.locator("#list .ticket").first().locator(".reply-form button").click();
+  await page.waitForFunction(()=>window.__mockWrites===2);
+  await page.locator("#list .ticket").first().locator("summary").click().catch(()=>{});
+  assert.match(await page.locator("#list").textContent(),/1 reply/);
   await page.locator("#resolvedTab").click();
   assert.match(await page.locator("#list").textContent(),/Fixed already/);
   if(width<760)assert.equal(await page.locator(".right").evaluate(el=>getComputedStyle(el).borderLeftWidth),"0px");
@@ -138,6 +144,51 @@ try{
   assert.equal(await page.evaluate(()=>window.__mockWrites),1,"Form publishing should save exactly one record");
 
   assert.equal(errors.length,0,"Form Builder browser errors: "+errors.join("; "));
+  await context.close();
+ }
+
+
+ // Owner support writes are real DB-shaped operations, isolated from buyer tickets.
+ for(const width of [1440,390]){
+  const context=await browser.newContext({viewport:{width,height:900},reducedMotion:"reduce"});
+  const page=await context.newPage(),errors=[];
+  page.on("pageerror",e=>errors.push(String(e)));
+  await page.goto(base+"/support-inbox.html",{waitUntil:"load"});
+  await page.locator("#app:not([hidden])").waitFor();
+  await page.locator("#list .card").first().waitFor();
+  assert.equal(await page.locator("#list .card").count(),1);
+  await page.locator("#list .card").first().locator("textarea").fill("Thanks, please check the updated calendar.");
+  await page.locator("#list .card").first().getByRole("button",{name:"Send reply"}).click();
+  await page.waitForFunction(()=>window.__mockWrites===1);
+  assert.match(await page.locator("#list").textContent(),/updated calendar/);
+  assert.equal(errors.length,0,"Owner Inbox errors: "+errors.join("; "));
+  await context.close();
+ }
+
+ // Public form: real client-side validation, consent, no production submissions.
+ for(const width of [1440,390]){
+  const context=await browser.newContext({viewport:{width,height:900},reducedMotion:"reduce"});
+  const page=await context.newPage(),errors=[];
+  page.on("pageerror",e=>errors.push(String(e)));
+  await page.route("**/functions/v1/tle-published-intake",async route=>{
+   const req=JSON.parse(route.request().postData()||"{}");
+   const response=req.action==="get"?{form:{title:"Fictional consult intake",description:"Testing only",fields:[
+     {id:"name",type:"short",label:"Your name",required:true,width:"half",placeholder:"Name"},
+     {id:"frequency",type:"dropdown",label:"Frequency",required:true,width:"half",options:["Weekly","Monthly"]}]}}:
+    {ok:true,reference:"TEST1234"};
+   await route.fulfill({status:200,contentType:"application/json",body:JSON.stringify(response)});
+  });
+  await page.goto(base+"/published-intake.html?f=intake-fictional1234",{waitUntil:"load"});
+  await page.locator("#formShell:not([hidden])").waitFor();
+  await page.locator("#submit").click();
+  assert.equal(await page.locator("#complete").isHidden(),true,"Incomplete public form should not submit");
+  await page.locator("#f-name").fill("Test Client");
+  await page.locator("#f-frequency").selectOption("Weekly");
+  await page.locator("#consent").check();
+  await page.locator("#submit").click();
+  await page.locator("#complete:not([hidden])").waitFor();
+  assert.match(await page.locator("#reference").textContent(),/TEST1234/);
+  assert.equal(errors.length,0,"Public Intake errors: "+errors.join("; "));
   await context.close();
  }
 
