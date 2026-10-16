@@ -16,7 +16,7 @@ window.__mockResponses=[];
 window.__mockWrites=0;
 window.__qaRole=new URLSearchParams(location.search).get("qa_role")||"allowed";
 window.supabase={createClient:function(){return {
- auth:{getUser:async function(){return window.__qaRole==="anonymous"?{data:{user:null},error:{message:"Not signed in"}}:{data:{user:{id:"synthetic-user",email:"qa@example.invalid"}},error:null}}},
+ auth:{getUser:async function(){return window.__qaRole==="anonymous"?{data:{user:null},error:{message:"Not signed in"}}:{data:{user:{id:"synthetic-user",email:"qa@example.invalid"}},error:null}},getSession:async function(){return {data:{session:{access_token:"synthetic-jwt"}}}}},
  from:function(table){
   var clauses={},operation="read",payload;
   var query={
@@ -77,6 +77,20 @@ try{
   const context=await browser.newContext({viewport:{width,height:900},reducedMotion:"reduce"});
   const page=await context.newPage(),errors=[];
   page.on("pageerror",e=>errors.push(String(e)));
+  await page.route("**/functions/v1/tle-jessy-ticket-support",async route=>{
+   const payload=JSON.parse(route.request().postData()||"{}");
+   await page.evaluate(p=>{
+    if(p.action==="human"){
+     const ticket=window.__mockTickets.find(t=>t.id===p.ticket_id);
+     if(ticket){ticket.support_mode="human";ticket.human_requested_at=new Date().toISOString();}
+     window.__mockMessages.push({id:"jessy-human-ack",ticket_id:p.ticket_id,sender_role:"bot",sender_id:"synthetic-user",body:"A team member can review this. Please wait for a response.",created_at:new Date().toISOString()});
+    }
+    if(p.action==="welcome"||p.action==="reply"){
+     window.__mockMessages.push({id:"jessy-msg-"+p.action,ticket_id:p.ticket_id,sender_role:"bot",sender_id:"synthetic-user",body:"Hi! I'm Jessy, an automated support assistant, not a person.",created_at:new Date().toISOString()});
+    }
+   },payload);
+   await route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({ok:true,mode:payload.action==="human"?"human":"bot"})});
+  });
   await page.goto(base+"/support-tickets.html",{waitUntil:"load"});
   await page.locator("#app:not([hidden])").waitFor();
   await page.waitForFunction(()=>document.getElementById("openCount").textContent.trim()==="1");
@@ -101,6 +115,11 @@ try{
   await page.waitForFunction(()=>window.__mockWrites===2);
   await page.locator("#list .ticket").first().locator("summary").click().catch(()=>{});
   assert.match(await page.locator("#list").textContent(),/1 reply/);
+  // Client can ask for a human; ticket is marked as waiting and bot is paused.
+  await page.locator("#list .ticket").first().locator("summary").click().catch(()=>{});
+  await page.locator("#list .ticket").first().locator(".human-button").click();
+  await page.waitForFunction(()=>window.__mockTickets.some(t=>t.support_mode==="human"));
+  assert.match(await page.locator("#list").textContent(),/Human support requested/);
   await page.locator("#resolvedTab").click();
   assert.match(await page.locator("#list").textContent(),/Fixed already/);
   if(width<760)assert.equal(await page.locator(".right").evaluate(el=>getComputedStyle(el).borderLeftWidth),"0px");
