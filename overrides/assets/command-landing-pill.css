@@ -1,0 +1,82 @@
+/* Command Center sign-in landing header only.
+   Deliberately does not style authenticated workspace navigation or tenant apps. */
+.tle-header-scroll-sentinel{position:absolute;top:16px;left:1px;width:1px;height:1px;pointer-events:none;z-index:-1}
+body>header.tle-landing-header{
+  position:sticky;top:0;z-index:1200;isolation:isolate;
+  width:100%;height:80px;min-height:80px;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border:0;background:transparent;
+  transform:translateY(0);
+  filter:drop-shadow(0 0 0 transparent);
+  transition:transform 600ms cubic-bezier(.22,1,.36,1),filter 600ms cubic-bezier(.22,1,.36,1);
+}
+body>header.tle-landing-header .tle-header-surface{
+  position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(110deg,#faf8f3 0%,#f9fcff 65%,#eef7ff 100%);
+  border:1px solid #dce9f0;
+  clip-path:inset(0 0 0 0 round 0);
+  transition:clip-path 600ms cubic-bezier(.22,1,.36,1);
+}
+body>header.tle-landing-header .tle-header-inner{
+  width:76%;max-width:1220px;height:100%;
+  margin:0 auto;display:flex;align-items:center;
+  justify-content:space-between;gap:15px;min-width:0;
+}
+body>header.tle-landing-header .tle-header-brand{
+  display:grid;min-width:0;gap:3px;
+  font-family:Prompt,"Avenir Next",Arial,sans-serif;
+  line-height:1.15;color:#191919;
+  transform:translateX(0);
+  transition:transform 600ms cubic-bezier(.22,1,.36,1);
+}
+body>header.tle-landing-header .tle-header-brand-title{
+  font-size:13px;letter-spacing:.11em;font-weight:800;
+  overflow-wrap:anywhere;
+}
+body>header.tle-landing-header .tle-header-brand-subtitle{
+  font:600 9px/1.2 Futura,"Avenir Next",Arial,sans-serif;
+  letter-spacing:.14em;color:#64839a;
+}
+body>header.tle-landing-header .tle-header-action{
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;min-height:38px;padding:9px 17px;border-radius:999px;
+  background:#191919;border:1px solid #191919;color:#fff;
+  font:750 12px/1 Prompt,"Avenir Next",Arial,sans-serif;
+  white-space:nowrap;text-decoration:none;
+  transform:translateX(0);
+  transition:transform 600ms cubic-bezier(.22,1,.36,1),background-color .15s;
+}
+body>header.tle-landing-header .tle-header-action:hover{background:#335c74}
+body>header.tle-landing-header .tle-header-action:focus-visible,
+body>header.tle-landing-header button:focus-visible{
+  outline:3px solid #4c9ccc;outline-offset:4px;
+}
+body>header.tle-landing-header.is-floating{
+  transform:translateY(5px);
+  filter:drop-shadow(0 10px 16px rgba(33,78,108,.22));
+}
+body>header.tle-landing-header.is-floating .tle-header-surface{
+  clip-path:inset(0 12% 0 12% round 999px);
+}
+body>header.tle-landing-header.is-floating .tle-header-brand{
+  transform:translateX(26px);
+}
+body>header.tle-landing-header.is-floating .tle-header-action{
+  transform:translateX(-26px);
+}
+/* Existing authentication flow hides this whole header when the private app opens. */
+@media(max-width:600px){
+  body>header.tle-landing-header{height:72px;min-height:72px}
+  body>header.tle-landing-header .tle-header-inner{width:76%;gap:8px}
+  body>header.tle-landing-header .tle-header-brand-title{font-size:10px;letter-spacing:.07em}
+  body>header.tle-landing-header .tle-header-brand-subtitle{font-size:8px;letter-spacing:.07em}
+  body>header.tle-landing-header .tle-header-action{min-height:36px;padding:8px 12px;font-size:11px}
+  body>header.tle-landing-header.is-floating .tle-header-brand{transform:translateX(7px)}
+  body>header.tle-landing-header.is-floating .tle-header-action{transform:translateX(-7px)}
+}
+@media(prefers-reduced-motion:reduce){
+  body>header.tle-landing-header,
+  body>header.tle-landing-header .tle-header-surface,
+  body>header.tle-landing-header .tle-header-brand,
+  body>header.tle-landing-header .tle-header-action{transition:none!important}
+}
