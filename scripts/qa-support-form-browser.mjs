@@ -104,6 +104,7 @@ try{
   await page.locator("#propOptions").fill("Weekly\nBiweekly\nMonthly");
   await page.locator("#requiredSwitch").click();
   assert.match(await page.locator("#fields .field.active").textContent(),/Cleaning frequency/);
+  if(width<760)await page.locator("#closeProps").click();
   assert.match(await page.locator("#fields .field.active").textContent(),/\*/);
   await page.locator("#previewButton").click();
   assert.equal(await page.locator('#previewFields select option').filter({hasText:"Biweekly"}).count(),1,"Dropdown options must be previewable");
