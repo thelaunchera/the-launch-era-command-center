@@ -29,6 +29,7 @@ jobs:
       - name: Validate JS syntax
         run: |
           node --check overrides/assets/booking-studio.js
+          node --check overrides/assets/owner-automation-studio.js
           node --check overrides/assets/booking-studio-preview.mjs
       - name: Install synthetic browser QA dependencies
         run: |
@@ -36,6 +37,10 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Build isolated portal without publishing
         run: node scripts/build-command-center.mjs
+      - name: Verify private Automations Studio is bundled
+        run: |
+          node --check .site/assets/owner-automation-studio.js
+          node -e "const fs=require('fs');const html=fs.readFileSync('.site/index.html','utf8');if(!html.includes('ownerAutomationHub')||!html.includes('owner-automation-studio.js'))process.exit(1);console.log('OWNER_AUTOMATIONS_BUNDLED_OK')"
       - name: Verify isolated portal and Booking Studio
         run: |
           node scripts/qa-command-center.mjs

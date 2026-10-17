@@ -14,6 +14,7 @@
     <button type="button" class="nav-link od-feature" data-target="owner-calendar"><span class="od-feature-icon" aria-hidden="true">▦</span><span class="od-feature-copy"><strong data-od-en="Client calendar" data-od-es="Calendario de clientes">Client calendar</strong><small data-od-en="Intakes, reviews and launch dates" data-od-es="Intakes, revisiones y fechas de entrega">Intakes, reviews and launch dates</small></span><span class="od-arrow" aria-hidden="true">↗</span></button>
     <button type="button" class="nav-link od-feature" data-target="owner-support"><span class="od-feature-icon" aria-hidden="true">♡</span><span class="od-feature-copy"><strong data-od-en="Client support" data-od-es="Soporte a clientes">Client support</strong><small data-od-en="Issues and requests that need review" data-od-es="Problemas y solicitudes por revisar">Issues and requests that need review</small></span><span class="od-arrow" aria-hidden="true">↗</span></button>
     <a class="od-feature" href="./idea-vault.html" style="text-decoration:none;color:inherit"><span class="od-feature-icon" aria-hidden="true">🎙</span><span class="od-feature-copy"><strong data-od-en="Idea Vault" data-od-es="Bóveda de ideas">Idea Vault</strong><small data-od-en="Speak it, save it and let it rest" data-od-es="Dilo, guárdalo y déjalo descansar">Speak it, save it and let it rest</small></span><span class="od-arrow" aria-hidden="true">↗</span></a>
+    <button type="button" class="od-feature" data-automation-shortcut><span class="od-feature-icon" aria-hidden="true">↻</span><span class="od-feature-copy"><strong data-od-en="Automations" data-od-es="Automatizaciones">Automations</strong><small data-od-en="Lead follow-ups, quotes and client work" data-od-es="Seguimientos, cotizaciones y pedidos">Lead follow-ups, quotes and client work</small></span><span class="od-arrow" aria-hidden="true">↗</span></button>
   </div>
   <section class="od-leads-panel" aria-labelledby="odLeadHeading">
     <div class="od-leads-heading"><div><span class="od-eyebrow" data-od-en="SALES PIPELINE" data-od-es="PROSPECTOS">SALES PIPELINE</span><h3 id="odLeadHeading" data-od-en="Your prospect leads" data-od-es="Tus prospectos">Your prospect leads</h3><p data-od-en="Active contacts and follow-ups, separate from client orders." data-od-es="Contactos activos y seguimientos, separados de los pedidos de clientes.">Active contacts and follow-ups, separate from client orders.</p></div><button type="button" class="nav-link od-leads-all" data-target="leads" data-od-en="View all leads →" data-od-es="Ver todos los leads →">View all leads →</button></div>
@@ -24,6 +25,36 @@
     </div>
     <div class="od-leads-next"><h4 data-od-en="Who needs attention" data-od-es="Quién necesita atención">Who needs attention</h4><div id="odLeadPreview" role="status" aria-live="polite"><p class="od-leads-empty" data-od-en="Loading your active leads…" data-od-es="Cargando tus leads activos…">Loading your active leads…</p></div></div>
     <p class="od-leads-note" data-od-en="Archived contacts stay out of your active prospect list and are not reactivated by this dashboard." data-od-es="Los contactos archivados no aparecen entre los prospectos activos ni se reactivan desde aquí.">Archived contacts stay out of your active prospect list and are not reactivated by this dashboard.</p>
+  </section>
+
+  <section id="ownerAutomationHub" aria-labelledby="ownerAutomationHeading">
+    <header class="od-auto-header"><div>
+      <span class="od-auto-eyebrow" data-od-en="PRIVATE OPERATIONS" data-od-es="OPERACIONES PRIVADAS">PRIVATE OPERATIONS</span>
+      <h3 id="ownerAutomationHeading" data-od-en="Automations" data-od-es="Automatizaciones">Automations</h3>
+      <p data-od-en="See the real follow-up queue. Only verified, opted-in leads can receive additional emails." data-od-es="Revisa los seguimientos reales. Solo los prospectos con permiso verificado pueden recibir correos adicionales.">See the real follow-up queue. Only verified, opted-in leads can receive additional emails.</p>
+    </div><button type="button" class="od-auto-refresh" data-automation-refresh data-od-en="↻ Refresh" data-od-es="↻ Actualizar">↻ Refresh</button></header>
+    <div class="od-auto-tabs" role="tablist" aria-label="Automation categories" data-automation-tabs>
+      <button type="button" role="tab" aria-selected="true" tabindex="0" data-automation-tab="leads" data-english="Leads" data-spanish="Prospectos">Leads</button>
+      <button type="button" role="tab" aria-selected="false" tabindex="-1" data-automation-tab="estimates" data-english="Estimates" data-spanish="Cotizaciones">Estimates</button>
+      <button type="button" role="tab" aria-selected="false" tabindex="-1" data-automation-tab="jobs" data-english="Jobs" data-spanish="Trabajos">Jobs</button>
+    </div>
+    <div data-automation-panel="leads" role="tabpanel">
+      <div class="od-auto-info"><strong><span id="ownerAutomationCount">—</span> <span data-od-en="scheduled prospect stages" data-od-es="etapas programadas de prospectos">scheduled prospect stages</span></strong><span id="ownerAutomationMode">Checking workflow…</span></div>
+      <div id="ownerAutomationLeads" class="od-auto-list"><p class="od-auto-empty" data-od-en="Loading follow-ups…" data-od-es="Cargando seguimientos…">Loading follow-ups…</p></div>
+    </div>
+    <div data-automation-panel="estimates" role="tabpanel" hidden>
+      <div class="od-auto-other"><h4 data-od-en="Estimate review" data-od-es="Revisión de cotizaciones">Estimate review</h4>
+        <p data-od-en="Your private sales workspace is separate from customer Cleaning App quotes. Review Booking projects in the owner workflow; no customer estimates are copied here and no extra emails are activated." data-od-es="Tus ventas privadas están separadas de las cotizaciones de las Cleaning Apps de tus clientes. Revisa los proyectos de Booking aquí; no copiamos cotizaciones de clientes ni activamos correos adicionales.">Your private sales workspace is separate from customer Cleaning App quotes. Review Booking projects in the owner workflow; no customer estimates are copied here and no extra emails are activated.</p>
+        <a href="./booking-studio.html" data-od-en="Open Booking Studio →" data-od-es="Abrir Booking Studio →">Open Booking Studio →</a>
+      </div>
+    </div>
+    <div data-automation-panel="jobs" role="tabpanel" hidden>
+      <div class="od-auto-other"><h4 data-od-en="Client order follow-through" data-od-es="Seguimiento de pedidos">Client order follow-through</h4>
+        <p data-od-en="Monitor your client orders, intake and delivery in the existing private workflow. Customer cleaning jobs stay within each customer's separate app." data-od-es="Revisa pedidos, formularios y entregas desde tu flujo privado actual. Los trabajos de limpieza de cada cliente permanecen en su propia App.">Monitor your client orders, intake and delivery in the existing private workflow. Customer cleaning jobs stay within each customer's separate app.</p>
+        <button type="button" class="nav-link" data-target="owner-pages" data-od-en="Open client orders →" data-od-es="Abrir pedidos →">Open client orders →</button>
+      </div>
+    </div>
+    <p id="ownerAutomationStatus" class="od-auto-status" role="status" aria-live="polite"></p>
   </section>
   <div class="od-bottom-grid">
     <section class="od-card" aria-labelledby="odToolsHeading"><div class="od-card-head"><span class="od-card-icon" aria-hidden="true">✦</span><h3 id="odToolsHeading" data-od-en="Your work tools" data-od-es="Tus herramientas">Your work tools</h3></div>
