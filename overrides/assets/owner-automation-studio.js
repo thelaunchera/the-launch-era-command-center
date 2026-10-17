@@ -75,7 +75,7 @@
    }else timeline.append(el("span","od-auto-chip",tr("No scheduled steps","Sin etapas programadas")));
    const actions=el("div","od-auto-actions");
    const switchWrap=el("label","od-auto-switch");
-   const sw=el("input");sw.type="checkbox";sw.checked=!!lead.email_followup_enabled;sw.dataset.leadAutomation=lead.id;sw.disabled=!active||(!sw.checked&&!eligible(lead));sw.setAttribute("aria-label",tr("Automatic follow-ups for ","Seguimiento automático para ")+(lead.business||""));
+   const sw=el("input");sw.type="checkbox";sw.checked=!!lead.email_followup_enabled;sw.dataset.leadAutomation=lead.id;sw.disabled=(!active&&!sw.checked)||(!sw.checked&&!eligible(lead));sw.setAttribute("aria-label",tr("Automatic follow-ups for ","Seguimiento automático para ")+(lead.business||""));
    switchWrap.append(sw,el("span","",tr("Auto follow-up","Seguimiento automático")));actions.append(switchWrap);
    const open=el("button","od-auto-open",tr("Open lead →","Abrir lead →"));open.type="button";open.addEventListener("click",()=>{
     if(!onlyOwner())return;
@@ -142,7 +142,7 @@
   finally{input.disabled=false;}
  });
  root.querySelector("[data-automation-refresh]")?.addEventListener("click",()=>void refresh());
- root.querySelector("[data-automation-shortcut]")?.addEventListener("click",()=>{root.scrollIntoView({behavior:"smooth",block:"start"});void refresh();});
+ document.querySelector("[data-automation-shortcut]")?.addEventListener("click",()=>{root.scrollIntoView({behavior:"smooth",block:"start"});void refresh();});
  document.addEventListener("tle-crm-language",()=>{const key=state.tab;for(const btn of tabs.querySelectorAll("[data-automation-tab]"))btn.textContent=tr(btn.dataset.english,btn.dataset.spanish);selectTab(key);draw();});
  window.addEventListener("tle-crm-ready",()=>void refresh());
  window.addEventListener("pageshow",()=>{if(onlyOwner())void refresh();});
