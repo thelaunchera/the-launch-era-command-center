@@ -8,6 +8,7 @@ on:
       - "overrides/assets/owner-automation-studio.css"
       - "scripts/build-command-center.mjs"
       - "scripts/qa-owner-automation-studio.mjs"
+      - "scripts/qa-owner-automation-mobile-browser.mjs"
       - ".github/workflows/owner-automation-studio-pr-qa.yml"
 permissions:
   contents: read
@@ -28,3 +29,15 @@ jobs:
       - run: node scripts/build-command-center.mjs
       - run: node scripts/qa-owner-automation-studio.mjs
       - run: node scripts/qa-command-center.mjs
+      - name: Check iPhone, tablet, desktop layout with the actual portal CSS
+        run: |
+          npm install --no-save --package-lock=false playwright@1.58.2
+          npx playwright install --with-deps chromium
+          node scripts/qa-owner-automation-mobile-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: owner-automation-mobile-qa
+          path: test-results/automation-mobile/
+          if-no-files-found: ignore
+          retention-days: 7
