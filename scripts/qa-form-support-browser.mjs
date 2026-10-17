@@ -132,7 +132,7 @@ try{
  await ticket.locator("[data-priority='High']").click();
  await ticket.locator("#send").click();
  await ticket.waitForFunction(()=>document.getElementById("openCount").textContent==="2");
- assert.match(await ticket.locator("#toast").innerText(),/Ticket received/);
+ assert.match(await ticket.locator("#toast").innerText(),/Ticket (received|saved)/,"A saved ticket counts as success even when Jessy falls back to human support");
  assert.match(await ticket.locator("#list").innerText(),/Booking calendar issue/);
  assert.equal(await ticket.evaluate(()=>window.__tickets[0].page_context),"Booking & calendar · High");
  await ticket.setViewportSize({width:390,height:844});
