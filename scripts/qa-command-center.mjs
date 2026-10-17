@@ -48,6 +48,15 @@ assert.ok(publishedIntake.includes("tle-published-intake")&&publishedIntake.incl
 
 const read=f=>readFileSync(join(root,f),"utf8");
 const index=read("index.html"),recover=read("auth-recovery.html"),ai=read("ai-team.html");
+// Regression: Jessie must initialize exactly once. A second guard after
+// setting the installed flag silently stopped the owner assistant entirely.
+const ownerJessie=read("assets/jessy-owner.js");
+assert.equal((ownerJessie.match(/if\(window\.__tleOwnerJessyInstalled\)return;/g)||[]).length,1,"Jessie must have one installation guard");
+assert.equal((ownerJessie.match(/window\.__tleOwnerJessyInstalled=true;/g)||[]).length,1,"Jessie must set the installed flag once");
+assert.ok(ownerJessie.includes('function build()')&&ownerJessie.includes('document.body.append(root)')&&ownerJessie.includes('window.addEventListener("tle-crm-ready",sync)'),"Owner Jessie must mount and listen for owner readiness");
+assert.ok(index.includes('jessy-owner.js?v='),"Owner Jessie loader missing from Command Center index");
+new Script(ownerJessie,{filename:"jessy-owner.js"});
+
 const vault=read("idea-vault.html"),vaultJs=read("assets/idea-vault.js"),vaultCss=read("assets/idea-vault.css");
 assert.ok(index.includes('id="ownerIdeasNav"')&&index.includes('./idea-vault.html'),"Idea Vault must be linked only from private owner navigation");
 assert.ok(index.includes('data-od-en="Idea Vault"'),"Idea Vault dashboard card missing");
