@@ -137,7 +137,7 @@ await rewrite("index.html",s=>{
   .replace(markers[0],'<div class="nav-caption" id="ownerOrdersCaption">THE LAUNCH ERA · PRIVATE</div>\n<button type="button" class="nav-link" id="ownerOverviewNav" data-target="home">⌂ <span>Dashboard</span></button>')
   .replace(markers[1],'<details class="workspace-nav-group" id="ownerWorkToolsGroup"><summary>Work tools</summary><div class="workspace-nav-items"><a class="nav-link" href="./booking-studio.html">◈ <span>Booking Studio</span></a><a class="nav-link" href="./ai-team.html">✦ <span>AI Team</span></a></div></details>\n'+markers[1])
   .replace(markers[2],markers[2]+ownerDashboardMarkup)
-  .replace('</head>','<link rel="stylesheet" href="./assets/owner-dashboard.css?v=20261014-owner-leads-v2"><link rel="stylesheet" href="./assets/owner-automation-studio.css?v=20261017-owner-auto-v1"></head>')
+  .replace('</head>','<link rel="stylesheet" href="./assets/owner-dashboard.css?v=20261014-owner-leads-v2"><link rel="stylesheet" href="./assets/owner-automation-studio.css?v=20261017-owner-mobile-v2"></head>')
   .replace('</body>','<script src="./assets/owner-dashboard.js?v=20261014-owner-leads-v2" defer></script><script src="./assets/owner-automation-studio.js?v=20261017-owner-auto-v1" defer></script></body>');
 });
 await rewrite("assets/command-center-app.js",s=>{
