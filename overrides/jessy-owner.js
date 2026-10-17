@@ -80,8 +80,6 @@ function attachTleChatMotion(chatLog){
 
 if(window.__tleOwnerJessyInstalled)return;
 window.__tleOwnerJessyInstalled=true;
-if(window.__tleOwnerJessyInstalled)return;
-window.__tleOwnerJessyInstalled=true;
 const ASSET="/assets/jessie-avatar.webp?v=20261015",CSS="./assets/jessy-owner.css?v=20261014-compact-alert-v1";
 let root=null,log=null,form=null,input=null,send=null,quick=null,open=false,waiting=false,language="en",history=[],previousFocus=null;
 let notificationTimer=0;
