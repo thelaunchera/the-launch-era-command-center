@@ -1,0 +1,30 @@
+name: Private Automations Studio PR QA
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "overrides/owner-dashboard.html"
+      - "overrides/assets/owner-automation-studio.js"
+      - "overrides/assets/owner-automation-studio.css"
+      - "scripts/build-command-center.mjs"
+      - "scripts/qa-owner-automation-studio.mjs"
+      - ".github/workflows/owner-automation-studio-pr-qa.yml"
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: thelaunchera/the-launch-era-new-website-
+          ref: 44b5edc6e32ee850be1f5e6fca441dd17e0a4d4c
+          path: upstream
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node scripts/build-command-center.mjs
+      - run: node scripts/qa-owner-automation-studio.mjs
+      - run: node scripts/qa-command-center.mjs
