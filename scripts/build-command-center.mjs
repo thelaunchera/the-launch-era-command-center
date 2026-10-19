@@ -351,7 +351,7 @@ await rewrite("ai-team.html",s=>{
  const script='<script type="module" src="./assets/ai-team.js';
  if(!s.includes(script)||!s.includes("</head>"))throw Error("Updated AI Team screen no longer supports private owner overlay");
  return s.replace("</head>",'<link rel="stylesheet" href="./assets/ai-team-easy-check.css?v=20261019-isolated-v1"></head>')
-  .replace(script,'<script src="./assets/ai-team-easy-check.js?v=20261019-isolated-v1"></script>\\n'+script);
+  .replace(script,'<script src="./assets/ai-team-easy-check.js?v=20261019-isolated-v1"></script>\n'+script);
 });
 
 await writeFile(join(dest,"deployment-source.json"),JSON.stringify({sourceRepository:"thelaunchera/the-launch-era-new-website-",sourceCommit:sourceId,aiTeamSourceCommit:AI_SOURCE_COMMIT,host:DOMAIN,agentFeatures:"entitlement-gated; no automatic buyer agents",marketingHost:"thelaunchera.com"},null,2)+"\n","utf8");
