@@ -334,5 +334,45 @@ await rewrite("assets/command-center-app.js",s=>{
  return s;
 });
 
-await writeFile(join(dest,"deployment-source.json"),JSON.stringify({sourceRepository:"thelaunchera/the-launch-era-new-website-",sourceCommit:sourceId,host:DOMAIN,agentFeatures:"entitlement-gated; no automatic buyer agents",marketingHost:"thelaunchera.com"},null,2)+"\n","utf8");
+// Isolated owner AI Team upgrade ONLY: preserve the known-good, pinned private portal.
+// Copy the three reviewed static files from a separately pinned, approved site commit.
+// Existing owner dashboard, customer routes, domains and CRM adapters remain untouched.
+const AI_SOURCE_COMMIT="827d044f0c23e8bb85b3d7b2e5cbf133752b9128";
+const aiRoot=resolve("ai-upstream/public/command-center");
+for(const [relative,target] of [
+ ["ai-team.html","ai-team.html"],
+ ["assets/ai-team.js","assets/ai-team.js"],
+ ["assets/ai-team.css","assets/ai-team.css"]
+]){
+ if(!(await exists(join(aiRoot,relative))))throw Error("Approved AI Team file missing: "+relative);
+ await copyFile(join(aiRoot,relative),join(dest,target));
+}
+// Preserve the dedicated portal's proven phone/tablet inline review behavior
+// on top of the newly approved AI Team collaboration interface.
+await rewrite("assets/ai-team.js",source=>{
+ const changes=[
+  ['const card=el("article","ait-agent"+(i===0?" lead":""));','const card=el("article","ait-agent"+(i===0?" lead":""));card.dataset.agentKey=a.key;'],
+  ['const go=el("button","",tx("create")+" →");','const go=el("button","",window.innerWidth<=600?(language==="es"?"+ Tarea":"+ Task"):tx("create")+" →");'],
+  ['const run=el("button","ait-run-btn",tx("run")+" ↗");','const run=el("button","ait-run-btn",window.innerWidth<=600?(language==="es"?"Revisar ↗":"Check ↗"):tx("run")+" ↗");'],
+  ['document.getElementById("runs-section")?.scrollIntoView({behavior:"smooth",block:"start"});','window.TLEAITeamEasyCheck?.showAgentReport(agentKey,(runs||[]).find(item=>item.agent_key===agentKey),language);'],
+  ['document.getElementById("team-overview")?.scrollIntoView({behavior:"smooth",block:"start"})','window.TLEAITeamEasyCheck?.showTeamScan(scan,language)']
+ ];
+ for(const [before,after] of changes){
+  if(!source.includes(before))throw Error("Approved AI Team inline view incompatible: "+before.slice(0,80));
+  source=source.replace(before,after);
+ }
+ return source;
+});
+await rewrite("ai-team.html",source=>source.replace(
+ '<a class="ait-back" href="./">← Command Center</a>',
+ '<a class="ait-back" href="./booking-studio.html">Booking Studio</a><a class="ait-back" href="./">← Command Center</a>'
+));
+await rewrite("ai-team.html",s=>{
+ const script='<script type="module" src="./assets/ai-team.js';
+ if(!s.includes(script)||!s.includes("</head>"))throw Error("Updated AI Team screen no longer supports private owner overlay");
+ return s.replace("</head>",'<link rel="stylesheet" href="./assets/ai-team-easy-check.css?v=20261019-isolated-v1"></head>')
+  .replace(script,'<script src="./assets/ai-team-easy-check.js?v=20261019-isolated-v1"></script>\n'+script);
+});
+
+await writeFile(join(dest,"deployment-source.json"),JSON.stringify({sourceRepository:"thelaunchera/the-launch-era-new-website-",sourceCommit:sourceId,aiTeamSourceCommit:AI_SOURCE_COMMIT,host:DOMAIN,agentFeatures:"entitlement-gated; no automatic buyer agents",marketingHost:"thelaunchera.com"},null,2)+"\n","utf8");
 console.log("Prepared isolated private Command Center from pinned SHA "+sourceId);
