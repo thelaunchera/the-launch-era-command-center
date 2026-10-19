@@ -2,7 +2,7 @@ import { cp, copyFile, mkdir, readFile, writeFile, rm, stat } from "node:fs/prom
 import { join, resolve, dirname } from "node:path";
 
 const from=resolve("upstream/public"), dest=resolve(".site");
-const sourceId="44b5edc6e32ee850be1f5e6fca441dd17e0a4d4c";
+const sourceId="827d044f0c23e8bb85b3d7b2e5cbf133752b9128";
 const DOMAIN="command.thelaunchera.com";
 async function exists(p){try{await stat(p);return true}catch{return false}}
 async function copy(relative, target=relative){
