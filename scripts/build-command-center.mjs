@@ -2,7 +2,7 @@ import { cp, copyFile, mkdir, readFile, writeFile, rm, stat } from "node:fs/prom
 import { join, resolve, dirname } from "node:path";
 
 const from=resolve("upstream/public"), dest=resolve(".site");
-const sourceId="827d044f0c23e8bb85b3d7b2e5cbf133752b9128";
+const sourceId="44b5edc6e32ee850be1f5e6fca441dd17e0a4d4c";
 const DOMAIN="command.thelaunchera.com";
 async function exists(p){try{await stat(p);return true}catch{return false}}
 async function copy(relative, target=relative){
@@ -334,5 +334,25 @@ await rewrite("assets/command-center-app.js",s=>{
  return s;
 });
 
-await writeFile(join(dest,"deployment-source.json"),JSON.stringify({sourceRepository:"thelaunchera/the-launch-era-new-website-",sourceCommit:sourceId,host:DOMAIN,agentFeatures:"entitlement-gated; no automatic buyer agents",marketingHost:"thelaunchera.com"},null,2)+"\n","utf8");
+// Isolated owner AI Team upgrade ONLY: preserve the known-good, pinned private portal.
+// Copy the three reviewed static files from a separately pinned, approved site commit.
+// Existing owner dashboard, customer routes, domains and CRM adapters remain untouched.
+const AI_SOURCE_COMMIT="827d044f0c23e8bb85b3d7b2e5cbf133752b9128";
+const aiRoot=resolve("ai-upstream/public/command-center");
+for(const [relative,target] of [
+ ["ai-team.html","ai-team.html"],
+ ["assets/ai-team.js","assets/ai-team.js"],
+ ["assets/ai-team.css","assets/ai-team.css"]
+]){
+ if(!(await exists(join(aiRoot,relative))))throw Error("Approved AI Team file missing: "+relative);
+ await copyFile(join(aiRoot,relative),join(dest,target));
+}
+await rewrite("ai-team.html",s=>{
+ const script='<script type="module" src="./assets/ai-team.js';
+ if(!s.includes(script)||!s.includes("</head>"))throw Error("Updated AI Team screen no longer supports private owner overlay");
+ return s.replace("</head>",'<link rel="stylesheet" href="./assets/ai-team-easy-check.css?v=20261019-isolated-v1"></head>')
+  .replace(script,'<script src="./assets/ai-team-easy-check.js?v=20261019-isolated-v1"></script>\\n'+script);
+});
+
+await writeFile(join(dest,"deployment-source.json"),JSON.stringify({sourceRepository:"thelaunchera/the-launch-era-new-website-",sourceCommit:sourceId,aiTeamSourceCommit:AI_SOURCE_COMMIT,host:DOMAIN,agentFeatures:"entitlement-gated; no automatic buyer agents",marketingHost:"thelaunchera.com"},null,2)+"\n","utf8");
 console.log("Prepared isolated private Command Center from pinned SHA "+sourceId);
