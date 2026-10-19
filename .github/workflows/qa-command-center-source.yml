@@ -1,0 +1,34 @@
+name: Validate Command Center source upgrade
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/deploy-command-center.yml'
+      - '.github/workflows/qa-command-center-source.yml'
+      - 'scripts/build-command-center.mjs'
+      - 'scripts/qa-command-center.mjs'
+      - 'README.md'
+permissions:
+  contents: read
+jobs:
+  isolated-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: thelaunchera/the-launch-era-new-website-
+          ref: 827d044f0c23e8bb85b3d7b2e5cbf133752b9128
+          path: upstream
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Generate standalone portal preview only
+        run: node scripts/build-command-center.mjs
+      - name: Check no auth, tenant or route regressions
+        run: |
+          node scripts/qa-command-center.mjs
+          node scripts/qa-booking-calendar-motion.mjs
+      - name: Do not publish from a pull request
+        run: test -s .site/deployment-source.json
