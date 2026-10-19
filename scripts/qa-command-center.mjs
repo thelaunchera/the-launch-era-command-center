@@ -189,6 +189,6 @@ assert.ok(read("assets/command-center-app.js").includes("navigator.serviceWorker
 const manifest=JSON.parse(read("manifest-tle.webmanifest"));
 assert.ok(manifest.start_url.startsWith("./"),"PWA must stay on command hostname");
 const info=JSON.parse(read("deployment-source.json"));
-assert.equal(info.sourceCommit,"44b5edc6e32ee850be1f5e6fca441dd17e0a4d4c");
+assert.equal(info.sourceCommit,"827d044f0c23e8bb85b3d7b2e5cbf133752b9128");
 console.log("PASS: isolated private login, recovery, owner AI routes, CB Depot brand assets, local icons, custom domain; no external actions triggered.");
 console.log("NOT VERIFIED: live buyer login / RLS / multi-tenant access / Supabase redirect allowlist / 12h policy. Require authenticated QA before customer migration.");
