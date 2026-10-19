@@ -6,7 +6,7 @@ This repository **only** deploys the existing The Launch Era Command Center brow
 
 ## Source and deployment
 
-The workflow `.github/workflows/deploy-command-center.yml` pulls **pinned** public source commit `44b5edc6e32ee850be1f5e6fca441dd17e0a4d4c` of `thelaunchera/the-launch-era-new-website-`, copies its `public/command-center/` static application to the *root* of the dedicated Pages artifact, includes required brand and CB Depot public assets, rewrites only domain-specific sign-in/recovery/notification paths, and publishes to GitHub Pages.
+The workflow `.github/workflows/deploy-command-center.yml` pulls **pinned** public source commit `827d044f0c23e8bb85b3d7b2e5cbf133752b9128` of `thelaunchera/the-launch-era-new-website-`, copies its `public/command-center/` static application to the *root* of the dedicated Pages artifact, includes required brand and CB Depot public assets, rewrites only domain-specific sign-in/recovery/notification paths, and publishes to GitHub Pages.
 
 The generated artifact includes `CNAME` for `command.thelaunchera.com` and `deployment-source.json`. Existing website Pages `CNAME=thelaunchera.com` stays untouched.
 
