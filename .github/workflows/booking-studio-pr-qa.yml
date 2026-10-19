@@ -23,6 +23,13 @@ jobs:
           ref: 40efa83acf5c4f28f0df2aef5cd3c8d88c7de651
           path: upstream
           persist-credentials: false
+      - name: Checkout approved AI Team overlay
+        uses: actions/checkout@v4
+        with:
+          repository: thelaunchera/the-launch-era-new-website-
+          ref: 827d044f0c23e8bb85b3d7b2e5cbf133752b9128
+          path: ai-upstream
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
