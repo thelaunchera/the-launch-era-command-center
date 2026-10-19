@@ -347,6 +347,26 @@ for(const [relative,target] of [
  if(!(await exists(join(aiRoot,relative))))throw Error("Approved AI Team file missing: "+relative);
  await copyFile(join(aiRoot,relative),join(dest,target));
 }
+// Preserve the dedicated portal's proven phone/tablet inline review behavior
+// on top of the newly approved AI Team collaboration interface.
+await rewrite("assets/ai-team.js",source=>{
+ const changes=[
+  ['const card=el("article","ait-agent"+(i===0?" lead":""));','const card=el("article","ait-agent"+(i===0?" lead":""));card.dataset.agentKey=a.key;'],
+  ['const go=el("button","",tx("create")+" →");','const go=el("button","",window.innerWidth<=600?(language==="es"?"+ Tarea":"+ Task"):tx("create")+" →");'],
+  ['const run=el("button","ait-run-btn",tx("run")+" ↗");','const run=el("button","ait-run-btn",window.innerWidth<=600?(language==="es"?"Revisar ↗":"Check ↗"):tx("run")+" ↗");'],
+  ['document.getElementById("runs-section")?.scrollIntoView({behavior:"smooth",block:"start"});','window.TLEAITeamEasyCheck?.showAgentReport(agentKey,(runs||[]).find(item=>item.agent_key===agentKey),language);'],
+  ['document.getElementById("team-overview")?.scrollIntoView({behavior:"smooth",block:"start"})','window.TLEAITeamEasyCheck?.showTeamScan(scan,language)']
+ ];
+ for(const [before,after] of changes){
+  if(!source.includes(before))throw Error("Approved AI Team inline view incompatible: "+before.slice(0,80));
+  source=source.replace(before,after);
+ }
+ return source;
+});
+await rewrite("ai-team.html",source=>source.replace(
+ '<a class="ait-back" href="./">← Command Center</a>',
+ '<a class="ait-back" href="./booking-studio.html">Booking Studio</a><a class="ait-back" href="./">← Command Center</a>'
+));
 await rewrite("ai-team.html",s=>{
  const script='<script type="module" src="./assets/ai-team.js';
  if(!s.includes(script)||!s.includes("</head>"))throw Error("Updated AI Team screen no longer supports private owner overlay");
