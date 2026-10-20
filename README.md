@@ -26,3 +26,9 @@ Publishing this public static shell is **not** authorization to invite customers
 5. Deploy private-buyer routing updates only after their own reviewed PR acceptance. Buyer AI agents are **optional paid modules** provisioned later, independent of TLE's owner-only seven agents.
 
 This repository contains only public browser static assets; never commit Supabase service-role keys, private client records, credentials or other secrets.
+
+## Owner sales tools — 2026-10-20
+
+The dedicated portal copies only eight sales-tools files from separately pinned website commit `fa22728e9ed734178830485d4120217a27681c9d`. The original portal and AI Team source SHAs are preserved. The existing owner header gets one Sales tools shortcut, and AI Team links to the same owner-verified page. Backend permissions are enforced by the new `tle-owner-growth` function; no buyer UI, booking, email or payment flow is replaced.
+
+`node scripts/build-sales-tools.mjs` runs after the existing build and updates `deployment-source.json` with `salesToolsSourceCommit`. `qa-sales-tools-overlay.mjs` checks exact file hashes and unchanged base SHAs. The PR workflow exercises the built portal in Chromium/WebKit with synthetic EN/ES records; no real client submissions. See website `docs/owner-growth/README.md` for bounded research, monitoring, document-kit scope and rollback.
