@@ -42,8 +42,19 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Checkout reviewed owner sales tools only
+        uses: actions/checkout@v4
+        with:
+          repository: thelaunchera/the-launch-era-new-website-
+          ref: b6d1284d578fba3e1b78eb9136a3d7f0de95fb02
+          path: growth-upstream
+          persist-credentials: false
+
       - name: Prepare isolated Pages artifact
-        run: node scripts/build-command-center.mjs
+        run: |
+          node scripts/build-command-center.mjs
+          node scripts/build-sales-tools.mjs
+          node scripts/qa-sales-tools-overlay.mjs
 
       - name: Verify private routes, assets and separate domain
         run: node scripts/qa-command-center.mjs
