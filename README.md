@@ -29,7 +29,7 @@ This repository contains only public browser static assets; never commit Supabas
 
 ## Owner sales tools — 2026-10-20
 
-The dedicated portal copies only eight sales-tools files from separately pinned website commit `2383596f0a70761b53f43fc606c6163439c53c10`. The original portal and AI Team source SHAs are preserved. The existing owner header gets one Sales tools shortcut, and AI Team links to the same owner-verified page. Backend permissions are enforced by the new `tle-owner-growth` function; no buyer UI, booking, email or payment flow is replaced.
+The dedicated portal copies only eight sales-tools files from separately pinned website commit `e803ceccad23bd501c557d46e630187e829f4a46`. The original portal and AI Team source SHAs are preserved. The existing owner header gets one Sales tools shortcut, and AI Team links to the same owner-verified page. Backend permissions are enforced by the new `tle-owner-growth` function; no buyer UI, booking, email or payment flow is replaced.
 
 `node scripts/build-sales-tools.mjs` runs after the existing build and updates `deployment-source.json` with `salesToolsSourceCommit`. `qa-sales-tools-overlay.mjs` checks exact file hashes and unchanged base SHAs. The PR workflow exercises the built portal in Chromium/WebKit with synthetic EN/ES records; no real client submissions. See website `docs/owner-growth/README.md` for bounded research, monitoring, document-kit scope and rollback.
 

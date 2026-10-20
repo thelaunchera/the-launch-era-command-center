@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: thelaunchera/the-launch-era-new-website-
-          ref: 2383596f0a70761b53f43fc606c6163439c53c10
+          ref: e803ceccad23bd501c557d46e630187e829f4a46
           path: growth-upstream
           persist-credentials: false
       - uses: actions/setup-node@v4
