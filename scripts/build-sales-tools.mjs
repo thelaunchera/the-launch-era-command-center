@@ -1,7 +1,7 @@
 import {copyFile,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {resolve,join,dirname} from 'node:path';
 const root=resolve('growth-upstream/public/command-center'),dest=resolve('.site');
-export const GROWTH_SOURCE_COMMIT='869e7bae1465b2185ddae32cea9705c584af2203';
+export const GROWTH_SOURCE_COMMIT='2383596f0a70761b53f43fc606c6163439c53c10';
 for(const file of ['sales-tools.html','assets/sales-tools.js','assets/sales-tools.css','assets/sales-tools-entry.js','assets/demo-concept.mjs',
  'downloads/tle-local-tools.zip','vendor/pptxgenjs-4.0.1.bundle.js','vendor/pptxgenjs-4.0.1.LICENSE']){
  await mkdir(dirname(join(dest,file)),{recursive:true});await copyFile(join(root,file),join(dest,file));
