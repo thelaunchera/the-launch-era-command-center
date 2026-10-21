@@ -29,8 +29,12 @@ This repository contains only public browser static assets; never commit Supabas
 
 ## Owner sales tools — 2026-10-20
 
-The dedicated portal copies only eight sales-tools files from separately pinned website commit `e803ceccad23bd501c557d46e630187e829f4a46`. The original portal and AI Team source SHAs are preserved. The existing owner header gets one Sales tools shortcut, and AI Team links to the same owner-verified page. Backend permissions are enforced by the new `tle-owner-growth` function; no buyer UI, booking, email or payment flow is replaced.
+The dedicated portal copies only eight sales-tools files from separately pinned website commit `7f5584ae5187b294c448a4bfff368bd735765492`. The original portal and AI Team source SHAs are preserved. The existing owner header keeps its Sales tools shortcut, the authenticated Owner sidebar gets a visible Sales tools entry that routes to the Clara section, and AI Team links to the same owner-verified page. Backend permissions are enforced by the new `tle-owner-growth` function; no buyer UI, booking, email or payment flow is replaced.
 
 `node scripts/build-sales-tools.mjs` runs after the existing build and updates `deployment-source.json` with `salesToolsSourceCommit`. `qa-sales-tools-overlay.mjs` checks exact file hashes and unchanged base SHAs. The PR workflow exercises the built portal in Chromium/WebKit with synthetic EN/ES records; no real client submissions. See website `docs/owner-growth/README.md` for bounded research, monitoring, document-kit scope and rollback.
 
 Clara update: Sales tools now opens the original server-protected Clara preview full-screen through the existing owner_preview action. No raw template is bundled or downloaded; no prospect renaming or public publication. The updated responsive suite covers auth, retry, close, late-response clearing, EN/ES and isolated Sonny relay.
+
+
+### Owner sidebar entry — 2026-10-21
+The dedicated portal copies reviewed source `7f5584ae5187b294c448a4bfff368bd735765492`. Verified owners see **Sales tools** immediately before **More tools**; it links to `sales-tools.html#demos`. The protected Clara preview still opens only from its explicit button. Buyer navigation and the pinned base portal/AI Team sources are preserved.
