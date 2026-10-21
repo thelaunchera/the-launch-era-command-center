@@ -6,7 +6,7 @@ permissions:
   contents: read
 jobs:
   pinned-overlay:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: thelaunchera/the-launch-era-new-website-
-          ref: e803ceccad23bd501c557d46e630187e829f4a46
+          ref: 7f5584ae5187b294c448a4bfff368bd735765492
           path: growth-upstream
           persist-credentials: false
       - uses: actions/setup-node@v4
