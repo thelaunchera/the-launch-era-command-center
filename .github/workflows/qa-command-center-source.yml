@@ -11,7 +11,7 @@ permissions:
   contents: read
 jobs:
   isolated-preview:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
@@ -32,6 +32,8 @@ jobs:
           node-version: "22"
       - name: Generate standalone portal preview only
         run: node scripts/build-command-center.mjs
+      - name: Install legal footer for preview
+        run: node scripts/apply-legal-footers.mjs
       - name: Check no auth, tenant or route regressions
         run: |
           node scripts/qa-command-center.mjs
