@@ -11,7 +11,7 @@ const required=[
 "auth-recovery.html","auth-recovery/index.html","manifest-tle.webmanifest",
 "manifest-cb-depot.webmanifest","assets/clients/cb-depot/approved-favicon-192.png",
 "assets/brand/tle-mark.svg","assets/brand/tle-wordmark.svg",
-"favicon.png","assets/jessy-avatar.webp","sw.js","CNAME","404.html","robots.txt","deployment-source.json"
+"favicon.png","assets/jessy-avatar.webp","sw.js","CNAME","404.html","robots.txt","deployment-source.json","assets/tle-command-legal-footer.js"
 ];
 for(const file of required){
  const p=join(root,file);
@@ -188,6 +188,13 @@ assert.ok(read("assets/command-center-notification-settings.js").includes('getRe
 assert.ok(read("assets/command-center-app.js").includes("navigator.serviceWorker.register('/sw.js',{scope:'/'})"),"App still registers old service worker scope");
 const manifest=JSON.parse(read("manifest-tle.webmanifest"));
 assert.ok(manifest.start_url.startsWith("./"),"PWA must stay on command hostname");
+for(const p of ['index.html','access.html','ai-team.html','sales-tools.html','booking-studio.html']){
+ const html=read(p);
+ assert.ok(html.includes('/assets/tle-command-legal-footer.js'),p+' missing legal overlay');
+}
+const legalJS=read('assets/tle-command-legal-footer.js');
+for(const route of ['/privacy.html','/terms.html','/refunds.html','/cookies.html','/privacy-choices.html'])
+ assert.ok(legalJS.includes(route),'Missing corporate policy link '+route);
 const info=JSON.parse(read("deployment-source.json"));
 assert.equal(info.sourceCommit,"44b5edc6e32ee850be1f5e6fca441dd17e0a4d4c");
 assert.equal(info.aiTeamSourceCommit,"827d044f0c23e8bb85b3d7b2e5cbf133752b9128","Dedicated portal must import only the approved owner AI Team v34 frontend");
