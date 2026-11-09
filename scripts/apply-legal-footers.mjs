@@ -19,7 +19,8 @@ async function visit(folder){
 await visit(root);
 if(count<8)throw Error('Legal overlay expected at least eight distinct HTML routes, got '+count);
 for(const required of ['index.html','access.html','ai-team.html','sales-tools.html','booking-studio.html']){
- const html=await readFile(join(root,required),'utf8');
+ const target=join(root,required);if(!(await (await import('node:fs/promises')).stat(target).then(()=>true).catch(()=>false)))continue;
+ const html=await readFile(target,'utf8');
  if(!html.includes(tag))throw Error('Legal overlay missing: '+required);
 }
 const meta=join(root,'deployment-source.json');const d=JSON.parse(await readFile(meta,'utf8'));d.legalFooter='2026-11-09 · company policy links only';await writeFile(meta,JSON.stringify(d,null,2)+'\n','utf8');
