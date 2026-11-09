@@ -54,6 +54,7 @@ jobs:
         run: |
           node scripts/build-command-center.mjs
           node scripts/build-sales-tools.mjs
+          node scripts/apply-legal-footers.mjs
           node scripts/qa-sales-tools-overlay.mjs
 
       - name: Verify private routes, assets and separate domain
