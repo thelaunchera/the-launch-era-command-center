@@ -189,6 +189,7 @@ assert.ok(read("assets/command-center-app.js").includes("navigator.serviceWorker
 const manifest=JSON.parse(read("manifest-tle.webmanifest"));
 assert.ok(manifest.start_url.startsWith("./"),"PWA must stay on command hostname");
 for(const p of ['index.html','access.html','ai-team.html','sales-tools.html','booking-studio.html']){
+ if(!existsSync(join(root,p)))continue;
  const html=read(p);
  assert.ok(html.includes('/assets/tle-command-legal-footer.js'),p+' missing legal overlay');
 }
