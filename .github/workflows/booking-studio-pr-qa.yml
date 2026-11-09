@@ -14,7 +14,7 @@ permissions:
   contents: read
 jobs:
   build-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -44,6 +44,8 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Build isolated portal without publishing
         run: node scripts/build-command-center.mjs
+      - name: Install legal footer for preview
+        run: node scripts/apply-legal-footers.mjs
       - name: Verify private Automations Studio is bundled
         run: |
           node --check .site/assets/owner-automation-studio.js
