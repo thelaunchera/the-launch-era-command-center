@@ -56,6 +56,10 @@ jobs:
           node scripts/build-sales-tools.mjs
           node scripts/qa-sales-tools-overlay.mjs
           node scripts/apply-legal-footers.mjs
+          node scripts/apply-navigation-resume.mjs
+
+      - name: Verify two-hour workspace return rules
+        run: node scripts/qa-navigation-resume.mjs
 
       - name: Verify private routes, assets and separate domain
         run: node scripts/qa-command-center.mjs

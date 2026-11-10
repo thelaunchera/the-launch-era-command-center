@@ -1,0 +1,51 @@
+name: Command Center two-hour navigation QA
+on:
+  pull_request:
+    paths:
+      - 'scripts/apply-navigation-resume.mjs'
+      - 'scripts/qa-navigation-resume.mjs'
+      - '.github/workflows/navigation-resume-pr-qa.yml'
+      - '.github/workflows/deploy-command-center.yml'
+permissions:
+  contents: read
+jobs:
+  isolated-navigation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: thelaunchera/the-launch-era-new-website-
+          ref: 44b5edc6e32ee850be1f5e6fca441dd17e0a4d4c
+          path: upstream
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: thelaunchera/the-launch-era-new-website-
+          ref: 827d044f0c23e8bb85b3d7b2e5cbf133752b9128
+          path: ai-upstream
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: thelaunchera/the-launch-era-new-website-
+          ref: 7f5584ae5187b294c448a4bfff368bd735765492
+          path: growth-upstream
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Assemble pinned private portal and overlays
+        run: |
+          node scripts/build-command-center.mjs
+          node scripts/build-sales-tools.mjs
+          node scripts/qa-sales-tools-overlay.mjs
+          node scripts/apply-legal-footers.mjs
+          node scripts/apply-navigation-resume.mjs
+      - name: Verify authentication, tenant restrictions, back/close and two-hour recovery
+        run: |
+          node scripts/qa-navigation-resume.mjs
+          node scripts/qa-command-center.mjs
+          node scripts/qa-booking-calendar-motion.mjs
+      - name: Do not publish unverified private navigation from pull requests
+        run: test -s .site/deployment-source.json
