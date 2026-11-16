@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'scripts/qa-form-support-browser.mjs'
+      - 'scripts/qa-paid-intake-media-browser.mjs'
+      - 'overrides/published-intake.html'
       - '.github/workflows/owner-form-cloud-pr-qa.yml'
       - 'overrides/form-builder.html'
       - 'overrides/support-tickets.html'
@@ -43,10 +45,14 @@ jobs:
       - name: Verify private routes and tenant isolation
         run: node scripts/qa-command-center.mjs
       - name: Check browser script syntax
-        run: node --check scripts/qa-form-support-browser.mjs
+        run: |
+          node --check scripts/qa-form-support-browser.mjs
+          node --check scripts/qa-paid-intake-media-browser.mjs
       - name: Install isolated browser
         run: |
           npm install --no-save --package-lock=false playwright@1.58.2
           npx playwright install --with-deps chromium
       - name: Verify owner publish snapshots and buyer ticket isolation
-        run: node scripts/qa-form-support-browser.mjs
+        run: |
+          node scripts/qa-form-support-browser.mjs
+          node scripts/qa-paid-intake-media-browser.mjs
