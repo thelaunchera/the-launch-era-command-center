@@ -241,12 +241,41 @@ async function loadFormResponses(){
  const {data,error}=await db.from("tle_owner_form_responses").select("id,answers,submitted_at").eq("form_id",liveRecord.id).order("submitted_at",{ascending:false}).limit(50);
  if(error){responseList.textContent="Could not load submissions. Check owner access and retry.";return}
  if(!data?.length){responseList.textContent="No submissions yet.";return}
+ // Read-only owner media index. Supabase RLS limits assets to this internal workspace's form owner.
+ const mediaByResponse=new Map();
+ try{
+  const ids=data.map(row=>row.id);
+  const result=await db.from("tle_owner_form_assets").select("response_id,storage_path,original_filename,category,status").in("response_id",ids).eq("status","uploaded").limit(500);
+  if(!result.error){
+    for(const asset of result.data||[]){const arr=mediaByResponse.get(asset.response_id)||[];arr.push(asset);mediaByResponse.set(asset.response_id,arr)}
+  }
+ }catch{}
  for(const item of data){
   const card=node("article");card.style.cssText="border:1px solid #dae6ed;background:#f8fbfe;border-radius:13px;padding:13px";
   const top=node("strong",null,new Date(item.submitted_at).toLocaleString());card.append(top);
   const lookup=new Map((liveRecord.fields||fields).map(f=>[f.id,f.label]));
   for(const [key,value] of Object.entries(item.answers||{})){
    const p=node("p","sidenote",(lookup.get(key)||key)+": "+String(value));p.style.cssText="margin:6px 0;overflow-wrap:anywhere";card.append(p);
+  }
+  const assetList=mediaByResponse.get(item.id)||[];
+  if(assetList.length){
+    const title=node("strong",null,"Project photos & videos ("+assetList.length+")");title.style.cssText="display:block;margin:12px 0 6px";card.append(title);
+    for(const asset of assetList){
+      const button=node("button","outline",(asset.category==="videos"?"Video: ":"Photo: ")+asset.original_filename);
+      button.type="button";button.style.cssText="display:block;max-width:100%;margin:6px 0;padding:8px;text-align:left;overflow-wrap:anywhere";
+      button.onclick=async function(){
+        button.disabled=true;
+        const tab=window.open("about:blank","_blank");if(tab)tab.opener=null;
+        try{
+          const signed=await db.storage.from("tle-private-intake-media").createSignedUrl(asset.storage_path,300);
+          if(signed.error||!signed.data?.signedUrl)throw Error("File access denied");
+          if(tab)tab.location.href=signed.data.signedUrl;
+          else window.location.href=signed.data.signedUrl;
+        }catch{if(tab)tab.close();notice("Unable to open private file. Please retry.")}
+        finally{button.disabled=false}
+      };
+      card.append(button);
+    }
   }
   responseList.append(card);
  }
