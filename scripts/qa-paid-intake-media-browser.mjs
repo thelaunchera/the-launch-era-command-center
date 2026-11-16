@@ -39,6 +39,7 @@ async function verifyForm(formSlug,upload){
  assert.equal(calls.filter(x=>x.action==="submit").length,1,"One intake submission only");
  assert.equal(calls.filter(x=>x.action==="upload_init").length,upload?2:0,"Only paid forms initialize private uploads");
  assert.equal(calls.filter(x=>x.action==="upload_confirm").length,upload?2:0,"All uploaded media confirmed");
+ assert.equal(calls.filter(x=>x.action==="drive_sync").length,upload?1:0,"A single Drive sync request is sent for a paid intake with media");
  assert.equal(errors.length,0,"No page JS errors: "+errors.join(", "));
  await context.close();
 }
